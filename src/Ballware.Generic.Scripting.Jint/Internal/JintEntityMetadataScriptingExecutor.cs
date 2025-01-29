@@ -35,7 +35,7 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                     .SetValue("addProperty",
                         new Action<string, object>((prop, value) =>
                         {
-                            (item as IDictionary<string, object>).Add(prop, value);
+                            (item as IDictionary<string, object>)?.Add(prop, value);
                         }))
                     .Evaluate((tenant.ServerScriptDefinitions ?? "") + "\n" +
                                        entity.ListScript);
@@ -55,7 +55,7 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
             new Engine()
                 .SetValue("item", item)
                 .SetValue("identifier", identifier)
-                .SetValue("addProperty", new Action<string, object>((prop, value) => { (item as IDictionary<string, object>).Add(prop, value); }))
+                .SetValue("addProperty", new Action<string, object>((prop, value) => { (item as IDictionary<string, object>)?.Add(prop, value); }))
                 .SetJsonFunctions()
                 .SetClaimFunctions(claims)
                 .SetReadingEntityFunctions(tenant, db, MetaClient, TenantDataAdapter, claims)
@@ -175,7 +175,7 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                 .SetValue("addResultMessage", new Action<string>((msg) => { resultMessages.Add(msg); }))
                 .SetValue("querySingle",
                     new Func<string, dynamic, dynamic>((identifier, p) =>
-                        TenantDataAdapter.QuerySingle(db, tenant, claims, entity, identifier, p)))
+                        TenantDataAdapter.QuerySingle(db, tenant, entity, claims, identifier, p)))
                 .SetJsonFunctions()
                 .SetClaimFunctions(claims)
                 .SetReadingEntityFunctions(tenant, db, MetaClient, TenantDataAdapter, claims)

@@ -123,13 +123,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             .AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null)
             .AddNewtonsoftJson(opts => opts.SerializerSettings.ContractResolver = new DefaultContractResolver());
 
-        services.Configure<QuartzOptions>(Configuration.GetSection("Quartz"));
-        services.AddQuartz(q =>
+        Services.Configure<QuartzOptions>(Configuration.GetSection("Quartz"));
+        Services.AddQuartz(q =>
         {
             q.AddJob<GenericImportJob>(GenericImportJob.Key, configurator => configurator.StoreDurably());
         });
 
-        services.AddQuartzServer(options =>
+        Services.AddQuartzServer(options =>
         {
             options.WaitForJobsToComplete = true;
         });

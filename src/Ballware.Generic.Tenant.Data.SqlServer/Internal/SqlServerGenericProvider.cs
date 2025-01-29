@@ -144,7 +144,7 @@ public class SqlServerGenericProvider : ITenantGenericProvider
 
         if (query == null)
         {
-            return null;
+            return Array.Empty<T>();
         }
 
         var queryParams = new Dictionary<string, object>(p);
@@ -385,10 +385,12 @@ public class SqlServerGenericProvider : ITenantGenericProvider
                 break;
             case "json":
                 {
-                    using (var reader = new StreamReader(importStream))
-                    {
-                        var items = JsonConvert.DeserializeObject<IDictionary<string, object>[]>(await reader.ReadToEndAsync());
+                    using var reader = new StreamReader(importStream);
 
+                    var items = JsonConvert.DeserializeObject<IDictionary<string, object>[]>(await reader.ReadToEndAsync());
+
+                    if (items != null)
+                    {
                         foreach (var item in items)
                         {
                             if (await authorized(item))

@@ -19,7 +19,14 @@ class DefaultProviderConfiguration
         {
             if (StorageProviders.ContainsKey(providerName))
             {
-                return serviceProvider.GetService(GenericProviders[providerName]) as ITenantStorageProvider;
+                var serviceInstance = serviceProvider.GetService(GenericProviders[providerName]);
+
+                if (serviceInstance is not ITenantStorageProvider storageProvider)
+                {
+                    throw new InvalidOperationException($"Unable to resolve provider '{providerName}'.");
+                }
+
+                return storageProvider;
             }
         }
 
@@ -40,7 +47,14 @@ class DefaultProviderConfiguration
         {
             if (GenericProviders.ContainsKey(providerName))
             {
-                return serviceProvider.GetService(GenericProviders[providerName]) as ITenantGenericProvider;
+                var serviceInstance = serviceProvider.GetService(GenericProviders[providerName]);
+
+                if (serviceInstance is not ITenantGenericProvider genericProvider)
+                {
+                    throw new InvalidOperationException($"Unable to resolve provider '{providerName}'.");
+                }
+
+                return genericProvider;
             }
         }
 

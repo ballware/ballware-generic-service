@@ -33,22 +33,22 @@ namespace Ballware.Generic.Scripting.Jint.Internal
                 .SetValue("entityCount", new Func<string, string, string, dynamic, long>((application, entity, query, p) =>
                     {
                         p.tenantId = tenant.Id;
-                        return tenantDataAdapter.Count(db, tenant, claims, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), query, p);
+                        return tenantDataAdapter.Count(db, tenant, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), claims, query, p);
                     }))
                 .SetValue("entityQueryList", new Func<string, string, string, dynamic, object[]>((application, entity, query, p) =>
                     {
                         p.tenantId = tenant.Id;
-                        return tenantDataAdapter.QueryList(db, tenant, claims, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), query, p).ToArray();
+                        return tenantDataAdapter.QueryList(db, tenant, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), claims, query, p).ToArray();
                     }))
                 .SetValue("entityQuerySingle", new Func<string, string, string, dynamic, object>((application, entity, query, p) =>
                     {
                         p.tenantId = tenant.Id;
-                        return tenantDataAdapter.QuerySingle(db, tenant, claims, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), query, p);
+                        return tenantDataAdapter.QuerySingle(db, tenant, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), claims, query, p);
                     }))
                 .SetValue("entityNew", new Func<string, string, string, dynamic, object>((application, entity, query, p) =>
                     {
                         p.tenantId = tenant.Id;
-                        return tenantDataAdapter.QueryNew(db, tenant, claims, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), query, p);
+                        return tenantDataAdapter.QueryNew(db, tenant, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), claims, query, p);
                     }));
         }
 
@@ -58,11 +58,11 @@ namespace Ballware.Generic.Scripting.Jint.Internal
                 .SetValue("entitySave", new Action<string, string, string, dynamic>((application, entity, statement, p) =>
                     {
                         p.tenantId = tenant.Id;
-                        tenantDataAdapter.Save(db, tenant, userId, claims, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), statement, p);
+                        tenantDataAdapter.Save(db, tenant, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), userId, claims, statement, p);
                     }))
                 .SetValue("entityRemove", new Action<string, string, dynamic>((application, entity, p) =>
                     {
-                        tenantDataAdapter.Remove(db, tenant, userId, claims, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), p);
+                        tenantDataAdapter.Remove(db, tenant, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), userId, claims, p);
                     }));
         }
 
@@ -87,7 +87,15 @@ namespace Ballware.Generic.Scripting.Jint.Internal
                         sqlParams["tenantId"] = tenantId;
 
                         return tenantDataAdapter.RawQuery(db, table, column, where, sqlParams)
-                            .Select(d => (d as IDictionary<string, object>)[column]).ToArray();
+                            .Select(d =>
+                            {
+                                if ((d as IDictionary<string, object>)?.TryGetValue(column, out var value) ?? false)
+                                {
+                                    return value;
+                                }
+
+                                return null;
+                            }).ToArray();
                     }))
                 .SetValue("getStringColumnList",
                     new Func<string, string, string, dynamic, string?[]>((table, column, where, p) =>
@@ -97,7 +105,15 @@ namespace Ballware.Generic.Scripting.Jint.Internal
                         sqlParams["tenantId"] = tenantId;
 
                         return tenantDataAdapter.RawQuery(db, table, column, where, sqlParams)
-                            .Select(d => (d as IDictionary<string, object>)[column].ToString()).ToArray();
+                            .Select(d =>
+                            {
+                                if ((d as IDictionary<string, object>)?.TryGetValue(column, out var value) ?? false)
+                                {
+                                    return value.ToString();
+                                }
+
+                                return null;
+                            }).ToArray();
                     }));
         }
 
