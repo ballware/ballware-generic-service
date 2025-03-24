@@ -1,0 +1,42 @@
+name: Publish NuGet Packages
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version:
+            8.0   
+      - name: Set up NuGet
+        uses: NuGet/actions/setup-nuget@v1          
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v3.1.11
+        with:
+          versionSpec: '6.0.x'
+      - name: Determine Version
+        id: version_step # step id used as reference for output values
+        uses: gittools/actions/gitversion/execute@v3.1.11
+        with:
+          useConfigFile: true  
+      - name: Authenticate to GitHub Packages
+        run: |
+          echo "//nuget.pkg.github.com/ballware/index.json: _authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.nuget/NuGet.Config      
+      - name: Pack Ballware.Generic.Authorization
+        run: dotnet pack ballware-generic-service.sln -p:Version=${{ env.VERSION }} --Configuration Release --output ./nupkgs
+      - name: Publish NuGet package to GitHub Packages
+        run: |
+          nuget push ./nupkgs/*.nupkg -Source https://nuget.pkg.github.com/ballware/index.json -ApiKey ${{ secrets.GITHUB_TOKEN }}
+
+      
+            
