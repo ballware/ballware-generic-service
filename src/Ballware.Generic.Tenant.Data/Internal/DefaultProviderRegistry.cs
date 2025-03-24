@@ -20,4 +20,9 @@ class DefaultProviderRegistry : IProviderRegistry
     {
         return Configuration.GetGenericProvider(providerName, ServiceProvider);
     }
+
+    public ITenantSchemaProvider GetSchemaProvider(string providerName)
+    {
+        return Configuration.GetSchemaProvider(providerName, ServiceProvider);
+    }
 }

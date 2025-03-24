@@ -5,12 +5,12 @@ namespace Ballware.Generic.Tenant.Data;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddBallwareTenantStorage(this IServiceCollection services,
+    public static IServiceCollection AddBallwareTenantGenericStorage(this IServiceCollection services,
         Action<TenantStorageBuilder>? configureOptions = null)
     {
         services.AddSingleton<IProviderRegistry, DefaultProviderRegistry>();
-        services.AddSingleton<ITenantStorageProvider, TenantStorageProviderProxy>();
-        services.AddSingleton<ITenantGenericProvider, TenantGenericProviderProxy>();
+        services.AddScoped<ITenantStorageProvider, TenantStorageProviderProxy>();
+        services.AddScoped<ITenantGenericProvider, TenantGenericProviderProxy>();
 
         var defaultProviderConfiguration = new DefaultProviderConfiguration();
         var tenantStorageBuilder = new TenantStorageBuilder(services, defaultProviderConfiguration);

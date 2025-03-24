@@ -1,44 +1,51 @@
 using System.Data;
-using Ballware.Meta.Client;
+using Ballware.Generic.Data.Repository;
 using Microsoft.Data.SqlClient;
 
 namespace Ballware.Generic.Tenant.Data.SqlServer.Internal;
 
 class SqlServerStorageProvider : ITenantStorageProvider
 {
-    public string GetConnectionString(ServiceTenant tenant)
+    private ITenantConnectionRepository ConnectionRepository { get; }
+    
+    public SqlServerStorageProvider(ITenantConnectionRepository connectionRepository)
     {
-        return Utils.GetConnectionString(tenant);
+        ConnectionRepository = connectionRepository;
     }
-
-    public IDbConnection OpenConnection(ServiceTenant tenant)
+    
+    public async Task<IDbConnection> OpenConnectionAsync(Guid tenant)
     {
-        var connection = new SqlConnection(Utils.GetConnectionString(tenant));
+        var tenantConnection = await ConnectionRepository.ByIdAsync(tenant);
 
-        connection.Open();
-
-        return connection;
-    }
-
-    public async Task<IDbConnection> OpenConnectionAsync(ServiceTenant tenant)
-    {
-        var connection = new SqlConnection(Utils.GetConnectionString(tenant));
+        if (tenantConnection == null)
+        {
+            throw new ArgumentException($"Tenant {tenant} does not exist");
+        }
+        
+        var connection = new SqlConnection(tenantConnection.ConnectionString);
 
         await connection.OpenAsync();
 
         return connection;
     }
 
-    public string ApplyTenantPlaceholder(ServiceTenant tenant, string source, TenantPlaceholderOptions options)
+    public async Task<string> ApplyTenantPlaceholderAsync(Guid tenant, string source, TenantPlaceholderOptions options)
     {
+        var tenantConnection = await ConnectionRepository.ByIdAsync(tenant);
+
+        if (tenantConnection == null)
+        {
+            throw new ArgumentException($"Tenant {tenant} does not exist");
+        }
+        
         if (!string.IsNullOrEmpty(source))
         {
-            source = source.Replace("[ballwareschema]", tenant.Schema ?? "dbo");
+            source = source.Replace("[ballwareschema]", tenantConnection.Schema ?? "dbo");
         }
 
         if (!string.IsNullOrEmpty(source) && options.ReplaceTenantId)
         {
-            source = source.Replace("@tenantId", $"'{tenant.Id}'");
+            source = source.Replace("@tenantId", $"'{tenantConnection.Id}'");
         }
 
         if (!string.IsNullOrEmpty(source) && options.ReplaceClaims)
@@ -47,10 +54,5 @@ class SqlServerStorageProvider : ITenantStorageProvider
         }
 
         return source;
-    }
-
-    public Task<string> ApplyTenantPlaceholderAsync(ServiceTenant tenant, string source, TenantPlaceholderOptions options)
-    {
-        return Task.FromResult(ApplyTenantPlaceholder(tenant, source, options));
     }
 }

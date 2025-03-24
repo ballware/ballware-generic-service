@@ -1,6 +1,6 @@
 using System.Data;
 using System.Diagnostics;
-using Ballware.Meta.Client;
+using Ballware.Generic.Metadata;
 using Jint;
 using Newtonsoft.Json;
 
@@ -9,17 +9,17 @@ namespace Ballware.Generic.Scripting.Jint.Internal;
 public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecutor
 {
     private ITenantDataAdapter TenantDataAdapter { get; }
-    private BallwareMetaClient MetaClient { get; }
+    private IMetadataAdapter MetadataAdapter { get; }
     
-    public JintEntityMetadataScriptingExecutor(ITenantDataAdapter tenantDataAdapter, BallwareMetaClient metaClient)
+    public JintEntityMetadataScriptingExecutor(ITenantDataAdapter tenantDataAdapter, IMetadataAdapter metadataAdapter)
     {
         TenantDataAdapter = tenantDataAdapter;
-        MetaClient = metaClient;
+        MetadataAdapter = metadataAdapter;
     }
 
-    public virtual IEnumerable<T> ListScript<T>(IDbConnection db,
-        ServiceTenant tenant, ServiceEntity entity, string identifier,
-        Dictionary<string, object> claims, IEnumerable<T> results) where T : class
+    public virtual IEnumerable<T> ListScript<T>(IDbConnection db, IDbTransaction? transaction,
+        Tenant tenant, Entity entity, string identifier,
+        IDictionary<string, object> claims, IEnumerable<T> results) where T : class
     {
         if (!string.IsNullOrEmpty(entity.ListScript))
         {
@@ -29,8 +29,8 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                     .SetValue("identifier", identifier)
                     .SetJsonFunctions()
                     .SetClaimFunctions(claims)
-                    .SetReadingEntityFunctions(tenant, db, MetaClient, TenantDataAdapter, claims)
-                    .SetReadingSqlFunctions(tenant.Id, db, TenantDataAdapter)
+                    .SetReadingEntityFunctions(tenant, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
+                    .SetReadingSqlFunctions(tenant.Id, db, transaction, TenantDataAdapter)
                     .SetValue("item", item)
                     .SetValue("addProperty",
                         new Action<string, object>((prop, value) =>
@@ -47,8 +47,8 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
         return results;
     }
     
-    public virtual async Task<T> ByIdScriptAsync<T>(IDbConnection db, ServiceTenant tenant, ServiceEntity entity, 
-        string identifier, Dictionary<string, object> claims, T item) where T : class
+    public virtual async Task<T> ByIdScriptAsync<T>(IDbConnection db, IDbTransaction? transaction, Tenant tenant, Entity entity, 
+        string identifier, IDictionary<string, object> claims, T item) where T : class
     {
         if (!string.IsNullOrEmpty(entity.ByIdScript))
         {
@@ -58,15 +58,15 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                 .SetValue("addProperty", new Action<string, object>((prop, value) => { (item as IDictionary<string, object>)?.Add(prop, value); }))
                 .SetJsonFunctions()
                 .SetClaimFunctions(claims)
-                .SetReadingEntityFunctions(tenant, db, MetaClient, TenantDataAdapter, claims)
-                .SetReadingSqlFunctions(tenant.Id, db, TenantDataAdapter)
+                .SetReadingEntityFunctions(tenant, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
+                .SetReadingSqlFunctions(tenant.Id, db, transaction, TenantDataAdapter)
                 .Evaluate((tenant.ServerScriptDefinitions ?? "") + "\n" + entity.ByIdScript);
         }
 
         return await Task.FromResult(item);
     }
 
-    public virtual async Task BeforeSaveScriptAsync(IDbConnection db, ServiceTenant tenant, ServiceEntity entity, Guid? userId, string identifier, Dictionary<string, object> claims, bool insert, object item)
+    public virtual async Task BeforeSaveScriptAsync(IDbConnection db, IDbTransaction transaction, Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> claims, bool insert, object item)
     {
         if (!string.IsNullOrEmpty(entity.BeforeSaveScript))
         {
@@ -82,23 +82,23 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                     .SetValue("item", JsonConvert.SerializeObject(item))
                     .SetJsonFunctions()
                     .SetClaimFunctions(claims)
-                    .SetReadingEntityFunctions(tenant, db, MetaClient, TenantDataAdapter, claims)
-                    .SetWritingEntityFunctions(tenant, userId, db, MetaClient, TenantDataAdapter, claims)
-                    .SetReadingSqlFunctions(tenant.Id, db, TenantDataAdapter)
+                    .SetReadingEntityFunctions(tenant, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
+                    .SetWritingEntityFunctions(tenant, userId, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
+                    .SetReadingSqlFunctions(tenant.Id, db, transaction, TenantDataAdapter)
                     .SetValue("getProcessingStateName",
-                    new Func<int, string?>((state) => MetaClient.SingleProcessingStateForTenantAndEntityByValue(tenant.Id, entity.Entity, state)?.Name))
+                    new Func<int, string?>((state) => MetadataAdapter.SingleProcessingStateForTenantAndEntityByValue(tenant.Id, entity.Identifier, state)?.Name))
                     .SetValue("triggerNotification", new Action<string, string>((notificationIdentifier, notificationParams) =>
                     {
-                        var notification = MetaClient.MetadataForNotificationByTenantAndIdentifier(tenant.Id, notificationIdentifier);
+                        var notification = MetadataAdapter.MetadataForNotificationByTenantAndIdentifier(tenant.Id, notificationIdentifier);
 
                         if (notification == null || !userId.HasValue)
                         {
                             throw new Exception($"No notification with identifier {notificationIdentifier}");
                         }
 
-                        var notificationTrigger = MetaClient.CreateNotificationTriggerForTenantAndNotificationBehalfOfUser(tenant.Id, notification.Id, userId.Value);
+                        var notificationTrigger = MetadataAdapter.CreateNotificationTriggerForTenantAndNotificationBehalfOfUser(tenant.Id, notification.Id, userId.Value);
                         notificationTrigger.Params = notificationParams;
-                        MetaClient.SaveNotificationTriggerBehalfOfUser(tenant.Id, userId.Value, notificationTrigger);
+                        MetadataAdapter.SaveNotificationTriggerBehalfOfUser(tenant.Id, userId.Value, notificationTrigger);
                     }))
                     .Evaluate((tenant.ServerScriptDefinitions ?? "") + "\n" +
                               "item=JSON.parse(item);" +
@@ -114,7 +114,7 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
         await Task.CompletedTask;
     }
 
-    public virtual async Task SaveScriptAsync(IDbConnection db, ServiceTenant tenant, ServiceEntity entity, Guid? userId, string identifier, Dictionary<string, object> claims, bool insert, object item)
+    public virtual async Task SaveScriptAsync(IDbConnection db, IDbTransaction transaction, Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> claims, bool insert, object item)
     {
 
         if (!string.IsNullOrEmpty(entity.SaveScript))
@@ -131,24 +131,24 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                     .SetValue("item", JsonConvert.SerializeObject(item))
                     .SetJsonFunctions()
                     .SetClaimFunctions(claims)
-                    .SetReadingEntityFunctions(tenant, db, MetaClient, TenantDataAdapter, claims)
-                    .SetWritingEntityFunctions(tenant, userId, db, MetaClient, TenantDataAdapter, claims)
-                    .SetReadingSqlFunctions(tenant.Id, db, TenantDataAdapter)
-                    .SetWritingSqlFunctions(tenant.Id, db, TenantDataAdapter)
+                    .SetReadingEntityFunctions(tenant, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
+                    .SetWritingEntityFunctions(tenant, userId, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
+                    .SetReadingSqlFunctions(tenant.Id, db, transaction, TenantDataAdapter)
+                    .SetWritingSqlFunctions(tenant.Id, db, transaction, TenantDataAdapter)
                     .SetValue("getProcessingStateName",
-                        new Func<int, string?>((state) => MetaClient.SingleProcessingStateForTenantAndEntityByValue(tenant.Id, entity.Entity, state)?.Name))
+                        new Func<int, string?>((state) => MetadataAdapter.SingleProcessingStateForTenantAndEntityByValue(tenant.Id, entity.Identifier, state)?.Name))
                     .SetValue("triggerNotification", new Action<string, string>((notificationIdentifier, notificationParams) =>
                     {
-                        var notification = MetaClient.MetadataForNotificationByTenantAndIdentifier(tenant.Id, notificationIdentifier);
+                        var notification = MetadataAdapter.MetadataForNotificationByTenantAndIdentifier(tenant.Id, notificationIdentifier);
 
                         if (notification == null || !userId.HasValue)
                         {
                             throw new Exception($"No notification with identifier {notificationIdentifier}");
                         }
 
-                        var notificationTrigger = MetaClient.CreateNotificationTriggerForTenantAndNotificationBehalfOfUser(tenant.Id, notification.Id, userId.Value);
+                        var notificationTrigger = MetadataAdapter.CreateNotificationTriggerForTenantAndNotificationBehalfOfUser(tenant.Id, notification.Id, userId.Value);
                         notificationTrigger.Params = notificationParams;
-                        MetaClient.SaveNotificationTriggerBehalfOfUser(tenant.Id, userId.Value, notificationTrigger);
+                        MetadataAdapter.SaveNotificationTriggerBehalfOfUser(tenant.Id, userId.Value, notificationTrigger);
                     }))
                     .Evaluate((tenant.ServerScriptDefinitions ?? "") + "\n" + "item=JSON.parse(item);" + "\n" +
                               entity.SaveScript);
@@ -163,7 +163,7 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
         await Task.CompletedTask;
     }
 
-    public async Task<(bool Result, IEnumerable<string> Messages)> RemovePreliminaryCheckAsync(IDbConnection db, ServiceTenant tenant, ServiceEntity entity, Guid? userId, Dictionary<string, object> claims, object p)
+    public async Task<(bool Result, IEnumerable<string> Messages)> RemovePreliminaryCheckAsync(IDbConnection db, IDbTransaction transaction, Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> claims, object p)
     {
         var resultMessages = new List<string>();
 
@@ -175,12 +175,12 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                 .SetValue("addResultMessage", new Action<string>((msg) => { resultMessages.Add(msg); }))
                 .SetValue("querySingle",
                     new Func<string, dynamic, dynamic>((identifier, p) =>
-                        TenantDataAdapter.QuerySingle(db, tenant, entity, claims, identifier, p)))
+                        TenantDataAdapter.QuerySingle(db, transaction, tenant, entity, claims, identifier, p)))
                 .SetJsonFunctions()
                 .SetClaimFunctions(claims)
-                .SetReadingEntityFunctions(tenant, db, MetaClient, TenantDataAdapter, claims)
-                .SetWritingEntityFunctions(tenant, userId, db, MetaClient, TenantDataAdapter, claims)
-                .SetReadingSqlFunctions(tenant.Id, db, TenantDataAdapter)
+                .SetReadingEntityFunctions(tenant, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
+                .SetWritingEntityFunctions(tenant, userId, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
+                .SetReadingSqlFunctions(tenant.Id, db, transaction, TenantDataAdapter)
                 .Evaluate((tenant.ServerScriptDefinitions ?? "") + "\n" +
                           "function internalPreliminaryRemoveScript() { " + entity.RemovePreliminaryCheckScript + " } \n"
                           + "internalPreliminaryRemoveScript();"
@@ -195,7 +195,7 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
         }
     }
 
-    public async Task RemoveScriptAsync(IDbConnection db, ServiceTenant tenant, ServiceEntity entity, Guid? userId, Dictionary<string, object> claims, object p)
+    public async Task RemoveScriptAsync(IDbConnection db, IDbTransaction transaction, Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> claims, object p)
     {
         if (!string.IsNullOrEmpty(entity.RemoveScript))
         {
@@ -204,9 +204,9 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                 .SetValue("tenantId", tenant.Id)
                 .SetJsonFunctions()
                 .SetClaimFunctions(claims)
-                .SetReadingEntityFunctions(tenant, db, MetaClient, TenantDataAdapter, claims)
-                .SetWritingEntityFunctions(tenant, userId, db, MetaClient, TenantDataAdapter, claims)
-                .SetReadingSqlFunctions(tenant.Id, db, TenantDataAdapter)
+                .SetReadingEntityFunctions(tenant, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
+                .SetWritingEntityFunctions(tenant, userId, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
+                .SetReadingSqlFunctions(tenant.Id, db, transaction, TenantDataAdapter)
                 .Evaluate((tenant.ServerScriptDefinitions ?? "") + "\n" + entity.RemoveScript);
         }
 

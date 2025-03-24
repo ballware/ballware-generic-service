@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Ballware.Meta.Client\Ballware.Meta.Client.csproj" />
+      <ProjectReference Include="..\Ballware.Generic.Metadata\Ballware.Generic.Metadata.csproj" />
     </ItemGroup>
 
 </Project>

@@ -7,7 +7,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddBallwareJintGenericScripting(this IServiceCollection services)
     {
-        services.AddSingleton<IGenericEntityScriptingExecutor, JintEntityMetadataScriptingExecutor>();
+        services.AddScoped<IGenericEntityScriptingExecutor, JintEntityMetadataScriptingExecutor>();
 
         return services;
     }

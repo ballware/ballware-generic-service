@@ -1,4 +1,4 @@
-using Ballware.Meta.Client;
+using Ballware.Generic.Metadata;
 using Jint;
 using Newtonsoft.Json;
 
@@ -6,7 +6,7 @@ namespace Ballware.Generic.Authorization.Jint.Internal;
 
 class JavascriptTenantRightsChecker : ITenantRightsChecker
 {
-    public async Task<bool> HasRightAsync(ServiceTenant tenant, string application, string entity, Dictionary<string, object> claims, string right)
+    public async Task<bool> HasRightAsync(Tenant tenant, string application, string entity, Dictionary<string, object> claims, string right)
     {
         var result = true;
 

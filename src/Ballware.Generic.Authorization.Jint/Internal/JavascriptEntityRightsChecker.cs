@@ -1,4 +1,4 @@
-using Ballware.Meta.Client;
+using Ballware.Generic.Metadata;
 using Jint;
 using Newtonsoft.Json;
 
@@ -6,11 +6,11 @@ namespace Ballware.Generic.Authorization.Jint.Internal;
 
 class JavascriptEntityRightsChecker : IEntityRightsChecker
 {
-    public async Task<bool> HasRightAsync(Guid tenantId, ServiceEntity metadata, Dictionary<string, object> claims, string right, IDictionary<string, object> param,
+    public async Task<bool> HasRightAsync(Guid tenantId, Entity metadata, Dictionary<string, object> claims, string right, IDictionary<string, object> param,
         bool tenantResult)
     {
         var result = tenantResult;
-        var rightsScript = metadata.CustomScripts?.ExtendedRightsCheck;
+        var rightsScript = metadata.ExtendedRightsCheckScript;
 
         if (!string.IsNullOrWhiteSpace(rightsScript))
         {
@@ -18,7 +18,7 @@ class JavascriptEntityRightsChecker : IEntityRightsChecker
 
             result = bool.Parse(new Engine()
                 .SetValue("application", metadata.Application)
-                .SetValue("entity", metadata.Entity)
+                .SetValue("entity", metadata.Identifier)
                 .SetValue("right", right)
                 .SetValue("param", param)
                 .SetValue("result", tenantResult)

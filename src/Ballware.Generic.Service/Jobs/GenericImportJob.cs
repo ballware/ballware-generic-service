@@ -1,6 +1,6 @@
 using Ballware.Generic.Authorization;
 using Ballware.Generic.Tenant.Data;
-using Ballware.Meta.Client;
+using Ballware.Generic.Metadata;
 using Ballware.Storage.Client;
 using Newtonsoft.Json;
 using Quartz;
@@ -14,15 +14,15 @@ public class GenericImportJob : IJob
     private ITenantGenericProvider GenericProvider { get; }
     private ITenantRightsChecker TenantRightsChecker { get; }
     private IEntityRightsChecker EntityRightsChecker { get; }
-    private BallwareMetaClient MetaClient { get; }
+    private IMetadataAdapter MetadataAdapter { get; }
     private BallwareStorageClient StorageClient { get; }
     
-    public GenericImportJob(ITenantGenericProvider genericProvider, ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker, BallwareMetaClient metaClient, BallwareStorageClient storageClient)
+    public GenericImportJob(ITenantGenericProvider genericProvider, ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker, IMetadataAdapter metadataAdapter, BallwareStorageClient storageClient)
     {
         GenericProvider = genericProvider;
         TenantRightsChecker = tenantRightsChecker;
         EntityRightsChecker = entityRightsChecker;
-        MetaClient = metaClient;
+        MetadataAdapter = metadataAdapter;
         StorageClient = storageClient;
     }
     
@@ -46,9 +46,9 @@ public class GenericImportJob : IJob
         
         try
         {   
-            await MetaClient.UpdateJobForTenantBehalfOfUserAsync(tenantId, userId, jobPayload);
-            var tenant = await MetaClient.ServiceMetadataForTenantByIdAsync(tenantId);
-            var metadata = await MetaClient.MetadataForEntityByTenantdAndIdentifierAsync(tenantId, entity);
+            await MetadataAdapter.UpdateJobForTenantBehalfOfUserAsync(tenantId, userId, jobPayload);
+            var tenant = await MetadataAdapter.MetadataForTenantByIdAsync(tenantId);
+            var metadata = await MetadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
 
             var file = await StorageClient.FileByNameForOwnerAsync(userId.ToString(), filename);
 
@@ -64,14 +64,14 @@ public class GenericImportJob : IJob
 
             jobPayload.State = JobStates.Finished;
             
-            await MetaClient.UpdateJobForTenantBehalfOfUserAsync(tenantId, userId, jobPayload);
+            await MetadataAdapter.UpdateJobForTenantBehalfOfUserAsync(tenantId, userId, jobPayload);
         }
         catch (Exception ex)
         {
             jobPayload.State = JobStates.Error;
             jobPayload.Result = JsonConvert.SerializeObject(ex);
             
-            await MetaClient.UpdateJobForTenantBehalfOfUserAsync(tenantId, userId, jobPayload);
+            await MetadataAdapter.UpdateJobForTenantBehalfOfUserAsync(tenantId, userId, jobPayload);
             
             // do you want the job to refire?
             throw new JobExecutionException(msg: "", refireImmediately: false, cause: ex);

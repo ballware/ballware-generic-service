@@ -1,5 +1,5 @@
 using System.Data;
-using Ballware.Meta.Client;
+using Ballware.Generic.Metadata;
 using Jint;
 using Newtonsoft.Json;
 
@@ -7,7 +7,7 @@ namespace Ballware.Generic.Scripting.Jint.Internal
 {
     static class JintEngineExtensions
     {
-        public static Engine SetClaimFunctions(this Engine engine, Dictionary<string, object> claims)
+        public static Engine SetClaimFunctions(this Engine engine, IDictionary<string, object> claims)
         {
             return engine
                 .SetValue("getClaim", new Func<string, string?>(claim => ClaimUtils.GetClaim(claims, claim)))
@@ -27,49 +27,49 @@ namespace Ballware.Generic.Scripting.Jint.Internal
                 }));
         }
 
-        public static Engine SetReadingEntityFunctions(this Engine engine, ServiceTenant tenant, IDbConnection db, BallwareMetaClient metaClient, ITenantDataAdapter tenantDataAdapter, Dictionary<string, object> claims)
+        public static Engine SetReadingEntityFunctions(this Engine engine, Tenant tenant, IDbConnection db, IDbTransaction? transaction, IMetadataAdapter metadataAdapter, ITenantDataAdapter tenantDataAdapter, IDictionary<string, object> claims)
         {
             return engine
                 .SetValue("entityCount", new Func<string, string, string, dynamic, long>((application, entity, query, p) =>
                     {
                         p.tenantId = tenant.Id;
-                        return tenantDataAdapter.Count(db, tenant, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), claims, query, p);
+                        return tenantDataAdapter.Count(db, transaction, tenant, metadataAdapter.MetadataForEntityByTenantAndIdentifier(tenant.Id, entity), claims, query, p);
                     }))
                 .SetValue("entityQueryList", new Func<string, string, string, dynamic, object[]>((application, entity, query, p) =>
                     {
                         p.tenantId = tenant.Id;
-                        return tenantDataAdapter.QueryList(db, tenant, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), claims, query, p).ToArray();
+                        return tenantDataAdapter.QueryList(db, transaction, tenant, metadataAdapter.MetadataForEntityByTenantAndIdentifier(tenant.Id, entity), claims, query, p).ToArray();
                     }))
                 .SetValue("entityQuerySingle", new Func<string, string, string, dynamic, object>((application, entity, query, p) =>
                     {
                         p.tenantId = tenant.Id;
-                        return tenantDataAdapter.QuerySingle(db, tenant, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), claims, query, p);
+                        return tenantDataAdapter.QuerySingle(db, transaction, tenant, metadataAdapter.MetadataForEntityByTenantAndIdentifier(tenant.Id, entity), claims, query, p);
                     }))
                 .SetValue("entityNew", new Func<string, string, string, dynamic, object>((application, entity, query, p) =>
                     {
                         p.tenantId = tenant.Id;
-                        return tenantDataAdapter.QueryNew(db, tenant, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), claims, query, p);
+                        return tenantDataAdapter.QueryNew(db, transaction, tenant, metadataAdapter.MetadataForEntityByTenantAndIdentifier(tenant.Id, entity), claims, query, p);
                     }));
         }
 
-        public static Engine SetWritingEntityFunctions(this Engine engine, ServiceTenant tenant, Guid? userId, IDbConnection db, BallwareMetaClient metaClient, ITenantDataAdapter tenantDataAdapter, Dictionary<string, object> claims)
+        public static Engine SetWritingEntityFunctions(this Engine engine, Tenant tenant, Guid? userId, IDbConnection db, IDbTransaction transaction, IMetadataAdapter metadataAdapter, ITenantDataAdapter tenantDataAdapter, IDictionary<string, object> claims)
         {
             return engine
                 .SetValue("entitySave", new Action<string, string, string, dynamic>((application, entity, statement, p) =>
                     {
                         p.tenantId = tenant.Id;
-                        tenantDataAdapter.Save(db, tenant, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), userId, claims, statement, p);
+                        tenantDataAdapter.Save(db, transaction, tenant, metadataAdapter.MetadataForEntityByTenantAndIdentifier(tenant.Id, entity), userId, claims, statement, p);
                     }))
                 .SetValue("entityRemove", new Action<string, string, dynamic>((application, entity, p) =>
                     {
-                        tenantDataAdapter.Remove(db, tenant, metaClient.MetadataForEntityByTenantdAndIdentifier(tenant.Id, entity), userId, claims, p);
+                        tenantDataAdapter.Remove(db, transaction, tenant, metadataAdapter.MetadataForEntityByTenantAndIdentifier(tenant.Id, entity), userId, claims, p);
                     }));
         }
 
-        public static Engine SetReadingSqlFunctions(this Engine engine, Guid tenantId, IDbConnection db, ITenantDataAdapter tenantDataAdapter)
+        public static Engine SetReadingSqlFunctions(this Engine engine, Guid tenantId, IDbConnection db, IDbTransaction? transaction, ITenantDataAdapter tenantDataAdapter)
         {
             return engine
-                .SetValue("getCount", new Func<string, string, object, int>((table, where, p) => tenantDataAdapter.RawCount(db, table, where, p)))
+                .SetValue("getCount", new Func<string, string, object, int>((table, where, p) => tenantDataAdapter.RawCount(db, transaction, table, where, p)))
                 .SetValue("getList",
                     new Func<string, string, string, dynamic, object[]>((table, columns, where, p) =>
                     {
@@ -77,7 +77,7 @@ namespace Ballware.Generic.Scripting.Jint.Internal
 
                         sqlParams["tenantId"] = tenantId;
 
-                        return tenantDataAdapter.RawQuery(db, table, columns, where, sqlParams).ToArray();
+                        return tenantDataAdapter.RawQuery(db, transaction, table, columns, where, sqlParams).ToArray();
                     }))
                 .SetValue("getSingleColumnList",
                     new Func<string, string, string, dynamic, object?[]>((table, column, where, p) =>
@@ -86,7 +86,7 @@ namespace Ballware.Generic.Scripting.Jint.Internal
 
                         sqlParams["tenantId"] = tenantId;
 
-                        return tenantDataAdapter.RawQuery(db, table, column, where, sqlParams)
+                        return tenantDataAdapter.RawQuery(db, transaction, table, column, where, sqlParams)
                             .Select(d =>
                             {
                                 if ((d as IDictionary<string, object>)?.TryGetValue(column, out var value) ?? false)
@@ -104,7 +104,7 @@ namespace Ballware.Generic.Scripting.Jint.Internal
 
                         sqlParams["tenantId"] = tenantId;
 
-                        return tenantDataAdapter.RawQuery(db, table, column, where, sqlParams)
+                        return tenantDataAdapter.RawQuery(db, transaction, table, column, where, sqlParams)
                             .Select(d =>
                             {
                                 if ((d as IDictionary<string, object>)?.TryGetValue(column, out var value) ?? false)
@@ -117,28 +117,28 @@ namespace Ballware.Generic.Scripting.Jint.Internal
                     }));
         }
 
-        public static Engine SetWritingSqlFunctions(this Engine engine, Guid tenantId, IDbConnection db, ITenantDataAdapter tenantDataAdapter)
+        public static Engine SetWritingSqlFunctions(this Engine engine, Guid tenantId, IDbConnection db, IDbTransaction transaction, ITenantDataAdapter tenantDataAdapter)
         {
             return engine
                 .SetValue("dbDelete", new Action<string, string, dynamic>((table, where, p) =>
                     {
                         p.tenantId = tenantId;
 
-                        tenantDataAdapter.RawDelete(db, table, where, p);
+                        tenantDataAdapter.RawDelete(db, transaction, table, where, p);
                     }))
                 .SetValue("dbInsert",
                     new Action<string, string, string, dynamic>((table, columns, values, p) =>
                     {
                         p.tenantId = tenantId;
 
-                        tenantDataAdapter.RawInsert(db, table, columns, values, p);
+                        tenantDataAdapter.RawInsert(db, transaction, table, columns, values, p);
                     }))
                 .SetValue("dbUpdate",
                     new Action<string, string, string, dynamic>((table, columns, where, p) =>
                     {
                         p.tenantId = tenantId;
 
-                        tenantDataAdapter.RawUpdate(db, table, columns, where, p);
+                        tenantDataAdapter.RawUpdate(db, transaction, table, columns, where, p);
                     }));
         }
     }

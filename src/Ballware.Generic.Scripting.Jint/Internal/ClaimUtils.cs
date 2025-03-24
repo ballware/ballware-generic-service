@@ -2,7 +2,7 @@ namespace Ballware.Generic.Scripting.Jint.Internal;
 
 public static class ClaimUtils
 {
-    public static string? GetClaim(Dictionary<string, object> claims, string claim)
+    public static string? GetClaim(IDictionary<string, object> claims, string claim)
     {
         if (!claims.ContainsKey(claim))
         {
@@ -19,7 +19,7 @@ public static class ClaimUtils
         }
     }
 
-    public static bool HasClaim(Dictionary<string, object> claims, string claim, string value)
+    public static bool HasClaim(IDictionary<string, object> claims, string claim, string value)
     {
         if (!claims.ContainsKey(claim))
         {
@@ -34,7 +34,7 @@ public static class ClaimUtils
         return claims[claim].Equals(value);
     }
 
-    public static bool HasAnyClaim(Dictionary<string, object> claims, string claim, string valuePrefix)
+    public static bool HasAnyClaim(IDictionary<string, object> claims, string claim, string valuePrefix)
     {
         if (!claims.ContainsKey(claim))
         {

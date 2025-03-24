@@ -1,6 +1,10 @@
 using Ballware.Generic.Authorization;
 using Ballware.Generic.Authorization.Jint;
+using Ballware.Generic.Data.Ef;
+using Ballware.Generic.Data.Ef.Configuration;
+using Ballware.Generic.Metadata;
 using Ballware.Generic.Scripting.Jint;
+using Ballware.Generic.Service.Adapter;
 using Ballware.Generic.Service.Configuration;
 using Ballware.Generic.Service.Jobs;
 using Ballware.Generic.Tenant.Data;
@@ -36,13 +40,19 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         CorsOptions? corsOptions = Configuration.GetSection("Cors").Get<CorsOptions>();
         AuthorizationOptions? authorizationOptions =
             Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
+        StorageOptions? storageOptions = Configuration.GetSection("Storage").Get<StorageOptions>();
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
         ServiceClientOptions? metaClientOptions = Configuration.GetSection("MetaClient").Get<ServiceClientOptions>();
         ServiceClientOptions? storageClientOptions = Configuration.GetSection("StorageClient").Get<ServiceClientOptions>();
+        var tenantMasterConnectionString = Configuration.GetConnectionString("TenantMasterConnection");
 
         Services.AddOptionsWithValidateOnStart<AuthorizationOptions>()
             .Bind(Configuration.GetSection("Authorization"))
             .ValidateDataAnnotations();
+        
+        Services.AddOptionsWithValidateOnStart<StorageOptions>()
+            .Bind(Configuration.GetSection("Storage"))
+            .ValidateDataAnnotations();        
 
         Services.AddOptionsWithValidateOnStart<SwaggerOptions>()
             .Bind(Configuration.GetSection("Swagger"))
@@ -56,9 +66,9 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             .Bind(Configuration.GetSection("StorageClient"))
             .ValidateDataAnnotations();
 
-        if (authorizationOptions == null)
+        if (authorizationOptions == null || storageOptions == null || string.IsNullOrEmpty(tenantMasterConnectionString))
         {
-            throw new ConfigurationException("Required configuration for authorization is missing");
+            throw new ConfigurationException("Required configuration for authorization and storage is missing");
         }
 
         if (metaClientOptions == null)
@@ -171,13 +181,23 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 client.BaseAddress = new Uri(storageClientOptions.ServiceUrl);
             })
             .AddClientCredentialsTokenHandler("storage");
+        
+        Services.AddAutoMapper(config =>
+        {
+            config.AddBallwareTenantStorageMappings();
+        });
 
+        Services.AddSingleton<IMetadataAdapter, MetaServiceMetadataAdapter>();
+        
         Services.AddBallwareAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
         Services.AddBallwareJintRightsChecker();
         Services.AddBallwareJintGenericScripting();
-        Services.AddBallwareTenantStorage(builder =>
+        
+        Services.AddBallwareTenantStorage(storageOptions, tenantMasterConnectionString);
+        
+        Services.AddBallwareTenantGenericStorage(builder =>
         {
-            builder.AddSqlServerTenantDataStorage();
+            builder.AddSqlServerTenantDataStorage(tenantMasterConnectionString);
         });
         
         if (swaggerOptions != null)

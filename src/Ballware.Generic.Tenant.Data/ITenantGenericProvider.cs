@@ -1,41 +1,40 @@
-using System.Data;
-using Ballware.Meta.Client;
+using Ballware.Generic.Metadata;
 
 namespace Ballware.Generic.Tenant.Data;
 
 public interface ITenantGenericProvider
 {
-    Task<IEnumerable<T>> AllAsync<T>(ServiceTenant tenant, ServiceEntity entity, string identifier,
-        Dictionary<string, object> claims) where T : class;
+    Task<IEnumerable<T>> AllAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier,
+        IDictionary<string, object> claims) where T : class;
 
-    Task<IEnumerable<T>> QueryAsync<T>(ServiceTenant tenant, ServiceEntity entity, string identifier,
-        Dictionary<string, object> claims, IDictionary<string, object> queryParams) where T : class;
+    Task<IEnumerable<T>> QueryAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier,
+        IDictionary<string, object> claims, IDictionary<string, object> queryParams) where T : class;
 
-    Task<long> CountAsync(ServiceTenant tenant, ServiceEntity entity, string identifier,
-        Dictionary<string, object> claims, IDictionary<string, object> queryParams);
+    Task<long> CountAsync(Metadata.Tenant tenant, Entity entity, string identifier,
+        IDictionary<string, object> claims, IDictionary<string, object> queryParams);
 
-    Task<T?> ByIdAsync<T>(ServiceTenant tenant, ServiceEntity entity, string identifier,
-        Dictionary<string, object> claims, Guid id) where T : class;
+    Task<T?> ByIdAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier,
+        IDictionary<string, object> claims, Guid id) where T : class;
 
-    Task<T?> NewAsync<T>(ServiceTenant tenant, ServiceEntity entity, string identifier,
-        Dictionary<string, object> claims) where T : class;
+    Task<T?> NewAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier,
+        IDictionary<string, object> claims) where T : class;
 
-    Task<T?> NewQueryAsync<T>(ServiceTenant tenant, ServiceEntity entity, string identifier,
-        Dictionary<string, object> claims, IDictionary<string, object> queryParams) where T : class;
+    Task<T?> NewQueryAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier,
+        IDictionary<string, object> claims, IDictionary<string, object> queryParams) where T : class;
 
-    Task SaveAsync(ServiceTenant tenant, ServiceEntity entity, Guid? userId, string identifier,
-        Dictionary<string, object> claims, IDictionary<string, object> value);
+    Task SaveAsync(Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier,
+        IDictionary<string, object> claims, IDictionary<string, object> value);
 
-    Task<RemoveResult> RemoveAsync(ServiceTenant tenant, ServiceEntity entity, Guid? userId,
-        Dictionary<string, object> claims, Guid id);
+    Task<RemoveResult> RemoveAsync(Metadata.Tenant tenant, Entity entity, Guid? userId,
+        IDictionary<string, object> claims, Guid id);
     
-    Task ImportAsync(ServiceTenant tenant, ServiceEntity entity,
+    Task ImportAsync(Metadata.Tenant tenant, Entity entity,
         Guid? userId,
         string identifier,
-        Dictionary<string, object> claims,
+        IDictionary<string, object> claims,
         Stream importStream,
         Func<IDictionary<string, object>, Task<bool>> authorized);
 
-    Task<GenericExport> ExportAsync(ServiceTenant tenant, ServiceEntity entity, string identifier,
-        Dictionary<string, object> claims, IDictionary<string, object> queryParams);
+    Task<GenericExport> ExportAsync(Metadata.Tenant tenant, Entity entity, string identifier,
+        IDictionary<string, object> claims, IDictionary<string, object> queryParams);
 }

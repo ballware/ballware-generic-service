@@ -18,6 +18,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Scripting"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Scripting.Jint", "src\Ballware.Generic.Scripting.Jint\Ballware.Generic.Scripting.Jint.csproj", "{E30D2578-C32E-4474-848B-10CA5C209CA9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Data.Ef", "src\Ballware.Generic.Data.Ef\Ballware.Generic.Data.Ef.csproj", "{DB538AC2-EA75-4BF8-8DF9-C803F6CA9FDE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Data", "src\Ballware.Generic.Data\Ballware.Generic.Data.csproj", "{88901E40-DA95-45D3-AA33-426E95DBBE28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Tenant.Data.SqlServer.Tests", "test\Ballware.Generic.Tenant.Data.SqlServer.Tests\Ballware.Generic.Tenant.Data.SqlServer.Tests.csproj", "{1541855A-AAE9-419B-80FF-473AE2BA3A2C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Metadata", "src\Ballware.Generic.Metadata\Ballware.Generic.Metadata.csproj", "{11C7DACA-70ED-4FEF-96B4-4BF04DC01805}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,5 +68,21 @@ Global
 		{E30D2578-C32E-4474-848B-10CA5C209CA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E30D2578-C32E-4474-848B-10CA5C209CA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E30D2578-C32E-4474-848B-10CA5C209CA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB538AC2-EA75-4BF8-8DF9-C803F6CA9FDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB538AC2-EA75-4BF8-8DF9-C803F6CA9FDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB538AC2-EA75-4BF8-8DF9-C803F6CA9FDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB538AC2-EA75-4BF8-8DF9-C803F6CA9FDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88901E40-DA95-45D3-AA33-426E95DBBE28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88901E40-DA95-45D3-AA33-426E95DBBE28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88901E40-DA95-45D3-AA33-426E95DBBE28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88901E40-DA95-45D3-AA33-426E95DBBE28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1541855A-AAE9-419B-80FF-473AE2BA3A2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1541855A-AAE9-419B-80FF-473AE2BA3A2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1541855A-AAE9-419B-80FF-473AE2BA3A2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1541855A-AAE9-419B-80FF-473AE2BA3A2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11C7DACA-70ED-4FEF-96B4-4BF04DC01805}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11C7DACA-70ED-4FEF-96B4-4BF04DC01805}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11C7DACA-70ED-4FEF-96B4-4BF04DC01805}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11C7DACA-70ED-4FEF-96B4-4BF04DC01805}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

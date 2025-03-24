@@ -4,6 +4,7 @@ class DefaultProviderConfiguration
 {
     private Dictionary<string, Type> StorageProviders { get; } = new();
     private Dictionary<string, Type> GenericProviders { get; } = new();
+    private Dictionary<string, Type> SchemaProviders { get; } = new();
     
     public void RegisterStorageProvider<TProvider>(string providerName) where TProvider : ITenantStorageProvider
     {
@@ -59,5 +60,33 @@ class DefaultProviderConfiguration
         }
 
         throw new KeyNotFoundException($"No generic provider found for provider {providerName}");
+    }
+    
+    public void RegisterSchemaProvider<TProvider>(string providerName) where TProvider : ITenantSchemaProvider
+    {
+        lock (SchemaProviders)
+        {
+            SchemaProviders[providerName] = typeof(TProvider);
+        }
+    }
+
+    public ITenantSchemaProvider GetSchemaProvider(string providerName, IServiceProvider serviceProvider)
+    {
+        lock (SchemaProviders)
+        {
+            if (SchemaProviders.ContainsKey(providerName))
+            {
+                var serviceInstance = serviceProvider.GetService(SchemaProviders[providerName]);
+
+                if (serviceInstance is not ITenantSchemaProvider genericProvider)
+                {
+                    throw new InvalidOperationException($"Unable to resolve provider '{providerName}'.");
+                }
+
+                return genericProvider;
+            }
+        }
+
+        throw new KeyNotFoundException($"No schema provider found for provider {providerName}");
     }
 }
