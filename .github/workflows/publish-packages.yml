@@ -19,18 +19,18 @@ jobs:
           dotnet-version:
             8.0   
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v3.1.11
-        with:
-          versionSpec: '6.0.x'
-      - name: Determine Version
-        id: version_step # step id used as reference for output values
-        uses: gittools/actions/gitversion/execute@v3.1.11
-        with:
-          useConfigFile: true        
-      - name: Pack Ballware.Generic.Authorization
+        run: dotnet tool install --global GitVersion.Tool      
+      - name: Determine version
+        id: version
+        run: |
+          VERSION=$(dotnet dotnet-gitversion /showvariable SemVer)
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+      - name: Output determined version
+        run: echo 
+      - name: Pack NuGet packages
         run: |
           dotnet restore ballware-generic-service.sln
           dotnet pack ballware-generic-service.sln -p:Version=${{ env.VERSION }} --Configuration Release --output ./nupkgs
-      - name: Publish NuGet package to GitHub Packages
+      - name: Publish NuGet packages to GitHub Packages
         run: |
           dotnet nuget push ./nupkgs/*.nupkg --source https://nuget.pkg.github.com/ballware/index.json --api-key ${{ secrets.GITHUB_TOKEN }}

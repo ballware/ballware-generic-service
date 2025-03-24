@@ -4,9 +4,9 @@ branches:
     regex: ^main$
     increment: Minor
     track-merge-target: false
-    tag: ''
+    label: ''
   develop:
     regex: ^develop$
     increment: Minor
-    tag: 'alpha'
+    label: 'alpha'
     track-merge-target: false
