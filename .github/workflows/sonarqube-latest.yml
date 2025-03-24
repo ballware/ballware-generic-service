@@ -25,7 +25,7 @@ jobs:
           --health-cmd "sqlcmd -U sa -P $${MSSQL_SA_PASSWORD} -Q 'SELECT 1'" 
           --health-interval 10s 
           --health-timeout 5s 
-          --health-retries 5
+          --health-retries 30
     steps:
       - name: Checkout
         uses: actions/checkout@v3
