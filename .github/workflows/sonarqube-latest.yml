@@ -39,12 +39,9 @@ jobs:
           SQLEDGE_CONTAINER_ID=$(docker ps -q --filter "name=azuresql")
           echo "Container ID: $SQLEDGE_CONTAINER_ID"
           echo "SQLEDGE_CONTAINER_ID=$SQLEDGE_CONTAINER_ID" >> $GITHUB_ENV
-      - name: Create database initialization script
-        run: | 
-          echo "CREATE DATABASE tenant;" > /workspace/initialize.sql          
       - name: Run database initialization script
         run: | 
-          docker exec ${{ env.SQLEDGE_CONTAINER_ID }} /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${{ secrets.TEST_TENANT_PASSWORD }} -i /workspace/initialize.sql
+          docker exec ${{ env.SQLEDGE_CONTAINER_ID }} /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${{ secrets.TEST_TENANT_PASSWORD }} -Q "CREATE DATABASE tenant;"
       - name: Install SonarQube
         run: dotnet tool install --global dotnet-sonarscanner
       - name: Install dotCover
