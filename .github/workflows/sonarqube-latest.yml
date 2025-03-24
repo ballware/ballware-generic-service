@@ -31,6 +31,9 @@ jobs:
         with: 
           dotnet-version: 
             8.0          
+      - name: Wait for database to start
+        run: |
+          sleep 30          
       - name: Create database initialization script
         run: | 
           echo "CREATE DATABASE tenant;" > initialize.sql
