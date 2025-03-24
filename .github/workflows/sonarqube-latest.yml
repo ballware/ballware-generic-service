@@ -21,6 +21,11 @@ jobs:
         env:
           ACCEPT_EULA: 1
           MSSQL_SA_PASSWORD: ${{ secrets.TEST_TENANT_PASSWORD }}
+        options: >-
+          --health-cmd "sqlcmd -U sa -P $${MSSQL_SA_PASSWORD} -Q 'SELECT 1'" 
+          --health-interval 10s 
+          --health-timeout 5s 
+          --health-retries 5
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -31,6 +36,12 @@ jobs:
         with: 
           dotnet-version: 
             8.0          
+      - name: Create database initialization script
+        run: | 
+          echo "CREATE DATABASE tenant;" > initialize.sql
+      - name: Run database initialization script
+        run: | 
+          docker exec azuresql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${{ secrets.TEST_TENANT_PASSWORD }} -i /workspace/initialize.sql
       - name: Install SonarQube
         run: dotnet tool install --global dotnet-sonarscanner
       - name: Install dotCover
