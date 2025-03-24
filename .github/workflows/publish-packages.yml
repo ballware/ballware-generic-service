@@ -18,8 +18,6 @@ jobs:
         with:
           dotnet-version:
             8.0   
-      - name: Set up NuGet
-        uses: NuGet/actions/setup-nuget@v1          
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v3.1.11
         with:
@@ -28,15 +26,11 @@ jobs:
         id: version_step # step id used as reference for output values
         uses: gittools/actions/gitversion/execute@v3.1.11
         with:
-          useConfigFile: true  
-      - name: Authenticate to GitHub Packages
-        run: |
-          echo "//nuget.pkg.github.com/ballware/index.json: _authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.nuget/NuGet.Config      
+          useConfigFile: true        
       - name: Pack Ballware.Generic.Authorization
-        run: dotnet pack ballware-generic-service.sln -p:Version=${{ env.VERSION }} --Configuration Release --output ./nupkgs
+        run: |
+          dotnet restore ballware-generic-service.sln
+          dotnet pack ballware-generic-service.sln -p:Version=${{ env.VERSION }} --Configuration Release --output ./nupkgs
       - name: Publish NuGet package to GitHub Packages
         run: |
-          nuget push ./nupkgs/*.nupkg -Source https://nuget.pkg.github.com/ballware/index.json -ApiKey ${{ secrets.GITHUB_TOKEN }}
-
-      
-            
+          dotnet nuget push ./nupkgs/*.nupkg --source https://nuget.pkg.github.com/ballware/index.json --api-key ${{ secrets.GITHUB_TOKEN }}
