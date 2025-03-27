@@ -24,4 +24,19 @@ public class TenantStorageBuilder
     {
         ProviderConfiguration.RegisterGenericProvider<TProvider>(providerName);
     }
+    
+    public void RegisterLookupProvider<TProvider>(string providerName) where TProvider : ITenantLookupProvider
+    {
+        ProviderConfiguration.RegisterLookupProvider<TProvider>(providerName);
+    }
+    
+    public void RegisterMlModelProvider<TProvider>(string providerName) where TProvider : ITenantMlModelProvider
+    {
+        ProviderConfiguration.RegisterMlModelProvider<TProvider>(providerName);
+    }
+    
+    public void RegisterStatisticProvider<TProvider>(string providerName) where TProvider : ITenantStatisticProvider
+    {
+        ProviderConfiguration.RegisterStatisticProvider<TProvider>(providerName);
+    }
 }

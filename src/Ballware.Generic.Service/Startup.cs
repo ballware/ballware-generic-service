@@ -188,6 +188,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         });
 
         Services.AddSingleton<IMetadataAdapter, MetaServiceMetadataAdapter>();
+        Services.AddSingleton<IMlAdapter, MlServiceMlAdapter>();
         
         Services.AddBallwareAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
         Services.AddBallwareJintRightsChecker();

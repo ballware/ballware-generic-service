@@ -7,6 +7,21 @@ namespace Ballware.Generic.Scripting.Jint.Internal
 {
     static class JintEngineExtensions
     {
+        public static Engine SetMlFunctions(this Engine engine, Guid tenantId, Guid userId, IMlAdapter mlAdapter)
+        {
+            return engine.SetValue("mlPredict", new Func<string, IDictionary<string, object>, object>((model, input) =>
+            {
+                var predictInput = new Dictionary<string, IEnumerable<string>>();
+
+                foreach (var val in input)
+                {
+                    predictInput.Add(val.Key, new [] { val.Value.ToString() });
+                }
+                
+                return mlAdapter.ConsumeByIdentifierBehalfOfUserAsync(tenantId, userId, model, predictInput).GetAwaiter().GetResult();
+            }));
+        }
+        
         public static Engine SetClaimFunctions(this Engine engine, IDictionary<string, object> claims)
         {
             return engine

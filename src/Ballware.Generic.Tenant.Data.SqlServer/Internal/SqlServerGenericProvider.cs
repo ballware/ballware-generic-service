@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Ballware.Generic.Tenant.Data.SqlServer.Internal;
 
-public class SqlServerGenericProvider : ITenantGenericProvider
+class SqlServerGenericProvider : ITenantGenericProvider
 {
     private const string DefaultQueryIdentifier = "primary";
     private const string TenantVariableIdentifier = "tenantId";
@@ -22,7 +22,7 @@ public class SqlServerGenericProvider : ITenantGenericProvider
     public SqlServerGenericProvider(ITenantStorageProvider storageProvider, IServiceProvider serviceProvider)
     {
         StorageProvider = storageProvider;
-        ScriptingExecutor = serviceProvider.GetService<IGenericEntityScriptingExecutor>();
+        ScriptingExecutor = serviceProvider.GetRequiredService<IGenericEntityScriptingExecutor>();
     }
     
     public async Task<IEnumerable<T>> AllAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims) where T : class
@@ -101,6 +101,21 @@ public class SqlServerGenericProvider : ITenantGenericProvider
 
             throw;
         }
+    }
+
+    public async Task<T> GetScalarValueAsync<T>(Metadata.Tenant tenant, Entity entity, string column, Guid id, T defaultValue)
+    {
+        using var db = await StorageProvider.OpenConnectionAsync(tenant.Id);
+        
+        return await ProcessScalarValueAsync(db, null, tenant, entity, column, id, defaultValue);
+    }
+
+    public async Task<bool> StateAllowedAsync(Metadata.Tenant tenant, Entity entity, Guid id, int currentState, IDictionary<string, object> claims,
+        IEnumerable<string> rights)
+    {
+        using var db = await StorageProvider.OpenConnectionAsync(tenant.Id);
+        
+        return await ProcessStateAllowedAsync(db, null, tenant, entity, id, currentState, claims, rights);
     }
 
     public async Task ImportAsync(Metadata.Tenant tenant, Entity entity,
@@ -347,6 +362,45 @@ public class SqlServerGenericProvider : ITenantGenericProvider
         };
     }
 
+    public async Task<T> ProcessScalarValueAsync<T>(IDbConnection db,
+        IDbTransaction? transaction, 
+        Metadata.Tenant tenant, 
+        Entity entity, 
+        string column, 
+        Guid id, 
+        T defaultValue)
+    {
+        var query = entity.ByIdQuery.FirstOrDefault(q => q.Identifier.Equals(entity.ScalarValueQuery ?? "primary"));
+
+        if (query == null)
+        {
+            return defaultValue;
+        }
+        
+        var item = (await db.QueryAsync<Dictionary<string, object>>(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, query.Query, TenantPlaceholderOptions.Create()), new { tenantId = tenant.Id, id }, transaction)).FirstOrDefault();
+
+        if (item != null && item.TryGetValue(column, out object? value))
+        {
+            return (T)value;
+        }
+        
+        return defaultValue;
+    }
+    
+    public async Task<bool> ProcessStateAllowedAsync(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Entity entity, Guid id, int currentState, IDictionary<string, object> claims,
+        IEnumerable<string> rights)
+    {
+        return await ScriptingExecutor.StateAllowedScriptAsync(
+            db,
+            transaction,
+            tenant,
+            entity,
+            id,
+            currentState,
+            claims,
+            rights);
+    }
+    
     public async Task ProcessImportAsync(
         IDbConnection db,
         IDbTransaction transaction,

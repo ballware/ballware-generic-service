@@ -17,10 +17,16 @@ public static class TenantStorageBuilderExtensions
         builder.Services.AddScoped<SqlServerStorageProvider>();
         builder.Services.AddScoped<SqlServerGenericProvider>();
         builder.Services.AddScoped<SqlServerSchemaProvider>();
+        builder.Services.AddScoped<SqlServerLookupProvider>();
+        builder.Services.AddScoped<SqlServerMlModelProvider>();
+        builder.Services.AddScoped<SqlServerStatisticProvider>();
         builder.Services.AddScoped<ITenantDataAdapter, SqlServerGenericScriptingDataAdapter>();
         
         builder.RegisterStorageProvider<SqlServerStorageProvider>("mssql");
         builder.RegisterGenericProvider<SqlServerGenericProvider>("mssql");
+        builder.RegisterLookupProvider<SqlServerLookupProvider>("mssql");
+        builder.RegisterMlModelProvider<SqlServerMlModelProvider>("mssql");
+        builder.RegisterStatisticProvider<SqlServerStatisticProvider>("mssql");
 
         SqlMapper.AddTypeHandler(new SqlServerColumnTypeHandler());
         

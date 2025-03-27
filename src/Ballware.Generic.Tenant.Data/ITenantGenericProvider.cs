@@ -27,6 +27,10 @@ public interface ITenantGenericProvider
 
     Task<RemoveResult> RemoveAsync(Metadata.Tenant tenant, Entity entity, Guid? userId,
         IDictionary<string, object> claims, Guid id);
+
+    Task<T> GetScalarValueAsync<T>(Metadata.Tenant tenant, Entity entity, string column, Guid id, T defaultValue);
+    
+    Task<bool> StateAllowedAsync(Metadata.Tenant tenant, Entity entity, Guid id, int currentState, IDictionary<string, object> claims, IEnumerable<string> rights);
     
     Task ImportAsync(Metadata.Tenant tenant, Entity entity,
         Guid? userId,

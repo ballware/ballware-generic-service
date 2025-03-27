@@ -5,6 +5,9 @@ class DefaultProviderConfiguration
     private Dictionary<string, Type> StorageProviders { get; } = new();
     private Dictionary<string, Type> GenericProviders { get; } = new();
     private Dictionary<string, Type> SchemaProviders { get; } = new();
+    private Dictionary<string, Type> LookupProviders { get; } = new();
+    private Dictionary<string, Type> MlModelProviders { get; } = new();
+    private Dictionary<string, Type> StatisticProviders { get; } = new();
     
     public void RegisterStorageProvider<TProvider>(string providerName) where TProvider : ITenantStorageProvider
     {
@@ -88,5 +91,89 @@ class DefaultProviderConfiguration
         }
 
         throw new KeyNotFoundException($"No schema provider found for provider {providerName}");
+    }
+    
+    public void RegisterLookupProvider<TProvider>(string providerName) where TProvider : ITenantLookupProvider
+    {
+        lock (LookupProviders)
+        {
+            LookupProviders[providerName] = typeof(TProvider);
+        }
+    }
+
+    public ITenantLookupProvider GetLookupProvider(string providerName, IServiceProvider serviceProvider)
+    {
+        lock (LookupProviders)
+        {
+            if (LookupProviders.ContainsKey(providerName))
+            {
+                var serviceInstance = serviceProvider.GetService(LookupProviders[providerName]);
+
+                if (serviceInstance is not ITenantLookupProvider lookupProvider)
+                {
+                    throw new InvalidOperationException($"Unable to resolve provider '{providerName}'.");
+                }
+
+                return lookupProvider;
+            }
+        }
+
+        throw new KeyNotFoundException($"No lookup provider found for provider {providerName}");
+    }
+    
+    public void RegisterMlModelProvider<TProvider>(string providerName) where TProvider : ITenantMlModelProvider
+    {
+        lock (MlModelProviders)
+        {
+            MlModelProviders[providerName] = typeof(TProvider);
+        }
+    }
+
+    public ITenantMlModelProvider GetMlModelProvider(string providerName, IServiceProvider serviceProvider)
+    {
+        lock (MlModelProviders)
+        {
+            if (MlModelProviders.ContainsKey(providerName))
+            {
+                var serviceInstance = serviceProvider.GetService(MlModelProviders[providerName]);
+
+                if (serviceInstance is not ITenantMlModelProvider mlModelProvider)
+                {
+                    throw new InvalidOperationException($"Unable to resolve provider '{providerName}'.");
+                }
+
+                return mlModelProvider;
+            }
+        }
+
+        throw new KeyNotFoundException($"No ml model provider found for provider {providerName}");
+    }
+    
+    public void RegisterStatisticProvider<TProvider>(string providerName) where TProvider : ITenantStatisticProvider
+    {
+        lock (StatisticProviders)
+        {
+            StatisticProviders[providerName] = typeof(TProvider);
+        }
+    }
+
+    public ITenantStatisticProvider GetStatisticProvider(string providerName, IServiceProvider serviceProvider)
+    {
+        lock (StatisticProviders)
+        {
+            if (StatisticProviders.ContainsKey(providerName))
+            {
+                var serviceInstance = serviceProvider.GetService(StatisticProviders[providerName]);
+
+                if (serviceInstance is not ITenantStatisticProvider statisticProvider)
+                {
+                    throw new InvalidOperationException($"Unable to resolve provider '{providerName}'.");
+                }
+
+                return statisticProvider;
+            }
+        }
+
+        throw new KeyNotFoundException($"No statistic provider found for provider {providerName}");
     }
 }
