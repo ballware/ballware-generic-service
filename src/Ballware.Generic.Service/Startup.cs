@@ -10,6 +10,7 @@ using Ballware.Generic.Service.Jobs;
 using Ballware.Generic.Tenant.Data;
 using Ballware.Generic.Tenant.Data.SqlServer;
 using Ballware.Meta.Client;
+using Ballware.Ml.Client;
 using Ballware.Storage.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -44,6 +45,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
         ServiceClientOptions? metaClientOptions = Configuration.GetSection("MetaClient").Get<ServiceClientOptions>();
         ServiceClientOptions? storageClientOptions = Configuration.GetSection("StorageClient").Get<ServiceClientOptions>();
+        ServiceClientOptions? mlClientOptions = Configuration.GetSection("MlClient").Get<ServiceClientOptions>();
+        
         var tenantMasterConnectionString = Configuration.GetConnectionString("TenantMasterConnection");
 
         Services.AddOptionsWithValidateOnStart<AuthorizationOptions>()
@@ -65,6 +68,10 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddOptionsWithValidateOnStart<ServiceClientOptions>()
             .Bind(Configuration.GetSection("StorageClient"))
             .ValidateDataAnnotations();
+        
+        Services.AddOptionsWithValidateOnStart<ServiceClientOptions>()
+            .Bind(Configuration.GetSection("MlClient"))
+            .ValidateDataAnnotations();
 
         if (authorizationOptions == null || storageOptions == null || string.IsNullOrEmpty(tenantMasterConnectionString))
         {
@@ -79,6 +86,11 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         if (storageClientOptions == null)
         {
             throw new ConfigurationException("Required configuration for storageClient is missing");
+        }
+        
+        if (mlClientOptions == null)
+        {
+            throw new ConfigurationException("Required configuration for mlClient is missing");
         }
 
         Services.AddMemoryCache();
@@ -162,6 +174,15 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 client.ClientSecret = storageClientOptions.ClientSecret;
 
                 client.Scope = storageClientOptions.Scopes;
+            })
+            .AddClient("ml", client =>
+            {
+                client.TokenEndpoint = mlClientOptions.TokenEndpoint;
+
+                client.ClientId = mlClientOptions.ClientId;
+                client.ClientSecret = mlClientOptions.ClientSecret;
+
+                client.Scope = mlClientOptions.Scopes;
             });
         
         Services.AddHttpClient<BallwareMetaClient>(client =>
@@ -181,6 +202,12 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 client.BaseAddress = new Uri(storageClientOptions.ServiceUrl);
             })
             .AddClientCredentialsTokenHandler("storage");
+        
+        Services.AddHttpClient<BallwareMlClient>(client =>
+            {
+                client.BaseAddress = new Uri(mlClientOptions.ServiceUrl);
+            })
+            .AddClientCredentialsTokenHandler("ml");
         
         Services.AddAutoMapper(config =>
         {
