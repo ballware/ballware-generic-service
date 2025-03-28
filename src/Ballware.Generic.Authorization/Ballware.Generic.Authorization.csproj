@@ -8,6 +8,8 @@
         <Authors>Frank Ballmeyer</Authors>
         <PackageProjectUrl>https://github.com/ballware/ballware-generic-service</PackageProjectUrl>
         <RepositoryUrl>https://github.com/ballware/ballware-generic-service</RepositoryUrl>
+        <IncludeSource>true</IncludeSource>
+        <IncludeSymbols>true</IncludeSymbols>
     </PropertyGroup>
 
     <ItemGroup>
