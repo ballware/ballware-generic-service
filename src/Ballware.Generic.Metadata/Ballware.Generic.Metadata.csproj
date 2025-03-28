@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <IncludeSource>true</IncludeSource>
         <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
 </Project>

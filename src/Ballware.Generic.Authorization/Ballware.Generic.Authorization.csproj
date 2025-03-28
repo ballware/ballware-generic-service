@@ -10,6 +10,7 @@
         <RepositoryUrl>https://github.com/ballware/ballware-generic-service</RepositoryUrl>
         <IncludeSource>true</IncludeSource>
         <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <ItemGroup>
