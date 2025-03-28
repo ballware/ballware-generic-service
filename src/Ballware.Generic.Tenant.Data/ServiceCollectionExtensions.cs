@@ -8,7 +8,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddBallwareTenantGenericStorage(this IServiceCollection services,
         Action<TenantStorageBuilder>? configureOptions = null)
     {
-        services.AddSingleton<IProviderRegistry, DefaultProviderRegistry>();
+        services.AddScoped<IProviderRegistry, DefaultProviderRegistry>();
         services.AddScoped<ITenantStorageProvider, TenantStorageProviderProxy>();
         services.AddScoped<ITenantGenericProvider, TenantGenericProviderProxy>();
         services.AddScoped<ITenantLookupProvider, TenantLookupProviderProxy>();
