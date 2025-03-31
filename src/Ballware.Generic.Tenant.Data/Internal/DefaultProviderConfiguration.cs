@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace Ballware.Generic.Tenant.Data.Internal;
 
 class DefaultProviderConfiguration
@@ -23,7 +25,7 @@ class DefaultProviderConfiguration
         {
             if (StorageProviders.ContainsKey(providerName))
             {
-                var serviceInstance = serviceProvider.GetService(GenericProviders[providerName]);
+                var serviceInstance = serviceProvider.GetRequiredService(GenericProviders[providerName]);
 
                 if (serviceInstance is not ITenantStorageProvider storageProvider)
                 {
@@ -51,7 +53,7 @@ class DefaultProviderConfiguration
         {
             if (GenericProviders.ContainsKey(providerName))
             {
-                var serviceInstance = serviceProvider.GetService(GenericProviders[providerName]);
+                var serviceInstance = serviceProvider.GetRequiredService(GenericProviders[providerName]);
 
                 if (serviceInstance is not ITenantGenericProvider genericProvider)
                 {
@@ -79,7 +81,7 @@ class DefaultProviderConfiguration
         {
             if (SchemaProviders.ContainsKey(providerName))
             {
-                var serviceInstance = serviceProvider.GetService(SchemaProviders[providerName]);
+                var serviceInstance = serviceProvider.GetRequiredService(SchemaProviders[providerName]);
 
                 if (serviceInstance is not ITenantSchemaProvider genericProvider)
                 {
@@ -107,7 +109,7 @@ class DefaultProviderConfiguration
         {
             if (LookupProviders.ContainsKey(providerName))
             {
-                var serviceInstance = serviceProvider.GetService(LookupProviders[providerName]);
+                var serviceInstance = serviceProvider.GetRequiredService(LookupProviders[providerName]);
 
                 if (serviceInstance is not ITenantLookupProvider lookupProvider)
                 {
@@ -135,7 +137,7 @@ class DefaultProviderConfiguration
         {
             if (MlModelProviders.ContainsKey(providerName))
             {
-                var serviceInstance = serviceProvider.GetService(MlModelProviders[providerName]);
+                var serviceInstance = serviceProvider.GetRequiredService(MlModelProviders[providerName]);
 
                 if (serviceInstance is not ITenantMlModelProvider mlModelProvider)
                 {
@@ -163,7 +165,7 @@ class DefaultProviderConfiguration
         {
             if (StatisticProviders.ContainsKey(providerName))
             {
-                var serviceInstance = serviceProvider.GetService(StatisticProviders[providerName]);
+                var serviceInstance = serviceProvider.GetRequiredService(StatisticProviders[providerName]);
 
                 if (serviceInstance is not ITenantStatisticProvider statisticProvider)
                 {
