@@ -14,6 +14,20 @@ class TenantStorageProviderProxy : ITenantStorageProvider
         ConnectionRepository = connectionRepository;
     }
 
+    public async Task<string> GetConnectionStringAsync(Guid tenant)
+    {
+        var connection = await ConnectionRepository.ByIdAsync(tenant);
+
+        if (connection == null)
+        {
+            throw new ArgumentException($"Tenant {tenant} does not exist");
+        }
+        
+        var provider = ProviderRegistry.GetStorageProvider(connection.Provider ?? "mssql");
+
+        return await provider.GetConnectionStringAsync(tenant);
+    }
+
     public async Task<IDbConnection> OpenConnectionAsync(Guid tenant)
     {
         var connection = await ConnectionRepository.ByIdAsync(tenant);
