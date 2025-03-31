@@ -25,7 +25,7 @@ class DefaultProviderConfiguration
         {
             if (StorageProviders.ContainsKey(providerName))
             {
-                var serviceInstance = serviceProvider.GetRequiredService(GenericProviders[providerName]);
+                var serviceInstance = serviceProvider.GetRequiredService(StorageProviders[providerName]);
 
                 if (serviceInstance is not ITenantStorageProvider storageProvider)
                 {
