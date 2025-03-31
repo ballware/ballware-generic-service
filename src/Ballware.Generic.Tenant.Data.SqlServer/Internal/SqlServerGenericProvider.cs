@@ -330,7 +330,7 @@ class SqlServerGenericProvider : ITenantGenericProvider
     {
         var scriptingExecutor = Services.GetRequiredService<IGenericEntityScriptingExecutor>();
         
-        var preliminaryCheckResult = await ScriptingExecutor.RemovePreliminaryCheckAsync(
+        var preliminaryCheckResult = await scriptingExecutor.RemovePreliminaryCheckAsync(
             db,
             transaction, 
             tenant,
