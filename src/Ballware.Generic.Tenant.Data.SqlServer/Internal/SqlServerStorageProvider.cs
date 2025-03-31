@@ -12,7 +12,19 @@ class SqlServerStorageProvider : ITenantStorageProvider
     {
         ConnectionRepository = connectionRepository;
     }
-    
+
+    public async Task<string> GetConnectionStringAsync(Guid tenant)
+    {
+        var tenantConnection = await ConnectionRepository.ByIdAsync(tenant);
+
+        if (tenantConnection == null || tenantConnection.ConnectionString == null)
+        {
+            throw new ArgumentException($"Tenant {tenant} does not exist");
+        }
+        
+        return tenantConnection.ConnectionString;
+    }
+
     public async Task<IDbConnection> OpenConnectionAsync(Guid tenant)
     {
         var tenantConnection = await ConnectionRepository.ByIdAsync(tenant);
