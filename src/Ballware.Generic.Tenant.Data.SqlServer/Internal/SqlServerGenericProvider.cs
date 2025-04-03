@@ -193,7 +193,7 @@ class SqlServerGenericProvider : ITenantGenericProvider
 
         queryParams = Utils.TransferToSqlVariables(queryParams, claims, ClaimVariablePrefix);
 
-        return (await db.QueryAsync<dynamic>(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, query.Query, TenantPlaceholderOptions.Create()), queryParams, transaction)).LongCount();
+        return await db.QuerySingleAsync<long>(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, query.Query, TenantPlaceholderOptions.Create()), queryParams, transaction);
     }
 
     public async Task<T?> ProcessQuerySingleAsync<T>(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims, IDictionary<string, object> p) where T : class

@@ -169,7 +169,8 @@ public class SqlServerGenericProviderTest
             Application = "test",
             Identifier = "testentity",
             ListQuery = [
-                new QueryEntry() { Identifier = "primary", Query = "select Uuid as Id, Coltextline, Colnumber from testentity" }
+                new QueryEntry() { Identifier = "primary", Query = "select Uuid as Id, Coltextline, Colnumber from testentity" },
+                new QueryEntry() { Identifier = "count", Query = "select count (*) from testentity" }
             ],
             NewQuery = [
                 new QueryEntry() { Identifier = "primary", Query = "select Id=NEWID(), Coltextline = 'test textline', Colnumber = 3" }
@@ -218,14 +219,26 @@ public class SqlServerGenericProviderTest
         Assert.That(byIdEntry.Coltextline, Is.EqualTo("test textline updated"));
         Assert.That(byIdEntry.Colnumber, Is.EqualTo(7));
         
-        var countResult = await genericProvider.CountAsync(Tenant, entity, "primary", Claims, ImmutableDictionary<string, object>.Empty);
+        var countResult = await genericProvider.CountAsync(Tenant, entity, "count", Claims, ImmutableDictionary<string, object>.Empty);
         
         Assert.That(countResult, Is.EqualTo(1));
         
+        var secondEntry = await genericProvider.NewAsync<dynamic>(Tenant, entity, "primary", Claims);
+
+        Assert.That(secondEntry, Is.Not.Null);
+        
+        secondEntry.Coltextline = "test textline second entry";
+
+        await genericProvider.SaveAsync(Tenant, entity, UserId, "primary", Claims, secondEntry);
+        
+        countResult = await genericProvider.CountAsync(Tenant, entity, "count", Claims, ImmutableDictionary<string, object>.Empty);
+        
+        Assert.That(countResult, Is.EqualTo(2)); 
+        
         await genericProvider.RemoveAsync(Tenant, entity, UserId, Claims, queryEntry.Id);
         
-        countResult = await genericProvider.CountAsync(Tenant, entity, "notexistingforcedefault", Claims, ImmutableDictionary<string, object>.Empty);
+        countResult = await genericProvider.CountAsync(Tenant, entity, "count", Claims, ImmutableDictionary<string, object>.Empty);
         
-        Assert.That(countResult, Is.EqualTo(0));        
+        Assert.That(countResult, Is.EqualTo(1));        
     }
 }
