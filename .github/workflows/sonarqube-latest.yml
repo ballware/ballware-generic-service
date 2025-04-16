@@ -45,7 +45,7 @@ jobs:
       - name: Install SonarQube
         run: dotnet tool install --global dotnet-sonarscanner
       - name: Install dotCover
-        run: dotnet tool install --global JetBrains.dotCover.GlobalTool
+        run: dotnet tool install --global JetBrains.dotCover.CommandLineTools
       - name: Start SonarQube scan
         run: dotnet sonarscanner begin /k:"ballware_ballware-generic-service" /o:"ballware" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.dotcover.reportsPaths="dotCover.Output.html"
       - name: Build solution for SonarQube
