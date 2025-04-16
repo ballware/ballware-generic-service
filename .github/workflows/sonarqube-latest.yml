@@ -51,6 +51,6 @@ jobs:
       - name: Build solution for SonarQube
         run: dotnet build ballware-generic-service.sln --no-incremental
       - name: Run tests with coverage report        
-        run: dotnet dotcover test ballware-generic-service.sln --dcReportType=HTML --environment ConnectionStrings__TenantConnection='${{ secrets.TEST_TENANT_CONNECTIONSTRING }}'
+        run: dotnet dotCover test ballware-generic-service.sln --dcReportType=HTML --environment ConnectionStrings__TenantConnection='${{ secrets.TEST_TENANT_CONNECTIONSTRING }}'
       - name: End SonarQube scan
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}" 
