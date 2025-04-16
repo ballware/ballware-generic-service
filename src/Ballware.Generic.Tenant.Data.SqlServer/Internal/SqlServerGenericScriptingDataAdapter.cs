@@ -44,9 +44,7 @@ class SqlServerGenericScriptingDataAdapter : ITenantDataAdapter
     {
         var result = QuerySingle(db, transaction, tenant, entity, claims, entity.ScalarValueQuery ?? "primary", p);
 
-        object? value = null;
-        
-        if (result is IDictionary<string, object> && result.TryGetValue(column, out value))
+        if (result is IDictionary<string, object> resultDict && resultDict.TryGetValue(column, out object? value))
         {
             return value;
         }
