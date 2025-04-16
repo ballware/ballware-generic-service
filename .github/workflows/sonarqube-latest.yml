@@ -47,7 +47,7 @@ jobs:
       - name: Install reportgenerator
         run: dotnet tool install -g dotnet-reportgenerator-globaltool
       - name: Start SonarQube scan
-        run: dotnet sonarscanner begin /k:"ballware_ballware-generic-service" /o:"ballware" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.lcov.reportsPaths="CoverageReport/lcov.info"
+        run: dotnet sonarscanner begin /k:"ballware_ballware-generic-service" /o:"ballware" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.lcov.reportPaths="CoverageReport/lcov.info"
       - name: Build solution for SonarQube
         run: dotnet build ballware-generic-service.sln --no-incremental
       - name: Run tests with coverage report        
