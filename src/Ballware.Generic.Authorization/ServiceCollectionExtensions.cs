@@ -6,7 +6,7 @@ namespace Ballware.Generic.Authorization;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddBallwareAuthorizationUtils(this IServiceCollection services, string tenantClaim, string userIdClaim, string rightClaim)
+    public static IServiceCollection AddBallwareGenericAuthorizationUtils(this IServiceCollection services, string tenantClaim, string userIdClaim, string rightClaim)
     {
         services.AddSingleton<IPrincipalUtils>(new DefaultPrincipalUtils(tenantClaim, userIdClaim, rightClaim));
 
