@@ -39,4 +39,9 @@ public class TenantStorageBuilder
     {
         ProviderConfiguration.RegisterStatisticProvider<TProvider>(providerName);
     }
+    
+    public void RegisterSchemaProvider<TProvider>(string providerName) where TProvider : ITenantSchemaProvider
+    {
+        ProviderConfiguration.RegisterSchemaProvider<TProvider>(providerName);
+    }
 }

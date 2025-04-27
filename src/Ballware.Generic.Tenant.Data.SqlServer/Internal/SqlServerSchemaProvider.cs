@@ -20,7 +20,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         StorageProvider = tenantStorageProvider;
     }
     
-    public async Task CreateOrUpdateEntityAsync(Guid tenant, string entity, string serializedEntityModel, Guid? userId)
+    public async Task CreateOrUpdateEntityAsync(Guid tenant, string serializedEntityModel, Guid? userId)
     {
         var connection = await Repository.ByIdAsync(tenant);
 
@@ -34,7 +34,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         }
     }
 
-    public async Task DropEntityAsync(Guid tenant, string entity, Guid? userId)
+    public async Task DropEntityAsync(Guid tenant, string application, string identifier, Guid? userId)
     {
         var connection = await Repository.ByIdAsync(tenant);
 
@@ -42,11 +42,11 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         {
             using var tenantDb = await StorageProvider.OpenConnectionAsync(tenant);
             
-            tenantDb.DropTable(connection.Schema ?? "dbo", entity);
+            tenantDb.DropTable(connection.Schema ?? "dbo", identifier);
         }
     }
 
-    public async Task CreateOrUpdateTenantAsync(Guid tenant, string serializedTenantModel, Guid? userId)
+    public async Task CreateOrUpdateTenantAsync(Guid tenant, string provider, string serializedTenantModel, Guid? userId)
     {   
         var nextTenantModel = JsonConvert.DeserializeObject<SqlServerTenantModel>(serializedTenantModel) ?? SqlServerTenantModel.Empty;
         

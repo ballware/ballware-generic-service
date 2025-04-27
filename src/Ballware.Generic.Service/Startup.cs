@@ -123,6 +123,20 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                     .Where(c => "scope" == c.Type)
                     .SelectMany(c => c.Value.Split(' '))
                     .Any(s => s.Equals(authorizationOptions.RequiredMetaScope, StringComparison.Ordinal)))
+            )
+            .AddPolicy("serviceApi", policy => policy.RequireAssertion(context =>
+                context.User
+                    .Claims
+                    .Where(c => "scope" == c.Type)
+                    .SelectMany(c => c.Value.Split(' '))
+                    .Any(s => s.Equals(authorizationOptions.RequiredServiceScope, StringComparison.Ordinal)))
+            )
+            .AddPolicy("schemaApi", policy => policy.RequireAssertion(context =>
+                context.User
+                    .Claims
+                    .Where(c => "scope" == c.Type)
+                    .SelectMany(c => c.Value.Split(' '))
+                    .Any(s => s.Equals(authorizationOptions.RequiredSchemaScope, StringComparison.Ordinal)))
             );
 
         if (corsOptions != null)
@@ -234,6 +248,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             builder.AddSqlServerTenantDataStorage(tenantMasterConnectionString);
         });
         
+        Services.AddEndpointsApiExplorer();
+        
         if (swaggerOptions != null)
         {
             Services.AddSwaggerGen(c =>
@@ -241,6 +257,18 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 c.SwaggerDoc("generic", new Microsoft.OpenApi.Models.OpenApiInfo
                 {
                     Title = "ballware Generic API",
+                    Version = "v1"
+                });
+                
+                c.SwaggerDoc("service", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "ballware Service API",
+                    Version = "v1"
+                });
+                
+                c.SwaggerDoc("schema", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "ballware Schema API",
                     Version = "v1"
                 });
 
@@ -280,7 +308,6 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
         app.UseAuthorization();
 
-        app.MapControllers();
         app.MapLookupUserDataApi("/api/lookup");
         app.MapLookupServiceDataApi("/api/lookup");
         app.MapMlModelDataApi("/api/mlmodel");
@@ -288,6 +315,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         app.MapStatisticDataApi("/api/statistic");
         app.MapTenantServiceDataApi("/api/tenant");
         app.MapGenericDataApi("/api/generic");
+        
+        app.MapTenantServiceSchemaApi("/api/tenant");
 
         var authorizationOptions = app.Services.GetService<IOptions<AuthorizationOptions>>()?.Value;
         var swaggerOptions = app.Services.GetService<IOptions<SwaggerOptions>>()?.Value;
@@ -303,6 +332,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("generic/swagger.json", "ballware Generic API");
+                    c.SwaggerEndpoint("service/swagger.json", "ballware Service API");
+                    c.SwaggerEndpoint("schema/swagger.json", "ballware Schema API");
 
                     c.OAuthClientId(swaggerOptions.ClientId);
                     c.OAuthClientSecret(swaggerOptions.ClientSecret);

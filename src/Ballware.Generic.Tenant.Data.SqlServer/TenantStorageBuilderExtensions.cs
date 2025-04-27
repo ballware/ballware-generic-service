@@ -27,6 +27,7 @@ public static class TenantStorageBuilderExtensions
         builder.RegisterLookupProvider<SqlServerLookupProvider>("mssql");
         builder.RegisterMlModelProvider<SqlServerMlModelProvider>("mssql");
         builder.RegisterStatisticProvider<SqlServerStatisticProvider>("mssql");
+        builder.RegisterSchemaProvider<SqlServerSchemaProvider>("mssql");
 
         SqlMapper.AddTypeHandler(new SqlServerColumnTypeHandler());
         

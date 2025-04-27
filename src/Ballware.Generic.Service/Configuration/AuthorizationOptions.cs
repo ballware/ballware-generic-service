@@ -23,4 +23,5 @@ public class AuthorizationOptions
     public bool RequireHttpsMetadata { get; set; } = true;
     public string RequiredMetaScope { get; set; } = "metaApi";
     public string RequiredServiceScope { get; set; } = "serviceApi";
+    public string RequiredSchemaScope { get; set; } = "schemaApi";
 }

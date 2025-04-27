@@ -114,7 +114,7 @@ public class SqlServerGenericProviderTest
         
         SchemaProvider = new SqlServerSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
             
-        await SchemaProvider.CreateOrUpdateTenantAsync(TenantId, serializedTenantModel, UserId);
+        await SchemaProvider.CreateOrUpdateTenantAsync(TenantId, "mssql", serializedTenantModel, UserId);
     }
 
     [TearDown]
@@ -160,7 +160,7 @@ public class SqlServerGenericProviderTest
             
         var serializedEntityModel = JsonConvert.SerializeObject(entityModel);
         
-        await SchemaProvider.CreateOrUpdateEntityAsync(TenantId, "testentity", serializedEntityModel, UserId);
+        await SchemaProvider.CreateOrUpdateEntityAsync(TenantId, serializedEntityModel, UserId);
         
         var genericProvider = new SqlServerGenericProvider(new SqlServerStorageProvider(ConnectionRepositoryMock.Object), app.Services);
 

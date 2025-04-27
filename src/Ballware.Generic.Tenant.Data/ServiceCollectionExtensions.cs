@@ -14,6 +14,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITenantLookupProvider, TenantLookupProviderProxy>();
         services.AddScoped<ITenantMlModelProvider, TenantMlModelProviderProxy>();
         services.AddScoped<ITenantStatisticProvider, TenantStatisticProviderProxy>();
+        services.AddScoped<ITenantSchemaProvider, TenantSchemaProviderProxy>();
 
         var defaultProviderConfiguration = new DefaultProviderConfiguration();
         var tenantStorageBuilder = new TenantStorageBuilder(services, defaultProviderConfiguration);

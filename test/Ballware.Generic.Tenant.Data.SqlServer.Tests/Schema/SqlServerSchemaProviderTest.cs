@@ -91,7 +91,7 @@ public class SqlServerSchemaProviderTest
         {
             var provider = new SqlServerSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
             
-            await provider.CreateOrUpdateTenantAsync(tenantId, serializedTenantModel, userId);
+            await provider.CreateOrUpdateTenantAsync(tenantId, "mssql", serializedTenantModel, userId);
             
             ConnectionRepositoryMock.Setup(m => m.ByIdAsync(tenantId))
                 .ReturnsAsync((Guid _) => createdConnection);
@@ -194,7 +194,7 @@ public class SqlServerSchemaProviderTest
         {
             var provider = new SqlServerSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
 
-            await provider.CreateOrUpdateTenantAsync(tenantId, serializedTenantModel, userId);
+            await provider.CreateOrUpdateTenantAsync(tenantId, "mssql", serializedTenantModel, userId);
             
             ConnectionRepositoryMock.Setup(m => m.ByIdAsync(tenantId))
                 .ReturnsAsync((Guid _) => createdConnection);
@@ -296,7 +296,7 @@ public class SqlServerSchemaProviderTest
             var provider = new SqlServerSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
             var serializedTenantModel = JsonConvert.SerializeObject(tenantModel);
             
-            await provider.CreateOrUpdateTenantAsync(tenantId, serializedTenantModel, userId);
+            await provider.CreateOrUpdateTenantAsync(tenantId, "mssql", serializedTenantModel, userId);
             
             ConnectionRepositoryMock.Setup(m => m.ByIdAsync(tenantId))
                 .ReturnsAsync((Guid _) => createdConnection);
@@ -319,13 +319,13 @@ public class SqlServerSchemaProviderTest
 
             serializedTenantModel = JsonConvert.SerializeObject(tenantModel);
             
-            await provider.CreateOrUpdateTenantAsync(tenantId, serializedTenantModel, userId);
+            await provider.CreateOrUpdateTenantAsync(tenantId, "mssql", serializedTenantModel, userId);
             
             tenantModel.DatabaseObjects = [];
             
             serializedTenantModel = JsonConvert.SerializeObject(tenantModel);
             
-            await provider.CreateOrUpdateTenantAsync(tenantId, serializedTenantModel, userId);
+            await provider.CreateOrUpdateTenantAsync(tenantId, "mssql", serializedTenantModel, userId);
             
             await provider.DropTenantAsync(tenantId, userId);
         }
@@ -386,7 +386,7 @@ public class SqlServerSchemaProviderTest
         {
             var provider = new SqlServerSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
             
-            await provider.CreateOrUpdateTenantAsync(tenantId, serializedTenantModel, userId);
+            await provider.CreateOrUpdateTenantAsync(tenantId, "mssql", serializedTenantModel, userId);
             
             ConnectionRepositoryMock.Setup(m => m.ByIdAsync(tenantId))
                 .ReturnsAsync((Guid _) => createdConnection);
@@ -403,8 +403,8 @@ public class SqlServerSchemaProviderTest
             
             var serializedEntityModel = JsonConvert.SerializeObject(entityModel);
             
-            await provider.CreateOrUpdateEntityAsync(tenantId, "fakeentity", serializedEntityModel, userId);
-            await provider.DropEntityAsync(tenantId, "fakeentity", userId);
+            await provider.CreateOrUpdateEntityAsync(tenantId, serializedEntityModel, userId);
+            await provider.DropEntityAsync(tenantId, "fake", "fakeentity", userId);
             
             await provider.DropTenantAsync(tenantId, userId);
         }
