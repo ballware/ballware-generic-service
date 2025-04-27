@@ -79,5 +79,7 @@ public class Entity
     
     public string? ExtendedRightsCheckScript { get; set; }
     
+    public string? StateColumn { get; set; }
+    
     public string? StateAllowedScript { get; set; }
 }

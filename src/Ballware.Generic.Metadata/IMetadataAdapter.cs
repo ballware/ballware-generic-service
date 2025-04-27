@@ -5,8 +5,19 @@ public interface IMetadataAdapter
     Task<Tenant?> MetadataForTenantByIdAsync(Guid tenantId);
     Task<Entity?> MetadataForEntityByTenantAndIdentifierAsync(Guid tenantId, string identifier);
     
+    Task<Lookup?> MetadataForLookupByTenantAndIdAsync(Guid tenantId, Guid id);
+    Task<Lookup?> MetadataForLookupByTenantAndIdentifierAsync(Guid tenantId, string identifier);
+    
+    Task<IEnumerable<Lookup>> MetadataForLookupsByTenantAsync(Guid tenantId);
+    
+    Task<MlModel?> MetadataForMlModelByTenantAndIdAsync(Guid tenantId, Guid id);
+    Task<Statistic?> MetadataForStatisticByTenantAndIdentifierAsync(Guid tenantId, string identifier);
+    
     Entity MetadataForEntityByTenantAndIdentifier(Guid tenant, string identifier);
 
+    Task<IEnumerable<ProcessingStateSelectListEntry>> SelectListPossibleSuccessorsForEntityAsync(Guid tenantId,
+        string entity, int state);
+    
     ProcessingState? SingleProcessingStateForTenantAndEntityByValue(Guid tenant, string entity, int state);
     
     Notification? MetadataForNotificationByTenantAndIdentifier(Guid tenant, string identifier);

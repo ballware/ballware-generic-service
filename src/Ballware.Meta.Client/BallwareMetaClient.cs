@@ -48,37 +48,37 @@ namespace Ballware.Meta.Client
         /// <summary>
         /// Query available documents for tenant
         /// </summary>
-        /// <returns>List of available documents for tenant</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<DocumentSelectListEntry>> DocumentsForTenantAsync(System.Guid tenant)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<DocumentSelectListEntry>> DocumentSelectListForTenantAsync(System.Guid tenantId)
         {
-            return DocumentsForTenantAsync(tenant, System.Threading.CancellationToken.None);
+            return DocumentSelectListForTenantAsync(tenantId, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
         /// Query available documents for tenant
         /// </summary>
-        /// <returns>List of available documents for tenant</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Collections.Generic.ICollection<DocumentSelectListEntry> DocumentsForTenant(System.Guid tenant)
+        public virtual System.Collections.Generic.ICollection<DocumentSelectListEntry> DocumentSelectListForTenant(System.Guid tenantId)
         {
-            return System.Threading.Tasks.Task.Run(async () => await DocumentsForTenantAsync(tenant, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await DocumentSelectListForTenantAsync(tenantId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
         /// Query available documents for tenant
         /// </summary>
-        /// <returns>List of available documents for tenant</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<DocumentSelectListEntry>> DocumentsForTenantAsync(System.Guid tenant, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<DocumentSelectListEntry>> DocumentSelectListForTenantAsync(System.Guid tenantId, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/Document/selectlistdocumentsfortenant/{tenant}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("api/document/selectlistdocumentsfortenant/{tenantId}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -110,12 +110,6 @@ namespace Ballware.Meta.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
-                        }
-                        else
                         if (status_ == 200)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<DocumentSelectListEntry>>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -126,6 +120,12 @@ namespace Ballware.Meta.Client
                             return objectResponse_.Object;
                         }
                         else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
@@ -148,40 +148,40 @@ namespace Ballware.Meta.Client
         /// <summary>
         /// Query document metadata by tenant and id
         /// </summary>
-        /// <returns>Document metadata</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Document> MetadataForDocumentByTenantAndIdAsync(System.Guid tenant, System.Guid id)
+        public virtual System.Threading.Tasks.Task<Document> DocumentMetadataForTenantAndIdAsync(System.Guid tenantId, System.Guid id)
         {
-            return MetadataForDocumentByTenantAndIdAsync(tenant, id, System.Threading.CancellationToken.None);
+            return DocumentMetadataForTenantAndIdAsync(tenantId, id, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
         /// Query document metadata by tenant and id
         /// </summary>
-        /// <returns>Document metadata</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual Document MetadataForDocumentByTenantAndId(System.Guid tenant, System.Guid id)
+        public virtual Document DocumentMetadataForTenantAndId(System.Guid tenantId, System.Guid id)
         {
-            return System.Threading.Tasks.Task.Run(async () => await MetadataForDocumentByTenantAndIdAsync(tenant, id, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await DocumentMetadataForTenantAndIdAsync(tenantId, id, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
         /// Query document metadata by tenant and id
         /// </summary>
-        /// <returns>Document metadata</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Document> MetadataForDocumentByTenantAndIdAsync(System.Guid tenant, System.Guid id, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Document> DocumentMetadataForTenantAndIdAsync(System.Guid tenantId, System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
 
             if (id == null)
                 throw new System.ArgumentNullException("id");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/Document/documentmetadatabytenantandid/{tenant}/{id}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("api/document/documentmetadatabytenantandid/{tenantId}/{id}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
@@ -214,12 +214,6 @@ namespace Ballware.Meta.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
-                        }
-                        else
                         if (status_ == 200)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Document>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -228,6 +222,112 @@ namespace Ballware.Meta.Client
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Query new document template for tenant
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<Document> DocumentNewForTenantAndUserAsync(System.Guid tenantId)
+        {
+            return DocumentNewForTenantAndUserAsync(tenantId, System.Threading.CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Query new document template for tenant
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual Document DocumentNewForTenantAndUser(System.Guid tenantId)
+        {
+            return System.Threading.Tasks.Task.Run(async () => await DocumentNewForTenantAndUserAsync(tenantId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Query new document template for tenant
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<Document> DocumentNewForTenantAndUserAsync(System.Guid tenantId, System.Threading.CancellationToken cancellationToken)
+        {
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append("api/document/documenttemplatebehalfofuserbytenant/{tenantId}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Document>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -252,41 +352,44 @@ namespace Ballware.Meta.Client
         /// <summary>
         /// Save document behalf of user
         /// </summary>
-        /// <returns>Save Document</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task SaveDocumentBehalfOfUserAsync(System.Guid tenant, System.Guid user, Document body)
+        public virtual System.Threading.Tasks.Task DocumentSaveForTenantBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, Document body)
         {
-            return SaveDocumentBehalfOfUserAsync(tenant, user, body, System.Threading.CancellationToken.None);
+            return DocumentSaveForTenantBehalfOfUserAsync(tenantId, userId, body, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
         /// Save document behalf of user
         /// </summary>
-        /// <returns>Save Document</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual void SaveDocumentBehalfOfUser(System.Guid tenant, System.Guid user, Document body)
+        public virtual void DocumentSaveForTenantBehalfOfUser(System.Guid tenantId, System.Guid userId, Document body)
         {
-            System.Threading.Tasks.Task.Run(async () => await SaveDocumentBehalfOfUserAsync(tenant, user, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            System.Threading.Tasks.Task.Run(async () => await DocumentSaveForTenantBehalfOfUserAsync(tenantId, userId, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
         /// Save document behalf of user
         /// </summary>
-        /// <returns>Save Document</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task SaveDocumentBehalfOfUserAsync(System.Guid tenant, System.Guid user, Document body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task DocumentSaveForTenantBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, Document body, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
 
-            if (user == null)
-                throw new System.ArgumentNullException("user");
+            if (userId == null)
+                throw new System.ArgumentNullException("userId");
+
+            if (body == null)
+                throw new System.ArgumentNullException("body");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/Document/savedocumentbehalfofuser/{tenant}/{user}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{user}", System.Uri.EscapeDataString(ConvertToString(user, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("api/document/savedocumentbehalfofuser/{tenantId}/{userId}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -296,7 +399,7 @@ namespace Ballware.Meta.Client
                 {
                     var json_ = Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value);
                     var content_ = new System.Net.Http.StringContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
 
@@ -321,17 +424,17 @@ namespace Ballware.Meta.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
-                        }
-                        else
                         if (status_ == 200)
                         {
                             return;
                         }
                         else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
@@ -352,43 +455,43 @@ namespace Ballware.Meta.Client
         }
 
         /// <summary>
-        /// Query new document template by tenant behalf of user
+        /// Query metadata for entity
         /// </summary>
-        /// <returns>Document template</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Document> DocumentTemplateBehalfOfUserByTenantAsync(System.Guid tenant, System.Guid user)
+        public virtual System.Threading.Tasks.Task<ServiceEntity> EntityServiceMetadataForTenantByIdentifierAsync(System.Guid tenantId, string identifier)
         {
-            return DocumentTemplateBehalfOfUserByTenantAsync(tenant, user, System.Threading.CancellationToken.None);
+            return EntityServiceMetadataForTenantByIdentifierAsync(tenantId, identifier, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
-        /// Query new document template by tenant behalf of user
+        /// Query metadata for entity
         /// </summary>
-        /// <returns>Document template</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual Document DocumentTemplateBehalfOfUserByTenant(System.Guid tenant, System.Guid user)
+        public virtual ServiceEntity EntityServiceMetadataForTenantByIdentifier(System.Guid tenantId, string identifier)
         {
-            return System.Threading.Tasks.Task.Run(async () => await DocumentTemplateBehalfOfUserByTenantAsync(tenant, user, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await EntityServiceMetadataForTenantByIdentifierAsync(tenantId, identifier, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Query new document template by tenant behalf of user
+        /// Query metadata for entity
         /// </summary>
-        /// <returns>Document template</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Document> DocumentTemplateBehalfOfUserByTenantAsync(System.Guid tenant, System.Guid user, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ServiceEntity> EntityServiceMetadataForTenantByIdentifierAsync(System.Guid tenantId, string identifier, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
 
-            if (user == null)
-                throw new System.ArgumentNullException("user");
+            if (identifier == null)
+                throw new System.ArgumentNullException("identifier");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/Document/documenttemplatebehalfofuserbytenant/{tenant}/{user}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{user}", System.Uri.EscapeDataString(ConvertToString(user, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("api/entity/servicemetadatafortenantbyidentifier/{tenantId}/{identifier}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{identifier}", System.Uri.EscapeDataString(ConvertToString(identifier, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -420,129 +523,6 @@ namespace Ballware.Meta.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<Document>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Query metadata for entity by tenant and identifier
-        /// </summary>
-        /// <param name="tenant">Tenant identifier</param>
-        /// <param name="entity">Entity metadata identifier</param>
-        /// <returns>Entity metadata for service operations</returns>
-        /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ServiceEntity> MetadataForEntityByTenantdAndIdentifierAsync(System.Guid? tenant, string entity)
-        {
-            return MetadataForEntityByTenantdAndIdentifierAsync(tenant, entity, System.Threading.CancellationToken.None);
-        }
-
-        /// <summary>
-        /// Query metadata for entity by tenant and identifier
-        /// </summary>
-        /// <param name="tenant">Tenant identifier</param>
-        /// <param name="entity">Entity metadata identifier</param>
-        /// <returns>Entity metadata for service operations</returns>
-        /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual ServiceEntity MetadataForEntityByTenantdAndIdentifier(System.Guid? tenant, string entity)
-        {
-            return System.Threading.Tasks.Task.Run(async () => await MetadataForEntityByTenantdAndIdentifierAsync(tenant, entity, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Query metadata for entity by tenant and identifier
-        /// </summary>
-        /// <param name="tenant">Tenant identifier</param>
-        /// <param name="entity">Entity metadata identifier</param>
-        /// <returns>Entity metadata for service operations</returns>
-        /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ServiceEntity> MetadataForEntityByTenantdAndIdentifierAsync(System.Guid? tenant, string entity, System.Threading.CancellationToken cancellationToken)
-        {
-            if (entity == null)
-                throw new System.ArgumentNullException("entity");
-
-            var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/Entity/metadatabytenantandidentifier/{entity}?");
-            urlBuilder_.Replace("{entity}", System.Uri.EscapeDataString(ConvertToString(entity, System.Globalization.CultureInfo.InvariantCulture)));
-            if (tenant != null)
-            {
-                urlBuilder_.Append(System.Uri.EscapeDataString("tenant") + "=").Append(System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            }
-            urlBuilder_.Length--;
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
                         if (status_ == 200)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<ServiceEntity>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -553,110 +533,12 @@ namespace Ballware.Meta.Client
                             return objectResponse_.Object;
                         }
                         else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Create new export for tenant behalf of user
-        /// </summary>
-        /// <returns>Export data</returns>
-        /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ServiceExport> CreateExportForTenantBehalfOfUserAsync(System.Guid tenant, System.Guid user)
-        {
-            return CreateExportForTenantBehalfOfUserAsync(tenant, user, System.Threading.CancellationToken.None);
-        }
-
-        /// <summary>
-        /// Create new export for tenant behalf of user
-        /// </summary>
-        /// <returns>Export data</returns>
-        /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual ServiceExport CreateExportForTenantBehalfOfUser(System.Guid tenant, System.Guid user)
-        {
-            return System.Threading.Tasks.Task.Run(async () => await CreateExportForTenantBehalfOfUserAsync(tenant, user, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Create new export for tenant behalf of user
-        /// </summary>
-        /// <returns>Export data</returns>
-        /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ServiceExport> CreateExportForTenantBehalfOfUserAsync(System.Guid tenant, System.Guid user, System.Threading.CancellationToken cancellationToken)
-        {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
-
-            if (user == null)
-                throw new System.ArgumentNullException("user");
-
-            var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/Export/createexportfortenantbehalfofuser/{tenant}/{user}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{user}", System.Uri.EscapeDataString(ConvertToString(user, System.Globalization.CultureInfo.InvariantCulture)));
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
                         if (status_ == 401)
                         {
                             string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<ServiceExport>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
@@ -677,42 +559,42 @@ namespace Ballware.Meta.Client
         }
 
         /// <summary>
-        /// Fetch export for tenant behalf of user
+        /// Fetch export for tenant by id
         /// </summary>
-        /// <returns>Export data</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ServiceExport> FetchExportByIdForTenantAsync(System.Guid tenant, System.Guid id)
+        public virtual System.Threading.Tasks.Task<Export> ExportFetchForTenantByIdAsync(System.Guid tenantId, System.Guid id)
         {
-            return FetchExportByIdForTenantAsync(tenant, id, System.Threading.CancellationToken.None);
+            return ExportFetchForTenantByIdAsync(tenantId, id, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
-        /// Fetch export for tenant behalf of user
+        /// Fetch export for tenant by id
         /// </summary>
-        /// <returns>Export data</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual ServiceExport FetchExportByIdForTenant(System.Guid tenant, System.Guid id)
+        public virtual Export ExportFetchForTenantById(System.Guid tenantId, System.Guid id)
         {
-            return System.Threading.Tasks.Task.Run(async () => await FetchExportByIdForTenantAsync(tenant, id, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await ExportFetchForTenantByIdAsync(tenantId, id, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Fetch export for tenant behalf of user
+        /// Fetch export for tenant by id
         /// </summary>
-        /// <returns>Export data</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ServiceExport> FetchExportByIdForTenantAsync(System.Guid tenant, System.Guid id, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Export> ExportFetchForTenantByIdAsync(System.Guid tenantId, System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
 
             if (id == null)
                 throw new System.ArgumentNullException("id");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/Export/exportbyidfortenant/{tenant}/{id}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("api/export/exportbyidfortenant/{tenantId}/{id}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
@@ -745,21 +627,9 @@ namespace Ballware.Meta.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Export not found", status_, responseText_, headers_, null);
-                        }
-                        else
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<ServiceExport>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Export>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -767,97 +637,6 @@ namespace Ballware.Meta.Client
                             return objectResponse_.Object;
                         }
                         else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Save export behalf of user
-        /// </summary>
-        /// <returns>Save export</returns>
-        /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task SaveExportBehalfOfUserAsync(System.Guid tenant, System.Guid user, ServiceExport body)
-        {
-            return SaveExportBehalfOfUserAsync(tenant, user, body, System.Threading.CancellationToken.None);
-        }
-
-        /// <summary>
-        /// Save export behalf of user
-        /// </summary>
-        /// <returns>Save export</returns>
-        /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual void SaveExportBehalfOfUser(System.Guid tenant, System.Guid user, ServiceExport body)
-        {
-            System.Threading.Tasks.Task.Run(async () => await SaveExportBehalfOfUserAsync(tenant, user, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Save export behalf of user
-        /// </summary>
-        /// <returns>Save export</returns>
-        /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task SaveExportBehalfOfUserAsync(System.Guid tenant, System.Guid user, ServiceExport body, System.Threading.CancellationToken cancellationToken)
-        {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
-
-            if (user == null)
-                throw new System.ArgumentNullException("user");
-
-            var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/Export/saveexportbehalfofuser/{tenant}/{user}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{user}", System.Uri.EscapeDataString(ConvertToString(user, System.Globalization.CultureInfo.InvariantCulture)));
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var json_ = Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value);
-                    var content_ = new System.Net.Http.StringContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("POST");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
                         if (status_ == 401)
                         {
                             string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -870,11 +649,6 @@ namespace Ballware.Meta.Client
                             throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
                         }
                         else
-                        if (status_ == 200)
-                        {
-                            return;
-                        }
-                        else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
@@ -895,43 +669,46 @@ namespace Ballware.Meta.Client
         }
 
         /// <summary>
-        /// Create new background job for tenant behalf of user
+        /// Create new export for tenant behalf of user
         /// </summary>
-        /// <returns>Job data</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Job> CreateJobForTenantBehalfOfUserAsync(System.Guid tenant, System.Guid user, JobCreatePayload body)
+        public virtual System.Threading.Tasks.Task<System.Guid> ExportCreateForTenantBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, ExportCreatePayload body)
         {
-            return CreateJobForTenantBehalfOfUserAsync(tenant, user, body, System.Threading.CancellationToken.None);
+            return ExportCreateForTenantBehalfOfUserAsync(tenantId, userId, body, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
-        /// Create new background job for tenant behalf of user
+        /// Create new export for tenant behalf of user
         /// </summary>
-        /// <returns>Job data</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual Job CreateJobForTenantBehalfOfUser(System.Guid tenant, System.Guid user, JobCreatePayload body)
+        public virtual System.Guid ExportCreateForTenantBehalfOfUser(System.Guid tenantId, System.Guid userId, ExportCreatePayload body)
         {
-            return System.Threading.Tasks.Task.Run(async () => await CreateJobForTenantBehalfOfUserAsync(tenant, user, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await ExportCreateForTenantBehalfOfUserAsync(tenantId, userId, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Create new background job for tenant behalf of user
+        /// Create new export for tenant behalf of user
         /// </summary>
-        /// <returns>Job data</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Job> CreateJobForTenantBehalfOfUserAsync(System.Guid tenant, System.Guid user, JobCreatePayload body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Guid> ExportCreateForTenantBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, ExportCreatePayload body, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
 
-            if (user == null)
-                throw new System.ArgumentNullException("user");
+            if (userId == null)
+                throw new System.ArgumentNullException("userId");
+
+            if (body == null)
+                throw new System.ArgumentNullException("body");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/Job/createjobfortenantbehalfofuser/{tenant}/{user}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{user}", System.Uri.EscapeDataString(ConvertToString(user, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("api/export/createexportfortenantbehalfofuser/{tenantId}/{userId}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -941,7 +718,7 @@ namespace Ballware.Meta.Client
                 {
                     var json_ = Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value);
                     var content_ = new System.Net.Http.StringContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
@@ -967,26 +744,20 @@ namespace Ballware.Meta.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Job>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Guid>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -1009,43 +780,46 @@ namespace Ballware.Meta.Client
         }
 
         /// <summary>
-        /// Update background job for tenant behalf of user
+        /// Create new background job for tenant behalf of user
         /// </summary>
-        /// <returns>Job data</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Job> UpdateJobForTenantBehalfOfUserAsync(System.Guid tenant, System.Guid user, JobUpdatePayload body)
+        public virtual System.Threading.Tasks.Task<Job> JobCreateForTenantBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, JobCreatePayload body)
         {
-            return UpdateJobForTenantBehalfOfUserAsync(tenant, user, body, System.Threading.CancellationToken.None);
+            return JobCreateForTenantBehalfOfUserAsync(tenantId, userId, body, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
-        /// Update background job for tenant behalf of user
+        /// Create new background job for tenant behalf of user
         /// </summary>
-        /// <returns>Job data</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual Job UpdateJobForTenantBehalfOfUser(System.Guid tenant, System.Guid user, JobUpdatePayload body)
+        public virtual Job JobCreateForTenantBehalfOfUser(System.Guid tenantId, System.Guid userId, JobCreatePayload body)
         {
-            return System.Threading.Tasks.Task.Run(async () => await UpdateJobForTenantBehalfOfUserAsync(tenant, user, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await JobCreateForTenantBehalfOfUserAsync(tenantId, userId, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Update background job for tenant behalf of user
+        /// Create new background job for tenant behalf of user
         /// </summary>
-        /// <returns>Job data</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Job> UpdateJobForTenantBehalfOfUserAsync(System.Guid tenant, System.Guid user, JobUpdatePayload body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Job> JobCreateForTenantBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, JobCreatePayload body, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
 
-            if (user == null)
-                throw new System.ArgumentNullException("user");
+            if (userId == null)
+                throw new System.ArgumentNullException("userId");
+
+            if (body == null)
+                throw new System.ArgumentNullException("body");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/Job/updatejobfortenantbehalfofuser/{tenant}/{user}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{user}", System.Uri.EscapeDataString(ConvertToString(user, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("api/job/createjobfortenantbehalfofuser/{tenantId}/{userId}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -1055,7 +829,7 @@ namespace Ballware.Meta.Client
                 {
                     var json_ = Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value);
                     var content_ = new System.Net.Http.StringContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
@@ -1081,18 +855,6 @@ namespace Ballware.Meta.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
                         if (status_ == 200)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<Job>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -1101,6 +863,12 @@ namespace Ballware.Meta.Client
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -1123,42 +891,153 @@ namespace Ballware.Meta.Client
         }
 
         /// <summary>
-        /// Query model metadata by tenant and id
+        /// Update background job for tenant behalf of user
         /// </summary>
-        /// <returns>Model metadata</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<MlModel> MetadataForMlModelByTenantAndIdAsync(System.Guid tenant, System.Guid id)
+        public virtual System.Threading.Tasks.Task<Job> JobUpdateForTenantBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, JobUpdatePayload body)
         {
-            return MetadataForMlModelByTenantAndIdAsync(tenant, id, System.Threading.CancellationToken.None);
+            return JobUpdateForTenantBehalfOfUserAsync(tenantId, userId, body, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
-        /// Query model metadata by tenant and id
+        /// Update background job for tenant behalf of user
         /// </summary>
-        /// <returns>Model metadata</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual MlModel MetadataForMlModelByTenantAndId(System.Guid tenant, System.Guid id)
+        public virtual Job JobUpdateForTenantBehalfOfUser(System.Guid tenantId, System.Guid userId, JobUpdatePayload body)
         {
-            return System.Threading.Tasks.Task.Run(async () => await MetadataForMlModelByTenantAndIdAsync(tenant, id, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await JobUpdateForTenantBehalfOfUserAsync(tenantId, userId, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Query model metadata by tenant and id
+        /// Update background job for tenant behalf of user
         /// </summary>
-        /// <returns>Model metadata</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<MlModel> MetadataForMlModelByTenantAndIdAsync(System.Guid tenant, System.Guid id, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Job> JobUpdateForTenantBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, JobUpdatePayload body, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
+
+            if (userId == null)
+                throw new System.ArgumentNullException("userId");
+
+            if (body == null)
+                throw new System.ArgumentNullException("body");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append("api/job/updatejobfortenantbehalfofuser/{tenantId}/{userId}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var json_ = Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value);
+                    var content_ = new System.Net.Http.StringContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Job>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Query lookup metadata by tenant and identifier
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<Lookup> LookupMetadataForTenantAndIdAsync(System.Guid tenantId, System.Guid id)
+        {
+            return LookupMetadataForTenantAndIdAsync(tenantId, id, System.Threading.CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Query lookup metadata by tenant and identifier
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual Lookup LookupMetadataForTenantAndId(System.Guid tenantId, System.Guid id)
+        {
+            return System.Threading.Tasks.Task.Run(async () => await LookupMetadataForTenantAndIdAsync(tenantId, id, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Query lookup metadata by tenant and identifier
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<Lookup> LookupMetadataForTenantAndIdAsync(System.Guid tenantId, System.Guid id, System.Threading.CancellationToken cancellationToken)
+        {
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
 
             if (id == null)
                 throw new System.ArgumentNullException("id");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/MlModel/metadatabytenantandid/{tenant}/{id}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("api/lookup/lookupmetadatabytenantandid/{tenantId}/{id}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
@@ -1191,26 +1070,20 @@ namespace Ballware.Meta.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<MlModel>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Lookup>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -1233,42 +1106,42 @@ namespace Ballware.Meta.Client
         }
 
         /// <summary>
-        /// Query model metadata by tenant and identifier
+        /// Query lookup metadata by tenant and identifier
         /// </summary>
-        /// <returns>Model metadata</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<MlModel> MetadataForMlModelByTenantAndIdentifierAsync(System.Guid tenant, string identifier)
+        public virtual System.Threading.Tasks.Task<Lookup> LookupMetadataForTenantAndIdentifierAsync(System.Guid tenantId, string identifier)
         {
-            return MetadataForMlModelByTenantAndIdentifierAsync(tenant, identifier, System.Threading.CancellationToken.None);
+            return LookupMetadataForTenantAndIdentifierAsync(tenantId, identifier, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
-        /// Query model metadata by tenant and identifier
+        /// Query lookup metadata by tenant and identifier
         /// </summary>
-        /// <returns>Model metadata</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual MlModel MetadataForMlModelByTenantAndIdentifier(System.Guid tenant, string identifier)
+        public virtual Lookup LookupMetadataForTenantAndIdentifier(System.Guid tenantId, string identifier)
         {
-            return System.Threading.Tasks.Task.Run(async () => await MetadataForMlModelByTenantAndIdentifierAsync(tenant, identifier, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await LookupMetadataForTenantAndIdentifierAsync(tenantId, identifier, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Query model metadata by tenant and identifier
+        /// Query lookup metadata by tenant and identifier
         /// </summary>
-        /// <returns>Model metadata</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<MlModel> MetadataForMlModelByTenantAndIdentifierAsync(System.Guid tenant, string identifier, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Lookup> LookupMetadataForTenantAndIdentifierAsync(System.Guid tenantId, string identifier, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
 
             if (identifier == null)
                 throw new System.ArgumentNullException("identifier");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/MlModel/metadatabytenantandidentifier/{tenant}/{identifier}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("api/lookup/lookupmetadatabytenantandidentifier/{tenantId}/{identifier}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{identifier}", System.Uri.EscapeDataString(ConvertToString(identifier, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
@@ -1301,26 +1174,20 @@ namespace Ballware.Meta.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<MlModel>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Lookup>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -1343,43 +1210,39 @@ namespace Ballware.Meta.Client
         }
 
         /// <summary>
-        /// Save training behalf of user
+        /// Query lookup metadata by tenant
         /// </summary>
-        /// <returns>Save Training State</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task SaveMlModelTrainingStateBehalfOfUserAsync(System.Guid tenant, System.Guid user, MlModelTrainingState body)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Lookup>> LookupMetadataForTenantAsync(System.Guid tenantId)
         {
-            return SaveMlModelTrainingStateBehalfOfUserAsync(tenant, user, body, System.Threading.CancellationToken.None);
+            return LookupMetadataForTenantAsync(tenantId, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
-        /// Save training behalf of user
+        /// Query lookup metadata by tenant
         /// </summary>
-        /// <returns>Save Training State</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual void SaveMlModelTrainingStateBehalfOfUser(System.Guid tenant, System.Guid user, MlModelTrainingState body)
+        public virtual System.Collections.Generic.ICollection<Lookup> LookupMetadataForTenant(System.Guid tenantId)
         {
-            System.Threading.Tasks.Task.Run(async () => await SaveMlModelTrainingStateBehalfOfUserAsync(tenant, user, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await LookupMetadataForTenantAsync(tenantId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Save training behalf of user
+        /// Query lookup metadata by tenant
         /// </summary>
-        /// <returns>Save Training State</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task SaveMlModelTrainingStateBehalfOfUserAsync(System.Guid tenant, System.Guid user, MlModelTrainingState body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Lookup>> LookupMetadataForTenantAsync(System.Guid tenantId, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
-
-            if (user == null)
-                throw new System.ArgumentNullException("user");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/MlModel/savetrainingstatebehalfofuser/{tenant}/{user}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{user}", System.Uri.EscapeDataString(ConvertToString(user, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("api/lookup/lookupmetadatabytenant/{tenantId}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -1387,11 +1250,8 @@ namespace Ballware.Meta.Client
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-                    var json_ = Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value);
-                    var content_ = new System.Net.Http.StringContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("POST");
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -1414,21 +1274,20 @@ namespace Ballware.Meta.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<Lookup>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
                         if (status_ == 401)
                         {
                             string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            return;
                         }
                         else
                         {
@@ -1453,40 +1312,40 @@ namespace Ballware.Meta.Client
         /// <summary>
         /// Query notification metadata by tenant and id
         /// </summary>
-        /// <returns>Notification metadata</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ServiceNotification> MetadataForNotificationByTenantAndIdAsync(System.Guid tenant, System.Guid id)
+        public virtual System.Threading.Tasks.Task<MlModel> MlModelMetadataByTenantAndIdAsync(System.Guid tenantId, System.Guid id)
         {
-            return MetadataForNotificationByTenantAndIdAsync(tenant, id, System.Threading.CancellationToken.None);
+            return MlModelMetadataByTenantAndIdAsync(tenantId, id, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
         /// Query notification metadata by tenant and id
         /// </summary>
-        /// <returns>Notification metadata</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual ServiceNotification MetadataForNotificationByTenantAndId(System.Guid tenant, System.Guid id)
+        public virtual MlModel MlModelMetadataByTenantAndId(System.Guid tenantId, System.Guid id)
         {
-            return System.Threading.Tasks.Task.Run(async () => await MetadataForNotificationByTenantAndIdAsync(tenant, id, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await MlModelMetadataByTenantAndIdAsync(tenantId, id, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
         /// Query notification metadata by tenant and id
         /// </summary>
-        /// <returns>Notification metadata</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ServiceNotification> MetadataForNotificationByTenantAndIdAsync(System.Guid tenant, System.Guid id, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<MlModel> MlModelMetadataByTenantAndIdAsync(System.Guid tenantId, System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
 
             if (id == null)
                 throw new System.ArgumentNullException("id");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/Notification/notificationmetadatabytenantandid/{tenant}/{id}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("api/mlmodel/metadatabytenantandid/{tenantId}/{id}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
@@ -1519,26 +1378,20 @@ namespace Ballware.Meta.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<ServiceNotification>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<MlModel>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -1563,40 +1416,40 @@ namespace Ballware.Meta.Client
         /// <summary>
         /// Query notification metadata by tenant and identifier
         /// </summary>
-        /// <returns>Notification metadata</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ServiceNotification> MetadataForNotificationByTenantAndIdentifierAsync(System.Guid tenant, string identifier)
+        public virtual System.Threading.Tasks.Task<MlModel> MlModelMetadataByTenantAndIdentifierAsync(System.Guid tenantId, string identifier)
         {
-            return MetadataForNotificationByTenantAndIdentifierAsync(tenant, identifier, System.Threading.CancellationToken.None);
+            return MlModelMetadataByTenantAndIdentifierAsync(tenantId, identifier, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
         /// Query notification metadata by tenant and identifier
         /// </summary>
-        /// <returns>Notification metadata</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual ServiceNotification MetadataForNotificationByTenantAndIdentifier(System.Guid tenant, string identifier)
+        public virtual MlModel MlModelMetadataByTenantAndIdentifier(System.Guid tenantId, string identifier)
         {
-            return System.Threading.Tasks.Task.Run(async () => await MetadataForNotificationByTenantAndIdentifierAsync(tenant, identifier, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await MlModelMetadataByTenantAndIdentifierAsync(tenantId, identifier, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
         /// Query notification metadata by tenant and identifier
         /// </summary>
-        /// <returns>Notification metadata</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ServiceNotification> MetadataForNotificationByTenantAndIdentifierAsync(System.Guid tenant, string identifier, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<MlModel> MlModelMetadataByTenantAndIdentifierAsync(System.Guid tenantId, string identifier, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
 
             if (identifier == null)
                 throw new System.ArgumentNullException("identifier");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/Notification/notificationmetadatabytenantandidentifier/{tenant}/{identifier}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("api/mlmodel/metadatabytenantandidentifier/{tenantId}/{identifier}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{identifier}", System.Uri.EscapeDataString(ConvertToString(identifier, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
@@ -1629,26 +1482,20 @@ namespace Ballware.Meta.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<ServiceNotification>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<MlModel>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -1671,47 +1518,148 @@ namespace Ballware.Meta.Client
         }
 
         /// <summary>
-        /// Create new notification trigger for tenant behalf of user
+        /// Save training behalf of user
         /// </summary>
-        /// <returns>Notification trigger data</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<NotificationTrigger> CreateNotificationTriggerForTenantAndNotificationBehalfOfUserAsync(System.Guid tenant, System.Guid notification, System.Guid user)
+        public virtual System.Threading.Tasks.Task MlModelSaveTrainingStateBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, MlModelTrainingState body)
         {
-            return CreateNotificationTriggerForTenantAndNotificationBehalfOfUserAsync(tenant, notification, user, System.Threading.CancellationToken.None);
+            return MlModelSaveTrainingStateBehalfOfUserAsync(tenantId, userId, body, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
-        /// Create new notification trigger for tenant behalf of user
+        /// Save training behalf of user
         /// </summary>
-        /// <returns>Notification trigger data</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual NotificationTrigger CreateNotificationTriggerForTenantAndNotificationBehalfOfUser(System.Guid tenant, System.Guid notification, System.Guid user)
+        public virtual void MlModelSaveTrainingStateBehalfOfUser(System.Guid tenantId, System.Guid userId, MlModelTrainingState body)
         {
-            return System.Threading.Tasks.Task.Run(async () => await CreateNotificationTriggerForTenantAndNotificationBehalfOfUserAsync(tenant, notification, user, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            System.Threading.Tasks.Task.Run(async () => await MlModelSaveTrainingStateBehalfOfUserAsync(tenantId, userId, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Create new notification trigger for tenant behalf of user
+        /// Save training behalf of user
         /// </summary>
-        /// <returns>Notification trigger data</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<NotificationTrigger> CreateNotificationTriggerForTenantAndNotificationBehalfOfUserAsync(System.Guid tenant, System.Guid notification, System.Guid user, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task MlModelSaveTrainingStateBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, MlModelTrainingState body, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
 
-            if (notification == null)
-                throw new System.ArgumentNullException("notification");
+            if (userId == null)
+                throw new System.ArgumentNullException("userId");
 
-            if (user == null)
-                throw new System.ArgumentNullException("user");
+            if (body == null)
+                throw new System.ArgumentNullException("body");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/NotificationTrigger/createnotificationtriggerfortenantandnotificationbehalfofuser/{tenant}/{notification}/{user}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{notification}", System.Uri.EscapeDataString(ConvertToString(notification, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{user}", System.Uri.EscapeDataString(ConvertToString(user, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("api/mlmodel/savetrainingstatebehalfofuser/{tenantId}/{userId}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var json_ = Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value);
+                    var content_ = new System.Net.Http.StringContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            return;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Query notification metadata by tenant and id
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<Notification> NotificationMetadataByTenantAndIdAsync(System.Guid tenantId, System.Guid id)
+        {
+            return NotificationMetadataByTenantAndIdAsync(tenantId, id, System.Threading.CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Query notification metadata by tenant and id
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual Notification NotificationMetadataByTenantAndId(System.Guid tenantId, System.Guid id)
+        {
+            return System.Threading.Tasks.Task.Run(async () => await NotificationMetadataByTenantAndIdAsync(tenantId, id, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Query notification metadata by tenant and id
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<Notification> NotificationMetadataByTenantAndIdAsync(System.Guid tenantId, System.Guid id, System.Threading.CancellationToken cancellationToken)
+        {
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
+
+            if (id == null)
+                throw new System.ArgumentNullException("id");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append("api/notification/notificationmetadatabytenantandid/{tenantId}/{id}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -1743,12 +1691,218 @@ namespace Ballware.Meta.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Notification>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
                         if (status_ == 401)
                         {
                             string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Query notification metadata by tenant and identifier
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<Notification> NotificationMetadataByTenantAndIdentifierAsync(System.Guid tenantId, string identifier)
+        {
+            return NotificationMetadataByTenantAndIdentifierAsync(tenantId, identifier, System.Threading.CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Query notification metadata by tenant and identifier
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual Notification NotificationMetadataByTenantAndIdentifier(System.Guid tenantId, string identifier)
+        {
+            return System.Threading.Tasks.Task.Run(async () => await NotificationMetadataByTenantAndIdentifierAsync(tenantId, identifier, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Query notification metadata by tenant and identifier
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<Notification> NotificationMetadataByTenantAndIdentifierAsync(System.Guid tenantId, string identifier, System.Threading.CancellationToken cancellationToken)
+        {
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
+
+            if (identifier == null)
+                throw new System.ArgumentNullException("identifier");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append("api/notification/notificationmetadatabytenantandidentifier/{tenantId}/{identifier}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{identifier}", System.Uri.EscapeDataString(ConvertToString(identifier, System.Globalization.CultureInfo.InvariantCulture)));
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Notification>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Create new notification trigger for tenant behalf of user
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<NotificationTrigger> NotificationTriggerCreateForTenantAndNotificationBehalfOfUserAsync(System.Guid tenantId, System.Guid notificationId, System.Guid userId)
+        {
+            return NotificationTriggerCreateForTenantAndNotificationBehalfOfUserAsync(tenantId, notificationId, userId, System.Threading.CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Create new notification trigger for tenant behalf of user
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual NotificationTrigger NotificationTriggerCreateForTenantAndNotificationBehalfOfUser(System.Guid tenantId, System.Guid notificationId, System.Guid userId)
+        {
+            return System.Threading.Tasks.Task.Run(async () => await NotificationTriggerCreateForTenantAndNotificationBehalfOfUserAsync(tenantId, notificationId, userId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Create new notification trigger for tenant behalf of user
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<NotificationTrigger> NotificationTriggerCreateForTenantAndNotificationBehalfOfUserAsync(System.Guid tenantId, System.Guid notificationId, System.Guid userId, System.Threading.CancellationToken cancellationToken)
+        {
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
+
+            if (notificationId == null)
+                throw new System.ArgumentNullException("notificationId");
+
+            if (userId == null)
+                throw new System.ArgumentNullException("userId");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append("api/notificationtrigger/createnotificationtriggerfortenantandnotificationbehalfofuser/{tenantId}/{notificationId}/{userId}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{notificationId}", System.Uri.EscapeDataString(ConvertToString(notificationId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<NotificationTrigger>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -1759,6 +1913,12 @@ namespace Ballware.Meta.Client
                             return objectResponse_.Object;
                         }
                         else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
@@ -1781,41 +1941,44 @@ namespace Ballware.Meta.Client
         /// <summary>
         /// Save notification trigger behalf of user
         /// </summary>
-        /// <returns>Save notification trigger</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task SaveNotificationTriggerBehalfOfUserAsync(System.Guid tenant, System.Guid user, NotificationTrigger body)
+        public virtual System.Threading.Tasks.Task NotificationTriggerSaveForTenantBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, NotificationTrigger body)
         {
-            return SaveNotificationTriggerBehalfOfUserAsync(tenant, user, body, System.Threading.CancellationToken.None);
+            return NotificationTriggerSaveForTenantBehalfOfUserAsync(tenantId, userId, body, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
         /// Save notification trigger behalf of user
         /// </summary>
-        /// <returns>Save notification trigger</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual void SaveNotificationTriggerBehalfOfUser(System.Guid tenant, System.Guid user, NotificationTrigger body)
+        public virtual void NotificationTriggerSaveForTenantBehalfOfUser(System.Guid tenantId, System.Guid userId, NotificationTrigger body)
         {
-            System.Threading.Tasks.Task.Run(async () => await SaveNotificationTriggerBehalfOfUserAsync(tenant, user, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            System.Threading.Tasks.Task.Run(async () => await NotificationTriggerSaveForTenantBehalfOfUserAsync(tenantId, userId, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
         /// Save notification trigger behalf of user
         /// </summary>
-        /// <returns>Save notification trigger</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task SaveNotificationTriggerBehalfOfUserAsync(System.Guid tenant, System.Guid user, NotificationTrigger body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task NotificationTriggerSaveForTenantBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, NotificationTrigger body, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
 
-            if (user == null)
-                throw new System.ArgumentNullException("user");
+            if (userId == null)
+                throw new System.ArgumentNullException("userId");
+
+            if (body == null)
+                throw new System.ArgumentNullException("body");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/NotificationTrigger/savenotificationtriggerbehalfofuser/{tenant}/{user}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{user}", System.Uri.EscapeDataString(ConvertToString(user, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("api/notificationtrigger/savenotificationtriggerbehalfofuser/{tenantId}/{userId}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -1825,7 +1988,7 @@ namespace Ballware.Meta.Client
                 {
                     var json_ = Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value);
                     var content_ = new System.Net.Http.StringContent(json_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
 
@@ -1850,21 +2013,15 @@ namespace Ballware.Meta.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            return;
+                        }
+                        else
                         if (status_ == 401)
                         {
                             string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
-                        }
-                        else
-                        if (status_ == 200)
-                        {
-                            return;
                         }
                         else
                         {
@@ -1887,46 +2044,158 @@ namespace Ballware.Meta.Client
         }
 
         /// <summary>
-        /// Query single processing state for entity by state value
+        /// Query single pickvalue for tenant and entity and field by value
         /// </summary>
-        /// <returns>Single processing state</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ProcessingStateSelectListEntry> SingleProcessingStateForTenantAndEntityByValueAsync(System.Guid tenant, string entity, int state)
+        public virtual System.Threading.Tasks.Task<PickvalueSelectEntry> PickvalueSelectByValueForTenantEntityAndFieldAsync(System.Guid tenantId, string entity, string field, int value)
         {
-            return SingleProcessingStateForTenantAndEntityByValueAsync(tenant, entity, state, System.Threading.CancellationToken.None);
+            return PickvalueSelectByValueForTenantEntityAndFieldAsync(tenantId, entity, field, value, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
-        /// Query single processing state for entity by state value
+        /// Query single pickvalue for tenant and entity and field by value
         /// </summary>
-        /// <returns>Single processing state</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual ProcessingStateSelectListEntry SingleProcessingStateForTenantAndEntityByValue(System.Guid tenant, string entity, int state)
+        public virtual PickvalueSelectEntry PickvalueSelectByValueForTenantEntityAndField(System.Guid tenantId, string entity, string field, int value)
         {
-            return System.Threading.Tasks.Task.Run(async () => await SingleProcessingStateForTenantAndEntityByValueAsync(tenant, entity, state, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await PickvalueSelectByValueForTenantEntityAndFieldAsync(tenantId, entity, field, value, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Query single processing state for entity by state value
+        /// Query single pickvalue for tenant and entity and field by value
         /// </summary>
-        /// <returns>Single processing state</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ProcessingStateSelectListEntry> SingleProcessingStateForTenantAndEntityByValueAsync(System.Guid tenant, string entity, int state, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PickvalueSelectEntry> PickvalueSelectByValueForTenantEntityAndFieldAsync(System.Guid tenantId, string entity, string field, int value, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
 
             if (entity == null)
                 throw new System.ArgumentNullException("entity");
+
+            if (field == null)
+                throw new System.ArgumentNullException("field");
+
+            if (value == null)
+                throw new System.ArgumentNullException("value");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append("api/pickvalue/selectbyvaluefortenantandentityandfield/{tenantId}/{entity}/{field}/{value}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{entity}", System.Uri.EscapeDataString(ConvertToString(entity, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{field}", System.Uri.EscapeDataString(ConvertToString(field, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{value}", System.Uri.EscapeDataString(ConvertToString(value, System.Globalization.CultureInfo.InvariantCulture)));
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<PickvalueSelectEntry>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Query all possible successor processing states for entity by identifier and current state
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ProcessingStateSelectListEntry>> ProcessingStateSelectListAllSuccessorsForTenantAndEntityByIdentifierAsync(System.Guid tenantId, string identifier, int state)
+        {
+            return ProcessingStateSelectListAllSuccessorsForTenantAndEntityByIdentifierAsync(tenantId, identifier, state, System.Threading.CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Query all possible successor processing states for entity by identifier and current state
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual System.Collections.Generic.ICollection<ProcessingStateSelectListEntry> ProcessingStateSelectListAllSuccessorsForTenantAndEntityByIdentifier(System.Guid tenantId, string identifier, int state)
+        {
+            return System.Threading.Tasks.Task.Run(async () => await ProcessingStateSelectListAllSuccessorsForTenantAndEntityByIdentifierAsync(tenantId, identifier, state, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Query all possible successor processing states for entity by identifier and current state
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ProcessingStateSelectListEntry>> ProcessingStateSelectListAllSuccessorsForTenantAndEntityByIdentifierAsync(System.Guid tenantId, string identifier, int state, System.Threading.CancellationToken cancellationToken)
+        {
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
+
+            if (identifier == null)
+                throw new System.ArgumentNullException("identifier");
 
             if (state == null)
                 throw new System.ArgumentNullException("state");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/ProcessingState/selectbystatefortenantandentity/{tenant}/{entity}/{state}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{entity}", System.Uri.EscapeDataString(ConvertToString(entity, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("api/processingstate/selectlistallsuccessorsfortenantandentitybystate/{tenantId}/{identifier}/{state}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{identifier}", System.Uri.EscapeDataString(ConvertToString(identifier, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{state}", System.Uri.EscapeDataString(ConvertToString(state, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
@@ -1959,20 +2228,20 @@ namespace Ballware.Meta.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
-                        }
-                        else
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<ProcessingStateSelectListEntry>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<ProcessingStateSelectListEntry>>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -1995,39 +2264,47 @@ namespace Ballware.Meta.Client
         }
 
         /// <summary>
-        /// Query metadata for tenant by id
+        /// Query single processing state for entity by identifier and state
         /// </summary>
-        /// <returns>Tenant metadata for services</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ServiceTenant> ServiceMetadataForTenantByIdAsync(System.Guid tenant)
+        public virtual System.Threading.Tasks.Task<ProcessingStateSelectListEntry> ProcessingStateSelectByStateForTenantAndEntityByIdentifierAsync(System.Guid tenantId, string identifier, int state)
         {
-            return ServiceMetadataForTenantByIdAsync(tenant, System.Threading.CancellationToken.None);
+            return ProcessingStateSelectByStateForTenantAndEntityByIdentifierAsync(tenantId, identifier, state, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
-        /// Query metadata for tenant by id
+        /// Query single processing state for entity by identifier and state
         /// </summary>
-        /// <returns>Tenant metadata for services</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual ServiceTenant ServiceMetadataForTenantById(System.Guid tenant)
+        public virtual ProcessingStateSelectListEntry ProcessingStateSelectByStateForTenantAndEntityByIdentifier(System.Guid tenantId, string identifier, int state)
         {
-            return System.Threading.Tasks.Task.Run(async () => await ServiceMetadataForTenantByIdAsync(tenant, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await ProcessingStateSelectByStateForTenantAndEntityByIdentifierAsync(tenantId, identifier, state, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Query metadata for tenant by id
+        /// Query single processing state for entity by identifier and state
         /// </summary>
-        /// <returns>Tenant metadata for services</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ServiceTenant> ServiceMetadataForTenantByIdAsync(System.Guid tenant, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ProcessingStateSelectListEntry> ProcessingStateSelectByStateForTenantAndEntityByIdentifierAsync(System.Guid tenantId, string identifier, int state, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
+
+            if (identifier == null)
+                throw new System.ArgumentNullException("identifier");
+
+            if (state == null)
+                throw new System.ArgumentNullException("state");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/Tenant/servicemetadatafortenant/{tenant}");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("api/processingstate/selectbystatefortenantandentity/{tenantId}/{identifier}/{state}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{identifier}", System.Uri.EscapeDataString(ConvertToString(identifier, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{state}", System.Uri.EscapeDataString(ConvertToString(state, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -2059,12 +2336,519 @@ namespace Ballware.Meta.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProcessingStateSelectListEntry>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
                         if (status_ == 401)
                         {
                             string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Query metadata for statistic by tenant and identifier
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<Statistic> StatisticMetadataByTenantAndIdentifierAsync(System.Guid tenantId, string identifier)
+        {
+            return StatisticMetadataByTenantAndIdentifierAsync(tenantId, identifier, System.Threading.CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Query metadata for statistic by tenant and identifier
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual Statistic StatisticMetadataByTenantAndIdentifier(System.Guid tenantId, string identifier)
+        {
+            return System.Threading.Tasks.Task.Run(async () => await StatisticMetadataByTenantAndIdentifierAsync(tenantId, identifier, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Query metadata for statistic by tenant and identifier
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<Statistic> StatisticMetadataByTenantAndIdentifierAsync(System.Guid tenantId, string identifier, System.Threading.CancellationToken cancellationToken)
+        {
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
+
+            if (identifier == null)
+                throw new System.ArgumentNullException("identifier");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append("api/statistic/metadatafortenantandidentifier/{tenantId}/{identifier}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{identifier}", System.Uri.EscapeDataString(ConvertToString(identifier, System.Globalization.CultureInfo.InvariantCulture)));
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Statistic>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Query subscription metadata by tenant and id
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<Subscription> SubscriptionMetadataByTenantAndIdAsync(System.Guid tenantId, System.Guid id)
+        {
+            return SubscriptionMetadataByTenantAndIdAsync(tenantId, id, System.Threading.CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Query subscription metadata by tenant and id
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual Subscription SubscriptionMetadataByTenantAndId(System.Guid tenantId, System.Guid id)
+        {
+            return System.Threading.Tasks.Task.Run(async () => await SubscriptionMetadataByTenantAndIdAsync(tenantId, id, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Query subscription metadata by tenant and id
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<Subscription> SubscriptionMetadataByTenantAndIdAsync(System.Guid tenantId, System.Guid id, System.Threading.CancellationToken cancellationToken)
+        {
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
+
+            if (id == null)
+                throw new System.ArgumentNullException("id");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append("api/subscription/metadatabytenantandid/{tenantId}/{id}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<Subscription>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Query active subscriptions by frequency
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Subscription>> SubscriptionActiveByFrequencyAsync(int frequency)
+        {
+            return SubscriptionActiveByFrequencyAsync(frequency, System.Threading.CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Query active subscriptions by frequency
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual System.Collections.Generic.ICollection<Subscription> SubscriptionActiveByFrequency(int frequency)
+        {
+            return System.Threading.Tasks.Task.Run(async () => await SubscriptionActiveByFrequencyAsync(frequency, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Query active subscriptions by frequency
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Subscription>> SubscriptionActiveByFrequencyAsync(int frequency, System.Threading.CancellationToken cancellationToken)
+        {
+            if (frequency == null)
+                throw new System.ArgumentNullException("frequency");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append("api/subscription/activeforfrequency/{frequency}");
+            urlBuilder_.Replace("{frequency}", System.Uri.EscapeDataString(ConvertToString(frequency, System.Globalization.CultureInfo.InvariantCulture)));
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<Subscription>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Send send result for subscription
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task SubscriptionSetSendResultAsync(System.Guid tenantId, System.Guid id, string body)
+        {
+            return SubscriptionSetSendResultAsync(tenantId, id, body, System.Threading.CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Send send result for subscription
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual void SubscriptionSetSendResult(System.Guid tenantId, System.Guid id, string body)
+        {
+            System.Threading.Tasks.Task.Run(async () => await SubscriptionSetSendResultAsync(tenantId, id, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Send send result for subscription
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task SubscriptionSetSendResultAsync(System.Guid tenantId, System.Guid id, string body, System.Threading.CancellationToken cancellationToken)
+        {
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
+
+            if (id == null)
+                throw new System.ArgumentNullException("id");
+
+            if (body == null)
+                throw new System.ArgumentNullException("body");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append("api/subscription/setsendresult/{tenantId}/{id}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var json_ = Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value);
+                    var content_ = new System.Net.Http.StringContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            return;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Query tenant metadata by id
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<ServiceTenant> TenantServiceMetadataAsync(System.Guid tenantId)
+        {
+            return TenantServiceMetadataAsync(tenantId, System.Threading.CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Query tenant metadata by id
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual ServiceTenant TenantServiceMetadata(System.Guid tenantId)
+        {
+            return System.Threading.Tasks.Task.Run(async () => await TenantServiceMetadataAsync(tenantId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Query tenant metadata by id
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<ServiceTenant> TenantServiceMetadataAsync(System.Guid tenantId, System.Threading.CancellationToken cancellationToken)
+        {
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append("api/tenant/servicemetadatafortenant/{tenantId}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<ServiceTenant>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -2073,6 +2857,118 @@ namespace Ballware.Meta.Client
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Query report datasources for tenant
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ServiceTenantReportDatasourceDefinition>> TenantReportDatasourcesAsync(System.Guid tenantId)
+        {
+            return TenantReportDatasourcesAsync(tenantId, System.Threading.CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Query report datasources for tenant
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual System.Collections.Generic.ICollection<ServiceTenantReportDatasourceDefinition> TenantReportDatasources(System.Guid tenantId)
+        {
+            return System.Threading.Tasks.Task.Run(async () => await TenantReportDatasourcesAsync(tenantId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <summary>
+        /// Query report datasources for tenant
+        /// </summary>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ServiceTenantReportDatasourceDefinition>> TenantReportDatasourcesAsync(System.Guid tenantId, System.Threading.CancellationToken cancellationToken)
+        {
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append("api/tenant/reportmetadatasourcesfortenant/{tenantId}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<ServiceTenantReportDatasourceDefinition>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -2261,6 +3157,75 @@ namespace Ballware.Meta.Client
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class Export
+    {
+        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Guid Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Application", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Application { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Entity", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Entity { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Query", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Query { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("ExpirationStamp", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? ExpirationStamp { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("MediaType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string MediaType { get; set; }
+
+        public string ToJson()
+        {
+
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings());
+
+        }
+        public static Export FromJson(string data)
+        {
+
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Export>(data, new Newtonsoft.Json.JsonSerializerSettings());
+
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ExportCreatePayload
+    {
+        [Newtonsoft.Json.JsonProperty("Application", Required = Newtonsoft.Json.Required.AllowNull)]
+        public string Application { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Entity", Required = Newtonsoft.Json.Required.AllowNull)]
+        public string Entity { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Query", Required = Newtonsoft.Json.Required.AllowNull)]
+        public string Query { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("ExpirationStamp", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? ExpirationStamp { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("MediaType", Required = Newtonsoft.Json.Required.AllowNull)]
+        public string MediaType { get; set; }
+
+        public string ToJson()
+        {
+
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings());
+
+        }
+        public static ExportCreatePayload FromJson(string data)
+        {
+
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<ExportCreatePayload>(data, new Newtonsoft.Json.JsonSerializerSettings());
+
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class Job
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -2303,13 +3268,13 @@ namespace Ballware.Meta.Client
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class JobCreatePayload
     {
-        [Newtonsoft.Json.JsonProperty("Scheduler", Required = Newtonsoft.Json.Required.AllowNull)]
+        [Newtonsoft.Json.JsonProperty("Scheduler", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Scheduler { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("Identifier", Required = Newtonsoft.Json.Required.AllowNull)]
+        [Newtonsoft.Json.JsonProperty("Identifier", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Identifier { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("Options", Required = Newtonsoft.Json.Required.AllowNull)]
+        [Newtonsoft.Json.JsonProperty("Options", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Options { get; set; }
 
         public string ToJson()
@@ -2358,7 +3323,7 @@ namespace Ballware.Meta.Client
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public JobStates State { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("Result", Required = Newtonsoft.Json.Required.AllowNull)]
+        [Newtonsoft.Json.JsonProperty("Result", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Result { get; set; }
 
         public string ToJson()
@@ -2371,6 +3336,48 @@ namespace Ballware.Meta.Client
         {
 
             return Newtonsoft.Json.JsonConvert.DeserializeObject<JobUpdatePayload>(data, new Newtonsoft.Json.JsonSerializerSettings());
+
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class Lookup
+    {
+        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Guid Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Meta", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool Meta { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("HasParam", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool HasParam { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int Type { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Identifier", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Identifier { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Name { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("ListQuery", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ListQuery { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("ByIdQuery", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ByIdQuery { get; set; }
+
+        public string ToJson()
+        {
+
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings());
+
+        }
+        public static Lookup FromJson(string data)
+        {
+
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Lookup>(data, new Newtonsoft.Json.JsonSerializerSettings());
 
         }
 
@@ -2482,6 +3489,42 @@ namespace Ballware.Meta.Client
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class Notification
+    {
+        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Guid Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Identifier", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Identifier { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Name { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("DocumentId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Guid? DocumentId { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("State", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int State { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Params", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Params { get; set; }
+
+        public string ToJson()
+        {
+
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings());
+
+        }
+        public static Notification FromJson(string data)
+        {
+
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Notification>(data, new Newtonsoft.Json.JsonSerializerSettings());
+
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class NotificationTrigger
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -2506,6 +3549,30 @@ namespace Ballware.Meta.Client
         {
 
             return Newtonsoft.Json.JsonConvert.DeserializeObject<NotificationTrigger>(data, new Newtonsoft.Json.JsonSerializerSettings());
+
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class PickvalueSelectEntry
+    {
+        [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Name { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Value", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int Value { get; set; }
+
+        public string ToJson()
+        {
+
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings());
+
+        }
+        public static PickvalueSelectEntry FromJson(string data)
+        {
+
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<PickvalueSelectEntry>(data, new Newtonsoft.Json.JsonSerializerSettings());
 
         }
 
@@ -2756,78 +3823,6 @@ namespace Ballware.Meta.Client
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ServiceExport
-    {
-        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("Application", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Application { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("Entity", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Entity { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("Query", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Query { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("ExpirationStamp", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? ExpirationStamp { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("MediaType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string MediaType { get; set; }
-
-        public string ToJson()
-        {
-
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings());
-
-        }
-        public static ServiceExport FromJson(string data)
-        {
-
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<ServiceExport>(data, new Newtonsoft.Json.JsonSerializerSettings());
-
-        }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ServiceNotification
-    {
-        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("Identifier", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Identifier { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Name { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("DocumentId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid? DocumentId { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("State", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int State { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("Params", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Params { get; set; }
-
-        public string ToJson()
-        {
-
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings());
-
-        }
-        public static ServiceNotification FromJson(string data)
-        {
-
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<ServiceNotification>(data, new Newtonsoft.Json.JsonSerializerSettings());
-
-        }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ServiceTenant
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -2863,11 +3858,8 @@ namespace Ballware.Meta.Client
         [Newtonsoft.Json.JsonProperty("Password", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Password { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("ReportSchemaDefinition", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string ReportSchemaDefinition { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("Objects", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ServiceTenantDatabaseObject> Objects { get; set; }
+        [Newtonsoft.Json.JsonProperty("ReportDatasourceDefinitions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<ServiceTenantReportDatasourceDefinition> ReportDatasourceDefinitions { get; set; }
 
         public string ToJson()
         {
@@ -2885,20 +3877,16 @@ namespace Ballware.Meta.Client
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ServiceTenantDatabaseObject
+    public partial class ServiceTenantReportDatasourceDefinition
     {
-        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
-
         [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Name { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("Type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public ServiceTenantDatabaseObjectTypes Type { get; set; }
+        [Newtonsoft.Json.JsonProperty("ConnectionString", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ConnectionString { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("Sql", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Sql { get; set; }
+        [Newtonsoft.Json.JsonProperty("Tables", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<ServiceTenantReportDatasourceTable> Tables { get; set; }
 
         public string ToJson()
         {
@@ -2906,36 +3894,171 @@ namespace Ballware.Meta.Client
             return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings());
 
         }
-        public static ServiceTenantDatabaseObject FromJson(string data)
+        public static ServiceTenantReportDatasourceDefinition FromJson(string data)
         {
 
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<ServiceTenantDatabaseObject>(data, new Newtonsoft.Json.JsonSerializerSettings());
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<ServiceTenantReportDatasourceDefinition>(data, new Newtonsoft.Json.JsonSerializerSettings());
 
         }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public enum ServiceTenantDatabaseObjectTypes
+    public partial class ServiceTenantReportDatasourceRelation
     {
+        [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Name { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"unknown")]
-        Unknown = 0,
+        [Newtonsoft.Json.JsonProperty("ChildTable", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ChildTable { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"table")]
-        Table = 1,
+        [Newtonsoft.Json.JsonProperty("MasterColumn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string MasterColumn { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"view")]
-        View = 2,
+        [Newtonsoft.Json.JsonProperty("ChildColumn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ChildColumn { get; set; }
 
-        [System.Runtime.Serialization.EnumMember(Value = @"function")]
-        Function = 3,
+        public string ToJson()
+        {
 
-        [System.Runtime.Serialization.EnumMember(Value = @"type")]
-        Type = 4,
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings());
 
-        [System.Runtime.Serialization.EnumMember(Value = @"statement")]
-        Statement = 5,
+        }
+        public static ServiceTenantReportDatasourceRelation FromJson(string data)
+        {
+
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<ServiceTenantReportDatasourceRelation>(data, new Newtonsoft.Json.JsonSerializerSettings());
+
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ServiceTenantReportDatasourceTable
+    {
+        [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Name { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Entity", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Entity { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Query", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Query { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Relations", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<ServiceTenantReportDatasourceRelation> Relations { get; set; }
+
+        public string ToJson()
+        {
+
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings());
+
+        }
+        public static ServiceTenantReportDatasourceTable FromJson(string data)
+        {
+
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<ServiceTenantReportDatasourceTable>(data, new Newtonsoft.Json.JsonSerializerSettings());
+
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class Statistic
+    {
+        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Guid Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Entity", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Entity { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Identifier", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Identifier { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Name { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("MappingScript", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string MappingScript { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("CustomScripts", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string CustomScripts { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("FetchSql", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string FetchSql { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("FetchScript", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string FetchScript { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Layout", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Layout { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Meta", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool Meta { get; set; }
+
+        public string ToJson()
+        {
+
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings());
+
+        }
+        public static Statistic FromJson(string data)
+        {
+
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Statistic>(data, new Newtonsoft.Json.JsonSerializerSettings());
+
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class Subscription
+    {
+        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Guid Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("UserId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Guid UserId { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Mail", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Mail { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Body", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Body { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Attachment", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool Attachment { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("AttachmentFileName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string AttachmentFileName { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("NotificationId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Guid NotificationId { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Frequency", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int Frequency { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("Active", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool Active { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("LastSendStamp", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? LastSendStamp { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("LastError", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string LastError { get; set; }
+
+        public string ToJson()
+        {
+
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings());
+
+        }
+        public static Subscription FromJson(string data)
+        {
+
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Subscription>(data, new Newtonsoft.Json.JsonSerializerSettings());
+
+        }
 
     }
 

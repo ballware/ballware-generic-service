@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Metadata",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Ml.Client", "src\Ballware.Ml.Client\Ballware.Ml.Client.csproj", "{59937DE4-29C0-4E66-B2C7-2E633DF9A711}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Api", "src\Ballware.Generic.Api\Ballware.Generic.Api.csproj", "{742F4519-B7C5-4E23-9E99-81588094B997}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,5 +92,9 @@ Global
 		{59937DE4-29C0-4E66-B2C7-2E633DF9A711}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59937DE4-29C0-4E66-B2C7-2E633DF9A711}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59937DE4-29C0-4E66-B2C7-2E633DF9A711}.Release|Any CPU.Build.0 = Release|Any CPU
+		{742F4519-B7C5-4E23-9E99-81588094B997}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{742F4519-B7C5-4E23-9E99-81588094B997}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{742F4519-B7C5-4E23-9E99-81588094B997}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{742F4519-B7C5-4E23-9E99-81588094B997}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

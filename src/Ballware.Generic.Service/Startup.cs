@@ -1,3 +1,5 @@
+using Ballware.Generic.Api;
+using Ballware.Generic.Api.Endpoints;
 using Ballware.Generic.Authorization;
 using Ballware.Generic.Authorization.Jint;
 using Ballware.Generic.Data.Ef;
@@ -7,9 +9,11 @@ using Ballware.Generic.Scripting.Jint;
 using Ballware.Generic.Service.Adapter;
 using Ballware.Generic.Service.Configuration;
 using Ballware.Generic.Service.Jobs;
+using Ballware.Generic.Service.Mappings;
 using Ballware.Generic.Tenant.Data;
 using Ballware.Generic.Tenant.Data.SqlServer;
 using Ballware.Meta.Client;
+using Ballware.Meta.Service.Adapter;
 using Ballware.Ml.Client;
 using Ballware.Storage.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -212,10 +216,12 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddAutoMapper(config =>
         {
             config.AddBallwareTenantStorageMappings();
+            config.AddProfile<MetaServiceGenericMetadataProfile>();
         });
 
-        Services.AddSingleton<IMetadataAdapter, MetaServiceMetadataAdapter>();
-        Services.AddSingleton<IMlAdapter, MlServiceMlAdapter>();
+        Services.AddScoped<IMetadataAdapter, MetaServiceMetadataAdapter>();
+        Services.AddScoped<IMlAdapter, MlServiceMlAdapter>();
+        Services.AddScoped<IGenericFileStorageAdapter, StorageServiceGenericFileStorageAdapter>();
         
         Services.AddBallwareGenericAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
         Services.AddBallwareGenericJintRightsChecker();
@@ -275,6 +281,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         app.UseAuthorization();
 
         app.MapControllers();
+        app.MapLookupUserDataApi("/api/lookup");
+        app.MapLookupServiceDataApi("/api/lookup");
+        app.MapMlModelDataApi("/api/mlmodel");
+        app.MapProcessingStateDataApi("/api/processingstate");
+        app.MapStatisticDataApi("/api/statistic");
+        app.MapTenantServiceDataApi("/api/tenant");
+        app.MapGenericDataApi("/api/generic");
 
         var authorizationOptions = app.Services.GetService<IOptions<AuthorizationOptions>>()?.Value;
         var swaggerOptions = app.Services.GetService<IOptions<SwaggerOptions>>()?.Value;

@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="13.0.1" />
+      <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="Quartz" Version="3.8.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Ballware.Generic.Authorization\Ballware.Generic.Authorization.csproj" />
+      <ProjectReference Include="..\Ballware.Generic.Tenant.Data\Ballware.Generic.Tenant.Data.csproj" />
+    </ItemGroup>
+    
+</Project>

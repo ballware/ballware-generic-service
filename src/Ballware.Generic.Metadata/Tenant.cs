@@ -7,4 +7,5 @@ public class Tenant
     
     public string? ServerScriptDefinitions { get; set; }
     public string? RightsCheckScript { get; set; }
+    public IEnumerable<ReportDatasourceDefinition> ReportDatasourceDefinitions { get; set; }
 }
