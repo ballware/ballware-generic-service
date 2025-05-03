@@ -4,6 +4,8 @@
 // </auto-generated>
 //----------------------
 
+#nullable enable
+
 #pragma warning disable 108 // Disable "CS0108 '{derivedDto}.ToJson()' hides inherited member '{dtoBase}.ToJson()'. Use the new keyword if hiding was intended."
 #pragma warning disable 114 // Disable "CS0114 '{derivedDto}.RaisePropertyChanged(String)' hides inherited member 'dtoBase.RaisePropertyChanged(String)'. To make the current member override that implementation, add the override keyword. Otherwise add the new keyword."
 #pragma warning disable 472 // Disable "CS0472 The result of the expression is always 'false' since a value of type 'Int32' is never equal to 'null' of type 'Int32?'
@@ -2891,32 +2893,32 @@ namespace Ballware.Meta.Client
         }
 
         /// <summary>
-        /// Query report datasources for tenant
+        /// Query report meta datasources for tenant
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ServiceTenantReportDatasourceDefinition>> TenantReportDatasourcesAsync(System.Guid tenantId)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ServiceTenantReportDatasourceDefinition>> TenantReportMetaDatasourcesAsync(System.Guid tenantId)
         {
-            return TenantReportDatasourcesAsync(tenantId, System.Threading.CancellationToken.None);
+            return TenantReportMetaDatasourcesAsync(tenantId, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
-        /// Query report datasources for tenant
+        /// Query report meta datasources for tenant
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Collections.Generic.ICollection<ServiceTenantReportDatasourceDefinition> TenantReportDatasources(System.Guid tenantId)
+        public virtual System.Collections.Generic.ICollection<ServiceTenantReportDatasourceDefinition> TenantReportMetaDatasources(System.Guid tenantId)
         {
-            return System.Threading.Tasks.Task.Run(async () => await TenantReportDatasourcesAsync(tenantId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await TenantReportMetaDatasourcesAsync(tenantId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Query report datasources for tenant
+        /// Query report meta datasources for tenant
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ServiceTenantReportDatasourceDefinition>> TenantReportDatasourcesAsync(System.Guid tenantId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ServiceTenantReportDatasourceDefinition>> TenantReportMetaDatasourcesAsync(System.Guid tenantId, System.Threading.CancellationToken cancellationToken)
         {
             if (tenantId == null)
                 throw new System.ArgumentNullException("tenantId");
@@ -3009,7 +3011,7 @@ namespace Ballware.Meta.Client
         {
             if (response == null || response.Content == null)
             {
-                return new ObjectResponseResult<T>(default(T), string.Empty);
+                return new ObjectResponseResult<T>(default(T)!, string.Empty);
             }
 
             if (ReadResponseAsString)
@@ -3018,7 +3020,7 @@ namespace Ballware.Meta.Client
                 try
                 {
                     var typedBody = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(responseText, JsonSerializerSettings);
-                    return new ObjectResponseResult<T>(typedBody, responseText);
+                    return new ObjectResponseResult<T>(typedBody!, responseText);
                 }
                 catch (Newtonsoft.Json.JsonException exception)
                 {
@@ -3036,7 +3038,7 @@ namespace Ballware.Meta.Client
                     {
                         var serializer = Newtonsoft.Json.JsonSerializer.Create(JsonSerializerSettings);
                         var typedBody = serializer.Deserialize<T>(jsonTextReader);
-                        return new ObjectResponseResult<T>(typedBody, string.Empty);
+                        return new ObjectResponseResult<T>(typedBody!, string.Empty);
                     }
                 }
                 catch (Newtonsoft.Json.JsonException exception)
@@ -3047,7 +3049,7 @@ namespace Ballware.Meta.Client
             }
         }
 
-        private string ConvertToString(object value, System.Globalization.CultureInfo cultureInfo)
+        private string ConvertToString(object? value, System.Globalization.CultureInfo cultureInfo)
         {
             if (value == null)
             {
@@ -3097,22 +3099,22 @@ namespace Ballware.Meta.Client
     public partial class Document
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("DisplayName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string DisplayName { get; set; }
+        public string? DisplayName { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Entity", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Entity { get; set; }
+        public string? Entity { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("State", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int State { get; set; }
+        public int? State { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ReportBinary", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public byte[] ReportBinary { get; set; }
+        public byte[]? ReportBinary { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ReportParameter", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string ReportParameter { get; set; }
+        public string? ReportParameter { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3133,13 +3135,13 @@ namespace Ballware.Meta.Client
     public partial class DocumentSelectListEntry
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("State", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int State { get; set; }
+        public int? State { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3160,22 +3162,22 @@ namespace Ballware.Meta.Client
     public partial class Export
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Application", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Application { get; set; }
+        public string? Application { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Entity", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Entity { get; set; }
+        public string? Entity { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Query", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Query { get; set; }
+        public string? Query { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ExpirationStamp", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? ExpirationStamp { get; set; }
+        public System.DateTimeOffset? ExpirationStamp { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("MediaType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string MediaType { get; set; }
+        public string? MediaType { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3196,19 +3198,19 @@ namespace Ballware.Meta.Client
     public partial class ExportCreatePayload
     {
         [Newtonsoft.Json.JsonProperty("Application", Required = Newtonsoft.Json.Required.AllowNull)]
-        public string Application { get; set; }
+        public string? Application { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Entity", Required = Newtonsoft.Json.Required.AllowNull)]
-        public string Entity { get; set; }
+        public string? Entity { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Query", Required = Newtonsoft.Json.Required.AllowNull)]
-        public string Query { get; set; }
+        public string? Query { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ExpirationStamp", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? ExpirationStamp { get; set; }
+        public System.DateTimeOffset? ExpirationStamp { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("MediaType", Required = Newtonsoft.Json.Required.AllowNull)]
-        public string MediaType { get; set; }
+        public string? MediaType { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3229,26 +3231,26 @@ namespace Ballware.Meta.Client
     public partial class Job
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Scheduler", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Scheduler { get; set; }
+        public string? Scheduler { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Identifier", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Identifier { get; set; }
+        public string? Identifier { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Owner", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid? Owner { get; set; }
+        public System.Guid? Owner { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Options", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Options { get; set; }
+        public string? Options { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Result", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Result { get; set; }
+        public string? Result { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("State", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public JobStates State { get; set; }
+        public JobStates? State { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3269,13 +3271,13 @@ namespace Ballware.Meta.Client
     public partial class JobCreatePayload
     {
         [Newtonsoft.Json.JsonProperty("Scheduler", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Scheduler { get; set; }
+        public string? Scheduler { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Identifier", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Identifier { get; set; }
+        public string? Identifier { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Options", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Options { get; set; }
+        public string? Options { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3317,14 +3319,14 @@ namespace Ballware.Meta.Client
     public partial class JobUpdatePayload
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("State", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public JobStates State { get; set; }
+        public JobStates? State { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Result", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Result { get; set; }
+        public string? Result { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3345,28 +3347,28 @@ namespace Ballware.Meta.Client
     public partial class Lookup
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Meta", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Meta { get; set; }
+        public bool? Meta { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("HasParam", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool HasParam { get; set; }
+        public bool? HasParam { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int Type { get; set; }
+        public int? Type { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Identifier", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Identifier { get; set; }
+        public string? Identifier { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ListQuery", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string ListQuery { get; set; }
+        public string? ListQuery { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ByIdQuery", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string ByIdQuery { get; set; }
+        public string? ByIdQuery { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3387,27 +3389,27 @@ namespace Ballware.Meta.Client
     public partial class MlModel
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Identifier", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Identifier { get; set; }
+        public string? Identifier { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public MlModelTypes Type { get; set; }
+        public MlModelTypes? Type { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("TrainSql", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string TrainSql { get; set; }
+        public string? TrainSql { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("TrainState", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public MlModelTrainingStates TrainState { get; set; }
+        public MlModelTrainingStates? TrainState { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("TrainResult", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string TrainResult { get; set; }
+        public string? TrainResult { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Options", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Options { get; set; }
+        public string? Options { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3428,14 +3430,14 @@ namespace Ballware.Meta.Client
     public partial class MlModelTrainingState
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("State", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public MlModelTrainingStates State { get; set; }
+        public MlModelTrainingStates? State { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Result", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Result { get; set; }
+        public string? Result { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3492,22 +3494,22 @@ namespace Ballware.Meta.Client
     public partial class Notification
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Identifier", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Identifier { get; set; }
+        public string? Identifier { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("DocumentId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid? DocumentId { get; set; }
+        public System.Guid? DocumentId { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("State", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int State { get; set; }
+        public int? State { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Params", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Params { get; set; }
+        public string? Params { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3528,16 +3530,16 @@ namespace Ballware.Meta.Client
     public partial class NotificationTrigger
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("NotificationId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid NotificationId { get; set; }
+        public System.Guid? NotificationId { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Params", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Params { get; set; }
+        public string? Params { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Finished", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Finished { get; set; }
+        public bool? Finished { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3558,10 +3560,10 @@ namespace Ballware.Meta.Client
     public partial class PickvalueSelectEntry
     {
         [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Value", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int Value { get; set; }
+        public int? Value { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3582,22 +3584,22 @@ namespace Ballware.Meta.Client
     public partial class ProcessingStateSelectListEntry
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("State", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int State { get; set; }
+        public int? State { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Locked", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Locked { get; set; }
+        public bool? Locked { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Finished", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Finished { get; set; }
+        public bool? Finished { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ReasonRequired", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool ReasonRequired { get; set; }
+        public bool? ReasonRequired { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3618,67 +3620,67 @@ namespace Ballware.Meta.Client
     public partial class ServiceEntity
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Application", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Application { get; set; }
+        public string? Application { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Entity", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Entity { get; set; }
+        public string? Entity { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("CustomScripts", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ServiceEntityCustomScripts CustomScripts { get; set; }
+        public ServiceEntityCustomScripts? CustomScripts { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("GeneratedSchema", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool GeneratedSchema { get; set; }
+        public bool? GeneratedSchema { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("NoIdentity", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool NoIdentity { get; set; }
+        public bool? NoIdentity { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("CustomFunctions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ServiceEntityCustomFunction> CustomFunctions { get; set; }
+        public System.Collections.Generic.ICollection<ServiceEntityCustomFunction>? CustomFunctions { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ListQuery", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ServiceEntityQueryEntry> ListQuery { get; set; }
+        public System.Collections.Generic.ICollection<ServiceEntityQueryEntry>? ListQuery { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ByIdQuery", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ServiceEntityQueryEntry> ByIdQuery { get; set; }
+        public System.Collections.Generic.ICollection<ServiceEntityQueryEntry>? ByIdQuery { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("NewQuery", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ServiceEntityQueryEntry> NewQuery { get; set; }
+        public System.Collections.Generic.ICollection<ServiceEntityQueryEntry>? NewQuery { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ScalarValueQuery", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string ScalarValueQuery { get; set; }
+        public string? ScalarValueQuery { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("SaveStatement", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ServiceEntityQueryEntry> SaveStatement { get; set; }
+        public System.Collections.Generic.ICollection<ServiceEntityQueryEntry>? SaveStatement { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("RemoveStatement", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string RemoveStatement { get; set; }
+        public string? RemoveStatement { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("RemovePreliminaryCheckScript", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string RemovePreliminaryCheckScript { get; set; }
+        public string? RemovePreliminaryCheckScript { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ListScript", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string ListScript { get; set; }
+        public string? ListScript { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("RemoveScript", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string RemoveScript { get; set; }
+        public string? RemoveScript { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ByIdScript", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string ByIdScript { get; set; }
+        public string? ByIdScript { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("BeforeSaveScript", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string BeforeSaveScript { get; set; }
+        public string? BeforeSaveScript { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("SaveScript", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string SaveScript { get; set; }
+        public string? SaveScript { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("StateAllowedScript", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string StateAllowedScript { get; set; }
+        public string? StateAllowedScript { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Indices", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Indices { get; set; }
+        public string? Indices { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3699,14 +3701,14 @@ namespace Ballware.Meta.Client
     public partial class ServiceEntityCustomFunction
     {
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Id { get; set; }
+        public string? Id { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public ServiceEntityCustomFunctionTypes Type { get; set; }
+        public ServiceEntityCustomFunctionTypes? Type { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("options", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public ServiceEntityCustomFunctionOptions Options { get; set; }
+        public ServiceEntityCustomFunctionOptions? Options { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3727,10 +3729,10 @@ namespace Ballware.Meta.Client
     public partial class ServiceEntityCustomFunctionOptions
     {
         [Newtonsoft.Json.JsonProperty("format", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("delimiter", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Delimiter { get; set; }
+        public string? Delimiter { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3781,7 +3783,7 @@ namespace Ballware.Meta.Client
     public partial class ServiceEntityCustomScripts
     {
         [Newtonsoft.Json.JsonProperty("ExtendedRightsCheck", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string ExtendedRightsCheck { get; set; }
+        public string? ExtendedRightsCheck { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3802,10 +3804,10 @@ namespace Ballware.Meta.Client
     public partial class ServiceEntityQueryEntry
     {
         [Newtonsoft.Json.JsonProperty("identifier", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Identifier { get; set; }
+        public string? Identifier { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("query", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Query { get; set; }
+        public string? Query { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3826,40 +3828,40 @@ namespace Ballware.Meta.Client
     public partial class ServiceTenant
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.AllowNull)]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("RightsCheckScript", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string RightsCheckScript { get; set; }
+        public string? RightsCheckScript { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ServerScriptDefinitions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string ServerScriptDefinitions { get; set; }
+        public string? ServerScriptDefinitions { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ManagedDatabase", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool ManagedDatabase { get; set; }
+        public bool? ManagedDatabase { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Provider", Required = Newtonsoft.Json.Required.AllowNull)]
-        public string Provider { get; set; }
+        public string? Provider { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Server", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Server { get; set; }
+        public string? Server { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Catalog", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Catalog { get; set; }
+        public string? Catalog { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Schema", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Schema { get; set; }
+        public string? Schema { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("User", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User { get; set; }
+        public string? User { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Password", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Password { get; set; }
+        public string? Password { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ReportDatasourceDefinitions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ServiceTenantReportDatasourceDefinition> ReportDatasourceDefinitions { get; set; }
+        public System.Collections.Generic.ICollection<ServiceTenantReportDatasourceDefinition>? ReportDatasourceDefinitions { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3880,13 +3882,13 @@ namespace Ballware.Meta.Client
     public partial class ServiceTenantReportDatasourceDefinition
     {
         [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ConnectionString", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string ConnectionString { get; set; }
+        public string? ConnectionString { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Tables", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ServiceTenantReportDatasourceTable> Tables { get; set; }
+        public System.Collections.Generic.ICollection<ServiceTenantReportDatasourceTable>? Tables { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3907,16 +3909,16 @@ namespace Ballware.Meta.Client
     public partial class ServiceTenantReportDatasourceRelation
     {
         [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ChildTable", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string ChildTable { get; set; }
+        public string? ChildTable { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("MasterColumn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string MasterColumn { get; set; }
+        public string? MasterColumn { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("ChildColumn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string ChildColumn { get; set; }
+        public string? ChildColumn { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3937,16 +3939,16 @@ namespace Ballware.Meta.Client
     public partial class ServiceTenantReportDatasourceTable
     {
         [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Entity", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Entity { get; set; }
+        public string? Entity { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Query", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Query { get; set; }
+        public string? Query { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Relations", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ServiceTenantReportDatasourceRelation> Relations { get; set; }
+        public System.Collections.Generic.ICollection<ServiceTenantReportDatasourceRelation>? Relations { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3967,34 +3969,34 @@ namespace Ballware.Meta.Client
     public partial class Statistic
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Entity", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Entity { get; set; }
+        public string? Entity { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Identifier", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Identifier { get; set; }
+        public string? Identifier { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("MappingScript", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string MappingScript { get; set; }
+        public string? MappingScript { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("CustomScripts", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string CustomScripts { get; set; }
+        public string? CustomScripts { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("FetchSql", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string FetchSql { get; set; }
+        public string? FetchSql { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("FetchScript", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string FetchScript { get; set; }
+        public string? FetchScript { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Layout", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Layout { get; set; }
+        public string? Layout { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Meta", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Meta { get; set; }
+        public bool? Meta { get; set; } = default!;
 
         public string ToJson()
         {
@@ -4015,37 +4017,37 @@ namespace Ballware.Meta.Client
     public partial class Subscription
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("UserId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid UserId { get; set; }
+        public System.Guid? UserId { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Mail", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Mail { get; set; }
+        public string? Mail { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Body", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Body { get; set; }
+        public string? Body { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Attachment", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Attachment { get; set; }
+        public bool? Attachment { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("AttachmentFileName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string AttachmentFileName { get; set; }
+        public string? AttachmentFileName { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("NotificationId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid NotificationId { get; set; }
+        public System.Guid? NotificationId { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Frequency", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int Frequency { get; set; }
+        public int? Frequency { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Active", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool Active { get; set; }
+        public bool? Active { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("LastSendStamp", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? LastSendStamp { get; set; }
+        public System.DateTimeOffset? LastSendStamp { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("LastError", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string LastError { get; set; }
+        public string? LastError { get; set; } = default!;
 
         public string ToJson()
         {
@@ -4069,11 +4071,11 @@ namespace Ballware.Meta.Client
     {
         public int StatusCode { get; private set; }
 
-        public string Response { get; private set; }
+        public string? Response { get; private set; }
 
         public System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> Headers { get; private set; }
 
-        public SwaggerException(string message, int statusCode, string response, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, System.Exception innerException)
+        public SwaggerException(string message, int statusCode, string? response, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, System.Exception? innerException)
             : base(message + "\n\nStatus: " + statusCode + "\nResponse: \n" + ((response == null) ? "(null)" : response.Substring(0, response.Length >= 512 ? 512 : response.Length)), innerException)
         {
             StatusCode = statusCode;
@@ -4092,7 +4094,7 @@ namespace Ballware.Meta.Client
     {
         public TResult Result { get; private set; }
 
-        public SwaggerException(string message, int statusCode, string response, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, TResult result, System.Exception innerException)
+        public SwaggerException(string message, int statusCode, string? response, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, TResult result, System.Exception? innerException)
             : base(message, statusCode, response, headers, innerException)
         {
             Result = result;

@@ -30,7 +30,7 @@ public static class GenericDataEndpoint
         string basePath,
         string apiTag = "Generic",
         string apiOperationPrefix = "Generic",
-        string authorizationScope = "metaApi",
+        string authorizationScope = "genericApi",
         string apiGroup = "generic")
     {
         app.MapGet(basePath + "/{application}/{entity}/all", HandleAllAsync)

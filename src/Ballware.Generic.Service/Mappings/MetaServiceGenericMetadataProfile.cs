@@ -7,6 +7,17 @@ public class MetaServiceGenericMetadataProfile : Profile
     public MetaServiceGenericMetadataProfile()
     {
         CreateMap<Ballware.Meta.Client.ServiceTenant, Ballware.Generic.Metadata.Tenant>();
+        CreateMap<Ballware.Meta.Client.ServiceEntityQueryEntry, Ballware.Generic.Metadata.QueryEntry>();
+        CreateMap<Ballware.Meta.Client.ServiceEntityCustomFunction, Ballware.Generic.Metadata.CustomFunctionEntry>();
+        CreateMap<Ballware.Meta.Client.ServiceEntityCustomFunctionOptions, Ballware.Generic.Metadata.CustomFunctionOptions>();
+        
+        CreateMap<Ballware.Meta.Client.ServiceTenantReportDatasourceDefinition,
+            Ballware.Generic.Metadata.ReportDatasourceDefinition>();
+        CreateMap<Ballware.Meta.Client.ServiceTenantReportDatasourceTable,
+            Ballware.Generic.Metadata.ReportDatasourceTable>();
+        CreateMap<Ballware.Meta.Client.ServiceTenantReportDatasourceRelation,
+            Ballware.Generic.Metadata.ReportDatasourceRelation>();
+        
         CreateMap<Ballware.Meta.Client.ServiceEntity, Ballware.Generic.Metadata.Entity>();
         CreateMap<Ballware.Meta.Client.Lookup, Ballware.Generic.Metadata.Lookup>();
         CreateMap<Ballware.Meta.Client.MlModel, Ballware.Generic.Metadata.MlModel>();

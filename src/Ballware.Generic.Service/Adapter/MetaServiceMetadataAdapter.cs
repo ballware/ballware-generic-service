@@ -85,7 +85,7 @@ public class MetaServiceMetadataAdapter : IMetadataAdapter
         MetaClient.NotificationTriggerSaveForTenantBehalfOfUserAsync(tenant, userId, Mapper.Map<Ballware.Meta.Client.NotificationTrigger>(notificationTrigger));
     }
 
-    public async Task<Guid> CreateJobForTenantBehalfOfUserAsync(Guid tenant, Guid userId, JobCreatePayload payload)
+    public async Task<Guid?> CreateJobForTenantBehalfOfUserAsync(Guid tenant, Guid userId, JobCreatePayload payload)
     {
         var metaJob = await MetaClient.JobCreateForTenantBehalfOfUserAsync(tenant, userId, Mapper.Map<Ballware.Meta.Client.JobCreatePayload>(payload));
         

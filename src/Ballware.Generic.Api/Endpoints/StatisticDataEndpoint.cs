@@ -19,7 +19,7 @@ public static class StatisticDataEndpoint
         string authorizationScope = "metaApi",
         string apiGroup = "meta")
     {
-        app.MapGet(basePath + "/dataforidentifier", HandleDataByIdentifierAsync)
+        app.MapGet(basePath + "/dataforidentifier/{identifier}", HandleDataByIdentifierAsync)
             .RequireAuthorization(authorizationScope)
             .Produces<IEnumerable<object>>()
             .Produces(StatusCodes.Status401Unauthorized)

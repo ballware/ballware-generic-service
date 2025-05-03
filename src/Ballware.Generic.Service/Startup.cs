@@ -124,6 +124,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                     .SelectMany(c => c.Value.Split(' '))
                     .Any(s => s.Equals(authorizationOptions.RequiredMetaScope, StringComparison.Ordinal)))
             )
+            .AddPolicy("metaApi", policy => policy.RequireAssertion(context =>
+                    context.User
+                        .Claims
+                        .Where(c => "scope" == c.Type)
+                        .SelectMany(c => c.Value.Split(' '))
+                        .Any(s => s.Equals(authorizationOptions.RequiredMetaScope, StringComparison.Ordinal)))
+            )
             .AddPolicy("serviceApi", policy => policy.RequireAssertion(context =>
                 context.User
                     .Claims
@@ -207,12 +214,10 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             {
                 client.BaseAddress = new Uri(metaClientOptions.ServiceUrl);
             })
-            /*
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
             {
                 ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             })
-            */
             .AddClientCredentialsTokenHandler("meta");
 
         Services.AddHttpClient<BallwareStorageClient>(client =>
