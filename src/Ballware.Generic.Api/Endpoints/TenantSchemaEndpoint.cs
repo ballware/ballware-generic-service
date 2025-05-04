@@ -28,7 +28,7 @@ public static class TenantSchemaEndpoint
             .WithTags(apiTag)
             .WithSummary("Create or update entity schema in tenant database");
         
-        app.MapDelete(basePath + "/dropentityschemafortenant/{tenantId}/{application}/{identifier}/{userId}", HandleDropEntitySchemaForTenantBehalfOfUserAsync)
+        app.MapDelete(basePath + "/dropentityschemafortenant/{tenantId}/{application}/{identifier}", HandleDropEntitySchemaForTenantBehalfOfUserAsync)
             .RequireAuthorization(authorizationScope)
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
@@ -47,7 +47,7 @@ public static class TenantSchemaEndpoint
             .WithTags(apiTag)
             .WithSummary("Create or update schema in tenant database");
         
-        app.MapDelete(basePath + "/dropschemafortenant/{tenantId}/{userId}", HandleDropSchemaForTenantBehalfOfUserAsync)
+        app.MapDelete(basePath + "/dropschemafortenant/{tenantId}", HandleDropSchemaForTenantBehalfOfUserAsync)
             .RequireAuthorization(authorizationScope)
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
@@ -73,7 +73,7 @@ public static class TenantSchemaEndpoint
         }
     }
     
-    public static async Task<IResult> HandleDropEntitySchemaForTenantBehalfOfUserAsync(ITenantSchemaProvider tenantSchemaProvider, Guid tenantId, string application, string identifier, Guid userId)
+    public static async Task<IResult> HandleDropEntitySchemaForTenantBehalfOfUserAsync(ITenantSchemaProvider tenantSchemaProvider, Guid tenantId, string application, string identifier, Guid? userId = null)
     {
         try
         {
@@ -101,7 +101,7 @@ public static class TenantSchemaEndpoint
         }
     }
     
-    public static async Task<IResult> HandleDropSchemaForTenantBehalfOfUserAsync(ITenantSchemaProvider tenantSchemaProvider, Guid tenantId, Guid userId)
+    public static async Task<IResult> HandleDropSchemaForTenantBehalfOfUserAsync(ITenantSchemaProvider tenantSchemaProvider, Guid tenantId, Guid? userId = null)
     {
         try
         {
