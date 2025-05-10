@@ -49,13 +49,12 @@ public class SqlServerSchemaProviderTest
         
         var tenantId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        var tenantConnectionId = Guid.NewGuid();
         TenantConnection createdConnection = null;
         
         ConnectionRepositoryMock.Setup(m => m.NewAsync("primary", It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync((string _, IDictionary<string, object> _) => new TenantConnection()
             {
-                Id = tenantConnectionId
+                Id = Guid.NewGuid()
             });
         ConnectionRepositoryMock.Setup(m => m.ByIdAsync(tenantId))
             .ReturnsAsync((Guid _) => null);
@@ -66,7 +65,7 @@ public class SqlServerSchemaProviderTest
                 Assert.Multiple(() =>
                 {
                     Assert.That(connection, Is.Not.Null);
-                    Assert.That(connection.Id, Is.EqualTo(tenantConnectionId));
+                    Assert.That(connection.Id, Is.EqualTo(tenantId));
                     Assert.That(connection.Schema, Is.EqualTo("faketenant1"));
                     
                     createdConnection = connection;
@@ -115,14 +114,13 @@ public class SqlServerSchemaProviderTest
         
         var tenantId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        var tenantConnectionId = Guid.NewGuid();
 
         TenantConnection createdConnection = null; 
         
         ConnectionRepositoryMock.Setup(m => m.NewAsync("primary", It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync((string _, IDictionary<string, object> _) => new TenantConnection()
             {
-                Id = tenantConnectionId
+                Id = Guid.NewGuid()
             });
         ConnectionRepositoryMock.Setup(m => m.ByIdAsync(tenantId))
             .ReturnsAsync((Guid _) => null);
@@ -133,7 +131,7 @@ public class SqlServerSchemaProviderTest
                 Assert.Multiple(() =>
                 {
                     Assert.That(connection, Is.Not.Null);
-                    Assert.That(connection.Id, Is.EqualTo(tenantConnectionId));
+                    Assert.That(connection.Id, Is.EqualTo(tenantId));
                     Assert.That(connection.Schema, Is.EqualTo("faketenant2"));
                     
                     createdConnection = connection;
