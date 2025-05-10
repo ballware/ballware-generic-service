@@ -404,7 +404,7 @@ public class SqlServerSchemaProviderTest
             var serializedEntityModel = JsonConvert.SerializeObject(entityModel);
             
             await provider.CreateOrUpdateEntityAsync(tenantId, serializedEntityModel, userId);
-            await provider.DropEntityAsync(tenantId, "fake", "fakeentity", userId);
+            await provider.DropEntityAsync(tenantId, "fakeentity", userId);
             
             await provider.DropTenantAsync(tenantId, userId);
         }

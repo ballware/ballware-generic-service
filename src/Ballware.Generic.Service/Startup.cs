@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using Ballware.Generic.Api;
 using Ballware.Generic.Api.Endpoints;
 using Ballware.Generic.Authorization;
@@ -12,6 +13,7 @@ using Ballware.Generic.Service.Jobs;
 using Ballware.Generic.Service.Mappings;
 using Ballware.Generic.Tenant.Data;
 using Ballware.Generic.Tenant.Data.SqlServer;
+using Ballware.Generic.Tenant.Data.SqlServer.Configuration;
 using Ballware.Meta.Client;
 using Ballware.Meta.Service.Adapter;
 using Ballware.Ml.Client;
@@ -36,6 +38,8 @@ namespace Ballware.Generic.Service;
 
 public class Startup(IWebHostEnvironment environment, ConfigurationManager configuration, IServiceCollection services)
 {
+    private readonly string ClaimTypeScope = "scope";
+    
     private IWebHostEnvironment Environment { get; } = environment;
     private ConfigurationManager Configuration { get; } = configuration;
     private IServiceCollection Services { get; } = services;
@@ -46,6 +50,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         AuthorizationOptions? authorizationOptions =
             Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
         StorageOptions? storageOptions = Configuration.GetSection("Storage").Get<StorageOptions>();
+        SqlServerTenantStorageOptions? sqlServerTenantStorageOptions = Configuration.GetSection("SqlServerTenantStorage").Get<SqlServerTenantStorageOptions>();
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
         ServiceClientOptions? metaClientOptions = Configuration.GetSection("MetaClient").Get<ServiceClientOptions>();
         ServiceClientOptions? storageClientOptions = Configuration.GetSection("StorageClient").Get<ServiceClientOptions>();
@@ -77,7 +82,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             .Bind(Configuration.GetSection("MlClient"))
             .ValidateDataAnnotations();
 
-        if (authorizationOptions == null || storageOptions == null || string.IsNullOrEmpty(tenantMasterConnectionString))
+        if (authorizationOptions == null || storageOptions == null || sqlServerTenantStorageOptions == null || string.IsNullOrEmpty(tenantMasterConnectionString))
         {
             throw new ConfigurationException("Required configuration for authorization and storage is missing");
         }
@@ -120,28 +125,28 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             .AddPolicy("genericApi", policy => policy.RequireAssertion(context =>
                 context.User
                     .Claims
-                    .Where(c => "scope" == c.Type)
+                    .Where(c => ClaimTypeScope == c.Type)
                     .SelectMany(c => c.Value.Split(' '))
                     .Any(s => s.Equals(authorizationOptions.RequiredMetaScope, StringComparison.Ordinal)))
             )
             .AddPolicy("metaApi", policy => policy.RequireAssertion(context =>
                     context.User
                         .Claims
-                        .Where(c => "scope" == c.Type)
+                        .Where(c => ClaimTypeScope == c.Type)
                         .SelectMany(c => c.Value.Split(' '))
                         .Any(s => s.Equals(authorizationOptions.RequiredMetaScope, StringComparison.Ordinal)))
             )
             .AddPolicy("serviceApi", policy => policy.RequireAssertion(context =>
                 context.User
                     .Claims
-                    .Where(c => "scope" == c.Type)
+                    .Where(c => ClaimTypeScope == c.Type)
                     .SelectMany(c => c.Value.Split(' '))
                     .Any(s => s.Equals(authorizationOptions.RequiredServiceScope, StringComparison.Ordinal)))
             )
             .AddPolicy("schemaApi", policy => policy.RequireAssertion(context =>
                 context.User
                     .Claims
-                    .Where(c => "scope" == c.Type)
+                    .Where(c => ClaimTypeScope == c.Type)
                     .SelectMany(c => c.Value.Split(' '))
                     .Any(s => s.Equals(authorizationOptions.RequiredSchemaScope, StringComparison.Ordinal)))
             );
@@ -214,10 +219,6 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             {
                 client.BaseAddress = new Uri(metaClientOptions.ServiceUrl);
             })
-            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
-            {
-                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            })
             .AddClientCredentialsTokenHandler("meta");
 
         Services.AddHttpClient<BallwareStorageClient>(client =>
@@ -250,7 +251,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         
         Services.AddBallwareTenantGenericStorage(builder =>
         {
-            builder.AddSqlServerTenantDataStorage(tenantMasterConnectionString);
+            builder.AddSqlServerTenantDataStorage(tenantMasterConnectionString, sqlServerTenantStorageOptions);
         });
         
         Services.AddEndpointsApiExplorer();

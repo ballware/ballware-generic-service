@@ -28,7 +28,7 @@ public static class TenantSchemaEndpoint
             .WithTags(apiTag)
             .WithSummary("Create or update entity schema in tenant database");
         
-        app.MapDelete(basePath + "/dropentityschemafortenant/{tenantId}/{application}/{identifier}", HandleDropEntitySchemaForTenantBehalfOfUserAsync)
+        app.MapDelete(basePath + "/dropentityschemafortenant/{tenantId}/{identifier}", HandleDropEntitySchemaForTenantBehalfOfUserAsync)
             .RequireAuthorization(authorizationScope)
             .Produces(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
@@ -73,11 +73,11 @@ public static class TenantSchemaEndpoint
         }
     }
     
-    public static async Task<IResult> HandleDropEntitySchemaForTenantBehalfOfUserAsync(ITenantSchemaProvider tenantSchemaProvider, Guid tenantId, string application, string identifier, Guid? userId = null)
+    public static async Task<IResult> HandleDropEntitySchemaForTenantBehalfOfUserAsync(ITenantSchemaProvider tenantSchemaProvider, Guid tenantId, string identifier, Guid? userId = null)
     {
         try
         {
-            await tenantSchemaProvider.DropEntityAsync(tenantId, application, identifier, userId);
+            await tenantSchemaProvider.DropEntityAsync(tenantId, identifier, userId);
         
             return Results.Ok();   
         }

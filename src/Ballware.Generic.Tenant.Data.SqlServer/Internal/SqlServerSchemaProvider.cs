@@ -34,7 +34,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         }
     }
 
-    public async Task DropEntityAsync(Guid tenant, string application, string identifier, Guid? userId)
+    public async Task DropEntityAsync(Guid tenant, string identifier, Guid? userId)
     {
         var connection = await Repository.ByIdAsync(tenant);
 
@@ -200,20 +200,25 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
     private async Task<TenantConnection> CreateTenantAsync(Guid tenant, SqlServerTenantModel tenantModel, Guid? userId)
     {
         var tenantConnection = await Repository.NewAsync("primary", ImmutableDictionary<string, object>.Empty);
-            
+
+        tenantConnection.Id = tenant;
+        
         var masterConnectionStringBuilder =
             new SqlConnectionStringBuilder(Configuration.TenantMasterConnectionString);
+        
+        var user = $"tenant_{tenant.ToString().ToLower()}";
+        var password = Guid.NewGuid().ToString();
+        
+        tenantModel.Server ??= masterConnectionStringBuilder.DataSource;
+        tenantModel.Catalog ??= masterConnectionStringBuilder.InitialCatalog;
+        tenantModel.Schema ??= "dbo";
+        
         var tenantCreationConnectionStringBuilder =
             new SqlConnectionStringBuilder(Configuration.TenantMasterConnectionString)
             {
-                DataSource = tenantModel.Server ?? masterConnectionStringBuilder.DataSource,
-                InitialCatalog = tenantModel.Catalog ?? masterConnectionStringBuilder.InitialCatalog,
+                DataSource = tenantModel.Server,
+                InitialCatalog = tenantModel.Catalog,
             };
-
-        var user = $"tenant_{tenant.ToString().ToLower()}";
-        var password = Guid.NewGuid().ToString();
-        var catalog = tenantModel.Catalog ?? masterConnectionStringBuilder.InitialCatalog;
-        var schema = tenantModel.Schema ?? "dbo";
         
         var tenantConnectionString = tenantCreationConnectionStringBuilder.ToString();
 
@@ -221,18 +226,18 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
 
         if (Configuration.UseContainedDatabase)
         {
-            await tenantDb.CreateContainedSchemaForUserAsync(catalog, schema, user, password);
+            await tenantDb.CreateContainedSchemaForUserAsync(tenantModel.Catalog, tenantModel.Schema, user, password);
         }
         else
         {
-            await tenantDb.CreateSchemaForUserAsync(catalog, schema, user, password);
+            await tenantDb.CreateSchemaForUserAsync(tenantModel.Catalog, tenantModel.Schema, user, password);
         }
 
         tenantCreationConnectionStringBuilder.UserID = user;
         tenantCreationConnectionStringBuilder.Password = password;
         
         tenantConnection.Provider = "mssql";
-        tenantConnection.Schema = schema;
+        tenantConnection.Schema = tenantModel.Schema;
         tenantConnection.ConnectionString = tenantCreationConnectionStringBuilder.ToString();
         
         await Repository.SaveAsync(userId, "primary", ImmutableDictionary<string, object>.Empty, tenantConnection);
