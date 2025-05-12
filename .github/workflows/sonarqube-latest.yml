@@ -54,11 +54,12 @@ jobs:
         run: dotnet tool install --global dotnet-sonarscanner
         
       - name: Start SonarQube scan
-        run: dotnet sonarscanner begin \
-          /k:"ballware_ballware-generic-service" \
-          /o:"ballware" \
-          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-          /d:sonar.cs.dotcover.reportsPaths="coverage.html"
+        run: | 
+          dotnet sonarscanner begin \
+            /k:"ballware_ballware-generic-service" \
+            /o:"ballware" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.cs.dotcover.reportsPaths="coverage.html"
         
       - name: Build solution
         run: dotnet build ballware-generic-service.sln --no-incremental --configuration Release
