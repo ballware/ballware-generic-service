@@ -79,7 +79,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("tenantId");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/document/selectlistdocumentsfortenant/{tenantId}");
+            urlBuilder_.Append("meta/document/selectlistdocumentsfortenant/{tenantId}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
@@ -182,7 +182,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("id");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/document/documentmetadatabytenantandid/{tenantId}/{id}");
+            urlBuilder_.Append("meta/document/documentmetadatabytenantandid/{tenantId}/{id}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -283,7 +283,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("tenantId");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/document/documenttemplatebehalfofuserbytenant/{tenantId}");
+            urlBuilder_.Append("meta/document/documenttemplatebehalfofuserbytenant/{tenantId}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
@@ -389,7 +389,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("body");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/document/savedocumentbehalfofuser/{tenantId}/{userId}");
+            urlBuilder_.Append("meta/document/savedocumentbehalfofuser/{tenantId}/{userId}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -491,7 +491,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("identifier");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/entity/servicemetadatafortenantbyidentifier/{tenantId}/{identifier}");
+            urlBuilder_.Append("meta/entity/servicemetadatafortenantbyidentifier/{tenantId}/{identifier}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{identifier}", System.Uri.EscapeDataString(ConvertToString(identifier, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -595,7 +595,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("id");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/export/exportbyidfortenant/{tenantId}/{id}");
+            urlBuilder_.Append("meta/export/exportbyidfortenant/{tenantId}/{id}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -708,7 +708,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("body");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/export/createexportfortenantbehalfofuser/{tenantId}/{userId}");
+            urlBuilder_.Append("meta/export/createexportfortenantbehalfofuser/{tenantId}/{userId}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -819,7 +819,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("body");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/job/createjobfortenantbehalfofuser/{tenantId}/{userId}");
+            urlBuilder_.Append("meta/job/createjobfortenantbehalfofuser/{tenantId}/{userId}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -930,7 +930,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("body");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/job/updatejobfortenantbehalfofuser/{tenantId}/{userId}");
+            urlBuilder_.Append("meta/job/updatejobfortenantbehalfofuser/{tenantId}/{userId}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -1038,7 +1038,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("id");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/lookup/lookupmetadatabytenantandid/{tenantId}/{id}");
+            urlBuilder_.Append("meta/lookup/lookupmetadatabytenantandid/{tenantId}/{id}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -1142,7 +1142,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("identifier");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/lookup/lookupmetadatabytenantandidentifier/{tenantId}/{identifier}");
+            urlBuilder_.Append("meta/lookup/lookupmetadatabytenantandidentifier/{tenantId}/{identifier}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{identifier}", System.Uri.EscapeDataString(ConvertToString(identifier, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -1243,7 +1243,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("tenantId");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/lookup/lookupmetadatabytenant/{tenantId}");
+            urlBuilder_.Append("meta/lookup/lookupmetadatabytenant/{tenantId}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
@@ -1346,7 +1346,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("id");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/mlmodel/metadatabytenantandid/{tenantId}/{id}");
+            urlBuilder_.Append("meta/mlmodel/metadatabytenantandid/{tenantId}/{id}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -1450,7 +1450,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("identifier");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/mlmodel/metadatabytenantandidentifier/{tenantId}/{identifier}");
+            urlBuilder_.Append("meta/mlmodel/metadatabytenantandidentifier/{tenantId}/{identifier}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{identifier}", System.Uri.EscapeDataString(ConvertToString(identifier, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -1557,7 +1557,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("body");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/mlmodel/savetrainingstatebehalfofuser/{tenantId}/{userId}");
+            urlBuilder_.Append("meta/mlmodel/savetrainingstatebehalfofuser/{tenantId}/{userId}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -1659,7 +1659,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("id");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/notification/notificationmetadatabytenantandid/{tenantId}/{id}");
+            urlBuilder_.Append("meta/notification/notificationmetadatabytenantandid/{tenantId}/{id}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -1763,7 +1763,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("identifier");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/notification/notificationmetadatabytenantandidentifier/{tenantId}/{identifier}");
+            urlBuilder_.Append("meta/notification/notificationmetadatabytenantandidentifier/{tenantId}/{identifier}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{identifier}", System.Uri.EscapeDataString(ConvertToString(identifier, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -1870,7 +1870,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("userId");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/notificationtrigger/createnotificationtriggerfortenantandnotificationbehalfofuser/{tenantId}/{notificationId}/{userId}");
+            urlBuilder_.Append("meta/notificationtrigger/createnotificationtriggerfortenantandnotificationbehalfofuser/{tenantId}/{notificationId}/{userId}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{notificationId}", System.Uri.EscapeDataString(ConvertToString(notificationId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
@@ -1978,7 +1978,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("body");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/notificationtrigger/savenotificationtriggerbehalfofuser/{tenantId}/{userId}");
+            urlBuilder_.Append("meta/notificationtrigger/savenotificationtriggerbehalfofuser/{tenantId}/{userId}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -2086,7 +2086,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("value");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/pickvalue/selectbyvaluefortenantandentityandfield/{tenantId}/{entity}/{field}/{value}");
+            urlBuilder_.Append("meta/pickvalue/selectbyvaluefortenantandentityandfield/{tenantId}/{entity}/{field}/{value}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{entity}", System.Uri.EscapeDataString(ConvertToString(entity, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{field}", System.Uri.EscapeDataString(ConvertToString(field, System.Globalization.CultureInfo.InvariantCulture)));
@@ -2195,7 +2195,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("state");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/processingstate/selectlistallsuccessorsfortenantandentitybystate/{tenantId}/{identifier}/{state}");
+            urlBuilder_.Append("meta/processingstate/selectlistallsuccessorsfortenantandentitybystate/{tenantId}/{identifier}/{state}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{identifier}", System.Uri.EscapeDataString(ConvertToString(identifier, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{state}", System.Uri.EscapeDataString(ConvertToString(state, System.Globalization.CultureInfo.InvariantCulture)));
@@ -2303,7 +2303,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("state");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/processingstate/selectbystatefortenantandentity/{tenantId}/{identifier}/{state}");
+            urlBuilder_.Append("meta/processingstate/selectbystatefortenantandentity/{tenantId}/{identifier}/{state}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{identifier}", System.Uri.EscapeDataString(ConvertToString(identifier, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{state}", System.Uri.EscapeDataString(ConvertToString(state, System.Globalization.CultureInfo.InvariantCulture)));
@@ -2408,7 +2408,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("identifier");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/statistic/metadatafortenantandidentifier/{tenantId}/{identifier}");
+            urlBuilder_.Append("meta/statistic/metadatafortenantandidentifier/{tenantId}/{identifier}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{identifier}", System.Uri.EscapeDataString(ConvertToString(identifier, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -2512,7 +2512,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("id");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/subscription/metadatabytenantandid/{tenantId}/{id}");
+            urlBuilder_.Append("meta/subscription/metadatabytenantandid/{tenantId}/{id}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -2613,7 +2613,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("frequency");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/subscription/activeforfrequency/{frequency}");
+            urlBuilder_.Append("meta/subscription/activeforfrequency/{frequency}");
             urlBuilder_.Replace("{frequency}", System.Uri.EscapeDataString(ConvertToString(frequency, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
@@ -2719,7 +2719,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("body");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/subscription/setsendresult/{tenantId}/{id}");
+            urlBuilder_.Append("meta/subscription/setsendresult/{tenantId}/{id}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -2818,7 +2818,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("tenantId");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/tenant/servicemetadatafortenant/{tenantId}");
+            urlBuilder_.Append("meta/tenant/servicemetadatafortenant/{tenantId}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
@@ -2924,7 +2924,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("tenantId");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/tenant/reportmetadatasourcesfortenant/{tenantId}");
+            urlBuilder_.Append("meta/tenant/reportmetadatasourcesfortenant/{tenantId}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;

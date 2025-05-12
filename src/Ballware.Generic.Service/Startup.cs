@@ -219,19 +219,55 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             {
                 client.BaseAddress = new Uri(metaClientOptions.ServiceUrl);
             })
-            .AddClientCredentialsTokenHandler("meta");
+            .AddClientCredentialsTokenHandler("meta")
+            .ConfigurePrimaryHttpMessageHandler(serviceProvider =>
+            {
+                var env = serviceProvider.GetRequiredService<IHostEnvironment>();
+                if (env.IsDevelopment())
+                {
+                    return new HttpClientHandler
+                    {
+                        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                    };
+                }
+                return new HttpClientHandler();
+            });
 
         Services.AddHttpClient<BallwareStorageClient>(client =>
             {
                 client.BaseAddress = new Uri(storageClientOptions.ServiceUrl);
             })
-            .AddClientCredentialsTokenHandler("storage");
+            .AddClientCredentialsTokenHandler("storage")
+            .ConfigurePrimaryHttpMessageHandler(serviceProvider =>
+            {
+                var env = serviceProvider.GetRequiredService<IHostEnvironment>();
+                if (env.IsDevelopment())
+                {
+                    return new HttpClientHandler
+                    {
+                        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                    };
+                }
+                return new HttpClientHandler();
+            });
         
         Services.AddHttpClient<BallwareMlClient>(client =>
             {
                 client.BaseAddress = new Uri(mlClientOptions.ServiceUrl);
             })
-            .AddClientCredentialsTokenHandler("ml");
+            .AddClientCredentialsTokenHandler("ml")
+            .ConfigurePrimaryHttpMessageHandler(serviceProvider =>
+            {
+                var env = serviceProvider.GetRequiredService<IHostEnvironment>();
+                if (env.IsDevelopment())
+                {
+                    return new HttpClientHandler
+                    {
+                        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                    };
+                }
+                return new HttpClientHandler();
+            });
         
         Services.AddAutoMapper(config =>
         {
@@ -314,13 +350,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
         app.UseAuthorization();
 
-        app.MapLookupUserDataApi("/api/lookup");
-        app.MapLookupServiceDataApi("/api/lookup");
-        app.MapMlModelDataApi("/api/mlmodel");
-        app.MapProcessingStateDataApi("/api/processingstate");
-        app.MapStatisticDataApi("/api/statistic");
-        app.MapTenantServiceDataApi("/api/tenant");
-        app.MapGenericDataApi("/api/generic");
+        app.MapLookupUserDataApi("/tenant/lookup");
+        app.MapLookupServiceDataApi("/tenant/lookup");
+        app.MapMlModelDataApi("/tenent/mlmodel");
+        app.MapProcessingStateDataApi("/tenant/processingstate");
+        app.MapStatisticDataApi("/tenant/statistic");
+        app.MapTenantServiceDataApi("/tenant/tenant");
+        app.MapGenericDataApi("/generic");
         
         app.MapTenantServiceSchemaApi("/api/tenant");
 
