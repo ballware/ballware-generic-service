@@ -312,7 +312,7 @@ class SqlServerGenericProvider : ITenantGenericProvider
             insert,
             value);
 
-        await db.ExecuteAsync(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, saveStatement.Query, TenantPlaceholderOptions.Create()), value, transaction);
+        await db.ExecuteAsync(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, saveStatement.Query, TenantPlaceholderOptions.Create()), Utils.FilterNestedDictionaries(value), transaction);
 
         await scriptingExecutor.SaveScriptAsync(
             db,

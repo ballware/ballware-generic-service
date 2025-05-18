@@ -24,7 +24,7 @@ static class SqlServerDbConnectionExtensions
                 return column.ColumnType + $"({column.MaxLength})";
             }
             
-            return column.ColumnType + $"(max)" + (column.Nullable ? " NULL" : " NOT NULL");
+            return column.ColumnType + $"(4000)" + (column.Nullable ? " NULL" : " NOT NULL");
         }
         
         return column.ColumnType + (column.Nullable ? " NULL" : " NOT NULL");
@@ -83,7 +83,7 @@ static class SqlServerDbConnectionExtensions
     
     private static void AddColumn(this IDbConnection db, string table, SqlServerColumnModel add)
     {
-        db.Execute($"ALTER TABLE {table} ADD {add.ColumnName} {CreateColumnTypeDefinition(add)}");
+        db.Execute($"ALTER TABLE {table} ADD [{add.ColumnName}] {CreateColumnTypeDefinition(add)}");
     }
     
     private static void AlterColumn(this IDbConnection db, string table, SqlServerColumnModel existing, SqlServerColumnModel changed)
@@ -91,13 +91,13 @@ static class SqlServerDbConnectionExtensions
         if (existing.ColumnType != changed.ColumnType || existing.Nullable != changed.Nullable ||
             existing.MaxLength != changed.MaxLength)
         {
-            db.Execute($"ALTER TABLE {table} ALTER COLUMN {changed.ColumnName} {CreateColumnTypeDefinition(changed)}");    
+            db.Execute($"ALTER TABLE {table} ALTER COLUMN [{changed.ColumnName}] {CreateColumnTypeDefinition(changed)}");    
         }
     }
 
     private static void DropColumn(this IDbConnection db, string table, SqlServerColumnModel drop)
     {
-        db.Execute($"ALTER TABLE {table} DROP COLUMN {drop.ColumnName}");
+        db.Execute($"ALTER TABLE {table} DROP COLUMN [{drop.ColumnName}]");
     }
     
     public static async Task CreateContainedSchemaForUserAsync(this IDbConnection db, string catalog, string schema, string username, string password)

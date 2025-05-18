@@ -42,6 +42,7 @@ public static class TenantStorageBuilderExtensions
         builder.RegisterSchemaProvider<SqlServerSchemaProvider>(ProviderMssql);
 
         SqlMapper.AddTypeHandler(new SqlServerColumnTypeHandler());
+        SqlMapper.AddTypeHandler(new SqlServerComplexTypeHandler());
         
         return builder;
     }

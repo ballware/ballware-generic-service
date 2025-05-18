@@ -38,6 +38,7 @@ class SqlServerColumnType
     public static SqlServerColumnType Float = new SqlServerColumnType("float");
     public static SqlServerColumnType Datetime = new SqlServerColumnType("datetime");
     public static SqlServerColumnType String = new SqlServerColumnType("nvarchar");
+    public static SqlServerColumnType Text = new SqlServerColumnType("text");
 
     public static SqlServerColumnType Custom(string literalValue)
     {
@@ -55,6 +56,19 @@ class SqlServerColumnTypeHandler : SqlMapper.TypeHandler<SqlServerColumnType>
     public override void SetValue(IDbDataParameter parameter, SqlServerColumnType? value)
     {
         parameter.Value = value?.ToString();
+    }
+}
+
+class SqlServerComplexTypeHandler : SqlMapper.TypeHandler<Dictionary<string, object>>
+{
+    public override Dictionary<string, object>? Parse(object value)
+    {
+        return new Dictionary<string, object>();
+    }
+
+    public override void SetValue(IDbDataParameter parameter, Dictionary<string, object>? value)
+    {
+        parameter.Value = DBNull.Value;
     }
 }
 

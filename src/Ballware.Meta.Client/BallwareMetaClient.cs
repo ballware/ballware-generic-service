@@ -3652,6 +3652,9 @@ namespace Ballware.Meta.Client
         [Newtonsoft.Json.JsonProperty("ScalarValueQuery", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string? ScalarValueQuery { get; set; } = default!;
 
+        [Newtonsoft.Json.JsonProperty("StateColumn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string? StateColumn { get; set; } = default!;
+
         [Newtonsoft.Json.JsonProperty("SaveStatement", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<ServiceEntityQueryEntry>? SaveStatement { get; set; } = default!;
 

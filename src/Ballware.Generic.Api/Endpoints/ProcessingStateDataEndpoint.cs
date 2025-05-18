@@ -91,7 +91,7 @@ public static class ProcessingStateDataEndpoint
                 var listOfStates = await Task.WhenAll(ids.Select(Guid.Parse).AsParallel().Select(async (id) =>
                 {
                     var currentState = await tenantGenericProvider.GetScalarValueAsync(tenant, entityMeta, entityMeta.StateColumn, id, 0);
-                    var possibleStates = metadataAdapter.SelectListPossibleSuccessorsForEntityAsync(tenantId, entity, currentState).Result;
+                    var possibleStates = await metadataAdapter.SelectListPossibleSuccessorsForEntityAsync(tenantId, entity, currentState);
                     var allowedStates = possibleStates?.Where(ps => tenantGenericProvider.StateAllowedAsync(tenant, entityMeta, id, ps.State, claims, rights).GetAwaiter().GetResult());
 
                     return allowedStates;

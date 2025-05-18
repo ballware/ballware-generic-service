@@ -56,7 +56,7 @@ public class MetaServiceMetadataAdapter : IMetadataAdapter
 
     public Entity MetadataForEntityByTenantAndIdentifier(Guid tenant, string identifier)
     {
-        return Mapper.Map<Entity>(MetaClient.EntityServiceMetadataForTenantByIdentifierAsync(tenant, identifier));
+        return Mapper.Map<Entity>(MetaClient.EntityServiceMetadataForTenantByIdentifier(tenant, identifier));
     }
 
     public async Task<IEnumerable<ProcessingStateSelectListEntry>> SelectListPossibleSuccessorsForEntityAsync(Guid tenantId, string entity, int state)
@@ -66,23 +66,23 @@ public class MetaServiceMetadataAdapter : IMetadataAdapter
 
     public ProcessingState? SingleProcessingStateForTenantAndEntityByValue(Guid tenant, string entity, int state)
     {
-        return Mapper.Map<ProcessingState>(MetaClient.ProcessingStateSelectByStateForTenantAndEntityByIdentifierAsync(tenant, entity, state));
+        return Mapper.Map<ProcessingState>(MetaClient.ProcessingStateSelectByStateForTenantAndEntityByIdentifier(tenant, entity, state));
     }
 
     public Notification? MetadataForNotificationByTenantAndIdentifier(Guid tenant, string identifier)
     {
-        return Mapper.Map<Notification>(MetaClient.NotificationMetadataByTenantAndIdentifierAsync(tenant, identifier));
+        return Mapper.Map<Notification>(MetaClient.NotificationMetadataByTenantAndIdentifier(tenant, identifier));
     }
 
     public NotificationTrigger CreateNotificationTriggerForTenantAndNotificationBehalfOfUser(Guid tenant, Guid notification,
         Guid userId)
     {
-        return Mapper.Map<NotificationTrigger>(MetaClient.NotificationTriggerCreateForTenantAndNotificationBehalfOfUserAsync(tenant, notification, userId));
+        return Mapper.Map<NotificationTrigger>(MetaClient.NotificationTriggerCreateForTenantAndNotificationBehalfOfUser(tenant, notification, userId));
     }
 
     public void SaveNotificationTriggerBehalfOfUser(Guid tenant, Guid userId, NotificationTrigger notificationTrigger)
     {
-        MetaClient.NotificationTriggerSaveForTenantBehalfOfUserAsync(tenant, userId, Mapper.Map<Ballware.Meta.Client.NotificationTrigger>(notificationTrigger));
+        MetaClient.NotificationTriggerSaveForTenantBehalfOfUser(tenant, userId, Mapper.Map<Ballware.Meta.Client.NotificationTrigger>(notificationTrigger));
     }
 
     public async Task<Guid?> CreateJobForTenantBehalfOfUserAsync(Guid tenant, Guid userId, JobCreatePayload payload)

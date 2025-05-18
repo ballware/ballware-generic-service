@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Security.Claims;
 using System.Text;
@@ -393,7 +394,7 @@ public static class GenericDataEndpoint
         ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker,
         IMetadataAdapter metadataAdapter, ITenantGenericProvider genericProvider, ClaimsPrincipal user,
         string application, string entity,
-        string identifier, Dictionary<string, object> value)
+        string identifier, BodyValueBag? value)
     {
         var currentUserId = principalUtils.GetUserId(user);
         var tenantId = principalUtils.GetUserTenandId(user);
@@ -410,15 +411,20 @@ public static class GenericDataEndpoint
                 return Results.NotFound("Unknown tenant or entity");
             }
 
+            if (value == null)
+            {
+                return Results.BadRequest("No value provided");
+            }
+            
             var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, identifier == "primary" ? "edit" : identifier);
-            var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, identifier == "primary" ? "edit" : identifier, value, tenantAuthorized);
+            var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, identifier == "primary" ? "edit" : identifier, value.Value, tenantAuthorized);
 
             if (!authorized)
             {
                 return Results.Unauthorized();
             }
             
-            await genericProvider.SaveAsync(tenant, metaData, currentUserId, identifier, claims, value);
+            await genericProvider.SaveAsync(tenant, metaData, currentUserId, identifier, claims, value.Value);
 
             return Results.Ok();
         }
@@ -432,7 +438,7 @@ public static class GenericDataEndpoint
         ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker,
         IMetadataAdapter metadataAdapter, ITenantGenericProvider genericProvider, ClaimsPrincipal user,
         string application, string entity,
-        string identifier, IEnumerable<Dictionary<string, object>> values)
+        string identifier, BodyValuesBag? values)
     {
         var currentUserId = principalUtils.GetUserId(user);
         var tenantId = principalUtils.GetUserTenandId(user);
@@ -448,8 +454,13 @@ public static class GenericDataEndpoint
             {
                 return Results.NotFound("Unknown tenant or entity");
             }
+            
+            if (values == null)
+            {
+                return Results.BadRequest("No values provided");
+            }
         
-            foreach (var value in values)
+            foreach (var value in values.Values)
             {
                 var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, identifier == "primary" ? "edit" : identifier);
                 var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, identifier == "primary" ? "edit" : identifier, value, tenantAuthorized);
@@ -460,7 +471,7 @@ public static class GenericDataEndpoint
                 }
             }
             
-            foreach (var value in values)
+            foreach (var value in values.Values)
             {
                 await genericProvider.SaveAsync(tenant, metaData, currentUserId, identifier, claims, value);
             }

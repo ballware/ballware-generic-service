@@ -15,4 +15,13 @@ static class Utils
         
         return target;
     }
+
+    public static IDictionary<string, object> FilterNestedDictionaries(IDictionary<string, object> input)
+    {
+        var filtered = input
+            .Where(kv => kv.Value is not Dictionary<string, object> && kv.Value is not List<object>)
+            .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+        return filtered;
+    }
 }
