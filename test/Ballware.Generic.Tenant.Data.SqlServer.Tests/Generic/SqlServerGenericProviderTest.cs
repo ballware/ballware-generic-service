@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Data;
+using System.Text.Json;
 using Ballware.Generic.Data.Public;
 using Ballware.Generic.Data.Repository;
 using Ballware.Generic.Metadata;
@@ -12,7 +13,6 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Newtonsoft.Json;
 
 namespace Ballware.Generic.Tenant.Data.SqlServer.Tests.Generic;
 
@@ -104,7 +104,7 @@ public class SqlServerGenericProviderTest
             DatabaseObjects = []
         };
         
-        var serializedTenantModel = JsonConvert.SerializeObject(tenantModel);
+        var serializedTenantModel = JsonSerializer.Serialize(tenantModel);
 
         {
             await using var tenantDb = new SqlConnection(Configuration.TenantMasterConnectionString);
@@ -158,7 +158,7 @@ public class SqlServerGenericProviderTest
             CustomIndexes = []
         };
             
-        var serializedEntityModel = JsonConvert.SerializeObject(entityModel);
+        var serializedEntityModel = JsonSerializer.Serialize(entityModel);
         
         await SchemaProvider.CreateOrUpdateEntityAsync(TenantId, serializedEntityModel, UserId);
         

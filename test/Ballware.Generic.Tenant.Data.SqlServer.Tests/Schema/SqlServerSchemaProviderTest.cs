@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Ballware.Generic.Data.Public;
 using Ballware.Generic.Data.Repository;
 using Ballware.Generic.Tenant.Data.SqlServer.Internal;
@@ -7,7 +8,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using Newtonsoft.Json;
 
 namespace Ballware.Generic.Tenant.Data.SqlServer.Tests.Schema;
 
@@ -78,7 +78,7 @@ public class SqlServerSchemaProviderTest
             DatabaseObjects = []
         };
         
-        var serializedTenantModel = JsonConvert.SerializeObject(tenantModel);
+        var serializedTenantModel = JsonSerializer.Serialize(tenantModel);
 
         {
             await using var tenantDb = new SqlConnection(Configuration.TenantMasterConnectionString);
@@ -180,7 +180,7 @@ public class SqlServerSchemaProviderTest
             ]
         };
         
-        var serializedTenantModel = JsonConvert.SerializeObject(tenantModel);
+        var serializedTenantModel = JsonSerializer.Serialize(tenantModel);
 
         {
             await using var tenantDb = new SqlConnection(Configuration.TenantMasterConnectionString);
@@ -291,7 +291,7 @@ public class SqlServerSchemaProviderTest
         try
         {
             var provider = new SqlServerSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
-            var serializedTenantModel = JsonConvert.SerializeObject(tenantModel);
+            var serializedTenantModel = JsonSerializer.Serialize(tenantModel);
             
             await provider.CreateOrUpdateTenantAsync(tenantId, "mssql", serializedTenantModel, userId);
             
@@ -314,13 +314,13 @@ public class SqlServerSchemaProviderTest
             udfScalar.Sql = "create function udf_scalar() returns float as begin return 0.815 end";
             udfScalar.ExecuteOnSave = true;
 
-            serializedTenantModel = JsonConvert.SerializeObject(tenantModel);
+            serializedTenantModel = JsonSerializer.Serialize(tenantModel);
             
             await provider.CreateOrUpdateTenantAsync(tenantId, "mssql", serializedTenantModel, userId);
             
             tenantModel.DatabaseObjects = [];
             
-            serializedTenantModel = JsonConvert.SerializeObject(tenantModel);
+            serializedTenantModel = JsonSerializer.Serialize(tenantModel);
             
             await provider.CreateOrUpdateTenantAsync(tenantId, "mssql", serializedTenantModel, userId);
             
@@ -370,7 +370,7 @@ public class SqlServerSchemaProviderTest
             DatabaseObjects = []
         };
         
-        var serializedTenantModel = JsonConvert.SerializeObject(tenantModel);
+        var serializedTenantModel = JsonSerializer.Serialize(tenantModel);
 
         {
             await using var tenantDb = new SqlConnection(Configuration.TenantMasterConnectionString);
@@ -397,7 +397,7 @@ public class SqlServerSchemaProviderTest
                 CustomIndexes = []
             };
             
-            var serializedEntityModel = JsonConvert.SerializeObject(entityModel);
+            var serializedEntityModel = JsonSerializer.Serialize(entityModel);
             
             await provider.CreateOrUpdateEntityAsync(tenantId, serializedEntityModel, userId);
             await provider.DropEntityAsync(tenantId, "fakeentity", userId);
