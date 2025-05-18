@@ -1,10 +1,10 @@
 using System.Data;
 using System.Text;
+using System.Text.Json;
 using Ballware.Generic.Scripting;
 using Ballware.Generic.Metadata;
 using CsvHelper;
 using MimeTypes;
-using Newtonsoft.Json;
 using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -458,7 +458,7 @@ class SqlServerGenericProvider : ITenantGenericProvider
                 {
                     using var reader = new StreamReader(importStream);
 
-                    var items = JsonConvert.DeserializeObject<IDictionary<string, object>[]>(await reader.ReadToEndAsync());
+                    var items = JsonSerializer.Deserialize<IDictionary<string, object>[]>(await reader.ReadToEndAsync());
 
                     if (items != null)
                     {
@@ -539,7 +539,7 @@ class SqlServerGenericProvider : ITenantGenericProvider
                         claims,
                         item)));
 
-                    result.Data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(items));
+                    result.Data = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(items));
                 }
                 break;
             default:

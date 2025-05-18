@@ -1,8 +1,8 @@
 using System.Data;
 using System.Runtime.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Dapper;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace Ballware.Generic.Tenant.Data.SqlServer.Internal;
 
@@ -74,15 +74,14 @@ class SqlServerComplexTypeHandler : SqlMapper.TypeHandler<Dictionary<string, obj
 
 class SqlServerColumnTypeConverter : JsonConverter<SqlServerColumnType>
 {
-    public override void WriteJson(JsonWriter writer, SqlServerColumnType? value, JsonSerializer serializer)
+    public override SqlServerColumnType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        writer.WriteValue(value?.ToString());
+        return SqlServerColumnType.Parse(reader.GetString());
     }
 
-    public override SqlServerColumnType? ReadJson(JsonReader reader, Type objectType, SqlServerColumnType? existingValue,
-        bool hasExistingValue, JsonSerializer serializer)
+    public override void Write(Utf8JsonWriter writer, SqlServerColumnType value, JsonSerializerOptions options)
     {
-        return SqlServerColumnType.Parse(reader.Value.ToString());
+        writer.WriteStringValue(value?.ToString());
     }
 }
 
@@ -120,7 +119,7 @@ class SqlServerTableModel
         };
 }
 
-[JsonConverter(typeof(StringEnumConverter))]
+[JsonConverter(typeof(JsonStringEnumConverter))]
 enum SqlServerDatabaseObjectTypes
 {
     [EnumMember(Value = "unknown")]

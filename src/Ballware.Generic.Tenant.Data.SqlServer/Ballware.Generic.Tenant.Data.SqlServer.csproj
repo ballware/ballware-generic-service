@@ -21,7 +21,6 @@
       <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
       <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     </ItemGroup>
 
     <ItemGroup>

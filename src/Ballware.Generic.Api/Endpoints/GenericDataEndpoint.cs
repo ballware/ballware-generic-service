@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.IO;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Ballware.Generic.Authorization;
 using Ballware.Generic.Metadata;
@@ -14,7 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using MimeTypes;
-using Newtonsoft.Json;
 using Quartz;
 
 namespace Ballware.Generic.Api.Endpoints;
@@ -553,7 +549,7 @@ public static class GenericDataEndpoint
                     jobData["application"] = application;
                     jobData["entity"] = entity;
                     jobData["identifier"] = identifier;
-                    jobData["claims"] = JsonConvert.SerializeObject(claims);
+                    jobData["claims"] = JsonSerializer.Serialize(claims);
                     jobData["filename"] = file.FileName;
 
                     await storageAdapter.UploadFileForOwnerAsync(currentUserId.ToString(), file.FileName, file.ContentType, file.OpenReadStream());
@@ -562,7 +558,7 @@ public static class GenericDataEndpoint
                     {
                         Identifier = "import",
                         Scheduler = "generic",
-                        Options = JsonConvert.SerializeObject(jobData)
+                        Options = JsonSerializer.Serialize(jobData)
                     };
                     
                     var job = await metadataAdapter.CreateJobForTenantBehalfOfUserAsync(tenantId, currentUserId, jobPayload);

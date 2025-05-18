@@ -1,8 +1,8 @@
 using System.Data;
 using System.Diagnostics;
+using System.Text.Json;
 using Ballware.Generic.Metadata;
 using Jint;
-using Newtonsoft.Json;
 
 namespace Ballware.Generic.Scripting.Jint.Internal;
 
@@ -85,7 +85,7 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                     .SetValue("tenantId", tenant.Id)
                     .SetValue("identifier", identifier)
                     .SetValue("insert", insert)
-                    .SetValue("item", JsonConvert.SerializeObject(item))
+                    .SetValue("item", JsonSerializer.Serialize(item))
                     .SetJsonFunctions()
                     .SetClaimFunctions(claims)
                     .SetReadingEntityFunctions(tenant, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
@@ -145,7 +145,7 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                     .SetValue("tenantId", tenant.Id)
                     .SetValue("identifier", identifier)
                     .SetValue("insert", insert)
-                    .SetValue("item", JsonConvert.SerializeObject(item))
+                    .SetValue("item", JsonSerializer.Serialize(item))
                     .SetJsonFunctions()
                     .SetClaimFunctions(claims)
                     .SetReadingEntityFunctions(tenant, db, transaction, MetadataAdapter, TenantDataAdapter, claims)

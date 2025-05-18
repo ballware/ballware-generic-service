@@ -1,7 +1,7 @@
 using System.Data;
+using System.Text.Json;
 using Ballware.Generic.Metadata;
 using Jint;
-using Newtonsoft.Json;
 
 namespace Ballware.Generic.Scripting.Jint.Internal
 {
@@ -33,10 +33,10 @@ namespace Ballware.Generic.Scripting.Jint.Internal
         public static Engine SetJsonFunctions(this Engine engine)
         {
             return engine
-                .SetValue("parse", new Func<string, dynamic?>(str => JsonConvert.DeserializeObject<dynamic>(str)))
+                .SetValue("parse", new Func<string, dynamic?>(str => JsonSerializer.Deserialize<dynamic>(str)))
                 .SetValue("stringify", new Func<object, string>(obj =>
                 {
-                    var result = JsonConvert.SerializeObject(obj);
+                    var result = JsonSerializer.Serialize(obj);
 
                     return result;
                 }));

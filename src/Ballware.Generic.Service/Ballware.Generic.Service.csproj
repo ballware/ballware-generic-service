@@ -12,7 +12,6 @@
         <PackageReference Include="Duende.AccessTokenManagement" Version="3.1.1" />
         <PackageReference Include="Duende.AccessTokenManagement.OpenIdConnect" Version="3.1.1" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.11" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -23,7 +22,6 @@
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
         <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.2.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="7.2.0" />
         <PackageReference Include="System.Linq.Async" Version="6.0.1" />
         <PackageReference Include="Quartz.AspNetCore" Version="3.8.1" />
         <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.8.1" />

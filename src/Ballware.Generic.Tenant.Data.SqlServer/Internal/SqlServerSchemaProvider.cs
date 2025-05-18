@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
+using System.Text.Json;
 using Ballware.Generic.Data.Public;
 using Ballware.Generic.Data.Repository;
 using Dapper;
 using Microsoft.Data.SqlClient;
-using Newtonsoft.Json;
 
 namespace Ballware.Generic.Tenant.Data.SqlServer.Internal;
 
@@ -28,7 +28,10 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         {
             using var tenantDb = await StorageProvider.OpenConnectionAsync(tenant);
             
-            var tableModel = JsonConvert.DeserializeObject<SqlServerTableModel>(serializedEntityModel) ?? SqlServerTableModel.Empty;
+            var tableModel = JsonSerializer.Deserialize<SqlServerTableModel>(serializedEntityModel, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            }) ?? SqlServerTableModel.Empty;
             
             tenantDb.CreateOrUpdateTable(connection.Schema ?? "dbo", tableModel);
         }
@@ -48,7 +51,10 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
 
     public async Task CreateOrUpdateTenantAsync(Guid tenant, string provider, string serializedTenantModel, Guid? userId)
     {   
-        var nextTenantModel = JsonConvert.DeserializeObject<SqlServerTenantModel>(serializedTenantModel) ?? SqlServerTenantModel.Empty;
+        var nextTenantModel = JsonSerializer.Deserialize<SqlServerTenantModel>(serializedTenantModel, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        }) ?? SqlServerTenantModel.Empty;
         
         var tenantConnection = await Repository.ByIdAsync(tenant);
         
@@ -57,7 +63,10 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
             tenantConnection = await CreateTenantAsync(tenant, nextTenantModel, userId);
         }
         
-        var previousTenantModel = JsonConvert.DeserializeObject<SqlServerTenantModel>(tenantConnection.Model ?? "{}") ?? SqlServerTenantModel.Empty; 
+        var previousTenantModel = JsonSerializer.Deserialize<SqlServerTenantModel>(tenantConnection.Model ?? "{}", new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        }) ?? SqlServerTenantModel.Empty; 
         
         await using var tenantDb = new SqlConnection(tenantConnection.ConnectionString);
 
@@ -125,7 +134,10 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
             await tenantDb.ExecuteAsync(changed.Sql);
         }
         
-        tenantConnection.Model = JsonConvert.SerializeObject(nextTenantModel);
+        tenantConnection.Model = JsonSerializer.Serialize(nextTenantModel, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        });
         
         await Repository.SaveAsync(userId, "primary", ImmutableDictionary<string, object>.Empty, tenantConnection);
     }
