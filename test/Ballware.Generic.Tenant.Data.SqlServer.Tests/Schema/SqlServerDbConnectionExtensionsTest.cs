@@ -9,28 +9,18 @@ using Dapper;
 namespace Ballware.Generic.Tenant.Data.SqlServer.Tests.Schema;
 
 [TestFixture]
-public class SqlServerDbConnectionExtensionsTest
+public class SqlServerDbConnectionExtensionsTest : DatabaseBackedBaseTest
 {
-    private WebApplicationBuilder PreparedBuilder { get; set; } = null!;
-    
     [SetUp]
     public void Setup()
     {
         SqlMapper.AddTypeHandler(new SqlServerColumnTypeHandler());
-        
-        PreparedBuilder = WebApplication.CreateBuilder();
-
-        PreparedBuilder.Configuration.Sources.Clear();
-        PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json"), optional: false);
-        PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsetting.{PreparedBuilder.Environment.EnvironmentName}.json"), true, true);
-        PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsettings.local.json"), true, true);
-        PreparedBuilder.Configuration.AddEnvironmentVariables();
     }
     
     [Test]
     public async Task Create_tenant_schema_succeeds()
     {
-        var connectionString = PreparedBuilder.Configuration.GetConnectionString("TenantConnection");
+        var connectionString = MasterConnectionString;
         
         using var listener = new SqlClientListener();
         await using var db = new SqlConnection(connectionString);
@@ -52,7 +42,7 @@ public class SqlServerDbConnectionExtensionsTest
     [Test]
     public async Task Create_entity_identity_table_succeeds()
     {
-        var connectionString = PreparedBuilder.Configuration.GetConnectionString("TenantConnection");
+        var connectionString = MasterConnectionString;
         
         using var listener = new SqlClientListener();
         await using var masterDb = new SqlConnection(connectionString);
@@ -114,7 +104,7 @@ public class SqlServerDbConnectionExtensionsTest
     [Test]
     public async Task Create_entity_noidentity_table_succeeds()
     {
-        var connectionString = PreparedBuilder.Configuration.GetConnectionString("TenantConnection");
+        var connectionString = MasterConnectionString;
         
         using var listener = new SqlClientListener();
         await using var masterDb = new SqlConnection(connectionString);
@@ -176,7 +166,7 @@ public class SqlServerDbConnectionExtensionsTest
     [Test]
     public async Task Alter_entity_table_succeeds()
     {
-        var connectionString = PreparedBuilder.Configuration.GetConnectionString("TenantConnection");
+        var connectionString = MasterConnectionString;
         
         using var listener = new SqlClientListener();
         await using var masterDb = new SqlConnection(connectionString);
@@ -249,7 +239,7 @@ public class SqlServerDbConnectionExtensionsTest
     [Test]
     public async Task Create_entity_table_custom_index_succeeds()
     {
-        var connectionString = PreparedBuilder.Configuration.GetConnectionString("TenantConnection");
+        var connectionString = MasterConnectionString;
         
         using var listener = new SqlClientListener();
         await using var masterDb = new SqlConnection(connectionString);
@@ -316,7 +306,7 @@ public class SqlServerDbConnectionExtensionsTest
     [Test]
     public async Task Create_custom_view_succeeds()
     {
-        var connectionString = PreparedBuilder.Configuration.GetConnectionString("TenantConnection");
+        var connectionString = MasterConnectionString;
         
         using var listener = new SqlClientListener();
         await using var masterDb = new SqlConnection(connectionString);
@@ -383,7 +373,7 @@ public class SqlServerDbConnectionExtensionsTest
     [Test]
     public async Task Create_custom_type_succeeds()
     {
-        var connectionString = PreparedBuilder.Configuration.GetConnectionString("TenantConnection");
+        var connectionString = MasterConnectionString;
         
         using var listener = new SqlClientListener();
         await using var masterDb = new SqlConnection(connectionString);
@@ -452,7 +442,7 @@ public class SqlServerDbConnectionExtensionsTest
     [Test]
     public async Task Create_custom_function_succeeds()
     {
-        var connectionString = PreparedBuilder.Configuration.GetConnectionString("TenantConnection");
+        var connectionString = MasterConnectionString;
         
         using var listener = new SqlClientListener();
         await using var masterDb = new SqlConnection(connectionString);
@@ -493,7 +483,7 @@ public class SqlServerDbConnectionExtensionsTest
     [Test]
     public async Task Create_custom_table_succeeds()
     {
-        var connectionString = PreparedBuilder.Configuration.GetConnectionString("TenantConnection");
+        var connectionString = MasterConnectionString;
         
         using var listener = new SqlClientListener();
         await using var masterDb = new SqlConnection(connectionString);

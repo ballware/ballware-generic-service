@@ -12,15 +12,7 @@ concurrency:
 
 jobs:
   sonarqube:
-    runs-on: ubuntu-latest    
-    services:
-      azuresql:
-        image: mcr.microsoft.com/azure-sql-edge
-        ports:
-          - 1433:1433
-        env:
-          ACCEPT_EULA: 1
-          MSSQL_SA_PASSWORD: ${{ secrets.TEST_TENANT_PASSWORD }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -30,20 +22,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with: 
           dotnet-version: 
-            8.0          
-      - name: Wait for database to start
-        run: |
-          sleep 30          
-      - name: Detect database container id
-        run: |
-          SQLEDGE_CONTAINER_ID=$(docker ps -q --filter "name=azuresql")
-          echo "Container ID: $SQLEDGE_CONTAINER_ID"
-          echo "SQLEDGE_CONTAINER_ID=$SQLEDGE_CONTAINER_ID" >> $GITHUB_ENV
-          
-      - name: Run database initialization script
-        run: | 
-          docker exec ${{ env.SQLEDGE_CONTAINER_ID }} /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${{ secrets.TEST_TENANT_PASSWORD }} -Q "CREATE DATABASE tenant;"
-          
+            8.0
       - name: Download and extract dotCover CLI
         run: |
           curl -L -o dotcover.tar.gz "https://download.jetbrains.com/resharper/dotUltimate.2025.1.2/JetBrains.dotCover.CommandLineTools.2025.1.2.tar.gz"
@@ -67,7 +46,7 @@ jobs:
       - name: Run coverage for all test projects
         run: |
           mkdir -p coverage
-          export ConnectionStrings__TenantConnection='${{ secrets.TEST_TENANT_CONNECTIONSTRING }}'
+          export TestSettings__DatabasePassword='${{ secrets.TEST_TENANT_PASSWORD }}'
           i=0
           find ./test -name '*.Tests.csproj' | while read project; do
             echo "Running coverage for: $project"

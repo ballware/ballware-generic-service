@@ -12,9 +12,8 @@ using Moq;
 namespace Ballware.Generic.Tenant.Data.SqlServer.Tests.Schema;
 
 [TestFixture]
-public class SqlServerSchemaProviderTest
+public class SqlServerSchemaProviderTest : DatabaseBackedBaseTest
 {
-    private WebApplicationBuilder PreparedBuilder { get; set; } = null!;
     private SqlServerTenantConfiguration Configuration { get; set; } = null!;
     private Mock<ITenantConnectionRepository> ConnectionRepositoryMock { get; set; } = null!;
     private ITenantConnectionRepository ConnectionRepository => ConnectionRepositoryMock.Object;
@@ -25,17 +24,9 @@ public class SqlServerSchemaProviderTest
     {
         SqlMapper.AddTypeHandler(new SqlServerColumnTypeHandler());
         
-        PreparedBuilder = WebApplication.CreateBuilder();
-
-        PreparedBuilder.Configuration.Sources.Clear();
-        PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json"), optional: false);
-        PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsetting.{PreparedBuilder.Environment.EnvironmentName}.json"), true, true);
-        PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsettings.local.json"), true, true);
-        PreparedBuilder.Configuration.AddEnvironmentVariables();
-        
         Configuration = new SqlServerTenantConfiguration()
         {
-            TenantMasterConnectionString = PreparedBuilder.Configuration.GetConnectionString("TenantConnection"),
+            TenantMasterConnectionString = MasterConnectionString,
             UseContainedDatabase = false
         };
 

@@ -17,9 +17,8 @@ using Moq;
 namespace Ballware.Generic.Tenant.Data.SqlServer.Tests.Generic;
 
 [TestFixture]
-public class SqlServerGenericProviderTest
+public class SqlServerGenericProviderTest : DatabaseBackedBaseTest
 {
-    private WebApplicationBuilder PreparedBuilder { get; set; } = null!;
     private SqlServerTenantConfiguration Configuration { get; set; } = null!;
     private Mock<ITenantConnectionRepository> ConnectionRepositoryMock { get; set; } = null!;
     private Mock<IGenericEntityScriptingExecutor> ScriptingExecutorMock { get; set; } = null!;
@@ -35,7 +34,7 @@ public class SqlServerGenericProviderTest
     private Dictionary<string, object> Claims { get; set; } = null!;
     
     private ITenantSchemaProvider SchemaProvider { get; set; } = null!;
-    
+
     [SetUp]
     public async Task Setup()
     {
@@ -59,17 +58,9 @@ public class SqlServerGenericProviderTest
         
         SqlMapper.AddTypeHandler(new SqlServerColumnTypeHandler());
         
-        PreparedBuilder = WebApplication.CreateBuilder();
-
-        PreparedBuilder.Configuration.Sources.Clear();
-        PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json"), optional: false);
-        PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsetting.{PreparedBuilder.Environment.EnvironmentName}.json"), true, true);
-        PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsettings.local.json"), true, true);
-        PreparedBuilder.Configuration.AddEnvironmentVariables();
-        
         Configuration = new SqlServerTenantConfiguration()
         {
-            TenantMasterConnectionString = PreparedBuilder.Configuration.GetConnectionString("TenantConnection"),
+            TenantMasterConnectionString = MasterConnectionString/*PreparedBuilder.Configuration.GetConnectionString("TenantConnection")*/,
             UseContainedDatabase = false
         };
         
@@ -104,7 +95,10 @@ public class SqlServerGenericProviderTest
             DatabaseObjects = []
         };
         
-        var serializedTenantModel = JsonSerializer.Serialize(tenantModel);
+        var serializedTenantModel = JsonSerializer.Serialize(tenantModel, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
 
         {
             await using var tenantDb = new SqlConnection(Configuration.TenantMasterConnectionString);
@@ -158,7 +152,10 @@ public class SqlServerGenericProviderTest
             CustomIndexes = []
         };
             
-        var serializedEntityModel = JsonSerializer.Serialize(entityModel);
+        var serializedEntityModel = JsonSerializer.Serialize(entityModel, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
         
         await SchemaProvider.CreateOrUpdateEntityAsync(TenantId, serializedEntityModel, UserId);
         
