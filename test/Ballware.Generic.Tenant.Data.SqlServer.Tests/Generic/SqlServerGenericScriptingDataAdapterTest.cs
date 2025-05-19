@@ -94,7 +94,10 @@ public class SqlServerGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
             DatabaseObjects = []
         };
         
-        var serializedTenantModel = JsonSerializer.Serialize(tenantModel);
+        var serializedTenantModel = JsonSerializer.Serialize(tenantModel, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
 
         {
             await using var tenantDb = new SqlConnection(Configuration.TenantMasterConnectionString);
@@ -148,7 +151,10 @@ public class SqlServerGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
             CustomIndexes = []
         };
             
-        var serializedEntityModel = JsonSerializer.Serialize(entityModel);
+        var serializedEntityModel = JsonSerializer.Serialize(entityModel, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
         
         await SchemaProvider.CreateOrUpdateEntityAsync(TenantId, serializedEntityModel, UserId);
 

@@ -69,7 +69,10 @@ public class SqlServerSchemaProviderTest : DatabaseBackedBaseTest
             DatabaseObjects = []
         };
         
-        var serializedTenantModel = JsonSerializer.Serialize(tenantModel);
+        var serializedTenantModel = JsonSerializer.Serialize(tenantModel, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
 
         {
             await using var tenantDb = new SqlConnection(Configuration.TenantMasterConnectionString);
@@ -171,7 +174,10 @@ public class SqlServerSchemaProviderTest : DatabaseBackedBaseTest
             ]
         };
         
-        var serializedTenantModel = JsonSerializer.Serialize(tenantModel);
+        var serializedTenantModel = JsonSerializer.Serialize(tenantModel, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
 
         {
             await using var tenantDb = new SqlConnection(Configuration.TenantMasterConnectionString);
@@ -282,7 +288,10 @@ public class SqlServerSchemaProviderTest : DatabaseBackedBaseTest
         try
         {
             var provider = new SqlServerSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
-            var serializedTenantModel = JsonSerializer.Serialize(tenantModel);
+            var serializedTenantModel = JsonSerializer.Serialize(tenantModel, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
             
             await provider.CreateOrUpdateTenantAsync(tenantId, "mssql", serializedTenantModel, userId);
             
@@ -305,13 +314,19 @@ public class SqlServerSchemaProviderTest : DatabaseBackedBaseTest
             udfScalar.Sql = "create function udf_scalar() returns float as begin return 0.815 end";
             udfScalar.ExecuteOnSave = true;
 
-            serializedTenantModel = JsonSerializer.Serialize(tenantModel);
+            serializedTenantModel = JsonSerializer.Serialize(tenantModel, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
             
             await provider.CreateOrUpdateTenantAsync(tenantId, "mssql", serializedTenantModel, userId);
             
             tenantModel.DatabaseObjects = [];
             
-            serializedTenantModel = JsonSerializer.Serialize(tenantModel);
+            serializedTenantModel = JsonSerializer.Serialize(tenantModel, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
             
             await provider.CreateOrUpdateTenantAsync(tenantId, "mssql", serializedTenantModel, userId);
             
@@ -361,7 +376,10 @@ public class SqlServerSchemaProviderTest : DatabaseBackedBaseTest
             DatabaseObjects = []
         };
         
-        var serializedTenantModel = JsonSerializer.Serialize(tenantModel);
+        var serializedTenantModel = JsonSerializer.Serialize(tenantModel, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
 
         {
             await using var tenantDb = new SqlConnection(Configuration.TenantMasterConnectionString);
@@ -388,7 +406,10 @@ public class SqlServerSchemaProviderTest : DatabaseBackedBaseTest
                 CustomIndexes = []
             };
             
-            var serializedEntityModel = JsonSerializer.Serialize(entityModel);
+            var serializedEntityModel = JsonSerializer.Serialize(entityModel, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
             
             await provider.CreateOrUpdateEntityAsync(tenantId, serializedEntityModel, userId);
             await provider.DropEntityAsync(tenantId, "fakeentity", userId);
