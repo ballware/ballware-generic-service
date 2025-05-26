@@ -4,9 +4,7 @@ using Ballware.Generic.Data.Repository;
 using Ballware.Generic.Tenant.Data.SqlServer.Internal;
 using Ballware.Generic.Tenant.Data.SqlServer.Tests.Utils;
 using Dapper;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 using Moq;
 
 namespace Ballware.Generic.Tenant.Data.SqlServer.Tests.Schema;
@@ -141,35 +139,35 @@ public class SqlServerSchemaProviderTest : DatabaseBackedBaseTest
                     Type = SqlServerDatabaseObjectTypes.Table,
                     Name = "faketable",
                     Sql = "create table [faketable] (Id bigint identity primary key, Fakevalue nvarchar(50))",
-                    ExecuteOnSave = true
+                    Execute = true
                 },
                 new SqlServerDatabaseObjectModel()
                 {
                     Type = SqlServerDatabaseObjectTypes.Type,
                     Name = "faketype",
                     Sql = "create type faketenant2.customtype from nvarchar(20) not null",
-                    ExecuteOnSave = true
+                    Execute = true
                 },
                 new SqlServerDatabaseObjectModel()
                 {
                     Type = SqlServerDatabaseObjectTypes.Function,
                     Name = "udf_split",
                     Sql = "create function udf_split(@concatenated nvarchar(max)) returns @table table (Value nvarchar(max)) as begin insert into @table select Value from string_split(@concatenated, '|') return end",
-                    ExecuteOnSave = true
+                    Execute = true
                 },
                 new SqlServerDatabaseObjectModel()
                 {
                     Type = SqlServerDatabaseObjectTypes.Function,
                     Name = "udf_scalar",
                     Sql = "create function udf_scalar() returns float as begin return 3.154 end",
-                    ExecuteOnSave = true
+                    Execute = true
                 },
                 new SqlServerDatabaseObjectModel()
                 {
                     Type = SqlServerDatabaseObjectTypes.View,
                     Name = "view_fake",
                     Sql = "create view view_fake as select Id, Fakevalue, Scalar = faketenant2.udf_scalar() from faketable",
-                    ExecuteOnSave = true
+                    Execute = true
                 }
             ]
         };
@@ -246,35 +244,35 @@ public class SqlServerSchemaProviderTest : DatabaseBackedBaseTest
                     Type = SqlServerDatabaseObjectTypes.Table,
                     Name = "faketable",
                     Sql = "create table [faketable] (Id bigint identity primary key, Fakevalue nvarchar(50))",
-                    ExecuteOnSave = true
+                    Execute = true
                 },
                 new SqlServerDatabaseObjectModel()
                 {
                     Type = SqlServerDatabaseObjectTypes.Type,
                     Name = "faketype",
                     Sql = "create type faketenant3.customtype from nvarchar(20) not null",
-                    ExecuteOnSave = true
+                    Execute = true
                 },
                 new SqlServerDatabaseObjectModel()
                 {
                     Type = SqlServerDatabaseObjectTypes.Function,
                     Name = "udf_split",
                     Sql = "create function udf_split(@concatenated nvarchar(max)) returns @table table (Value nvarchar(max)) as begin insert into @table select Value from string_split(@concatenated, '|') return end",
-                    ExecuteOnSave = true
+                    Execute = true
                 },
                 new SqlServerDatabaseObjectModel()
                 {
                     Type = SqlServerDatabaseObjectTypes.Function,
                     Name = "udf_scalar",
                     Sql = "create function udf_scalar() returns float as begin return 3.154 end",
-                    ExecuteOnSave = true
+                    Execute = true
                 },
                 new SqlServerDatabaseObjectModel()
                 {
                     Type = SqlServerDatabaseObjectTypes.View,
                     Name = "view_fake",
                     Sql = "create view view_fake as select Id, Fakevalue, Scalar = faketenant3.udf_scalar() from Faketable",
-                    ExecuteOnSave = true
+                    Execute = true
                 }
             ]
         };
@@ -305,14 +303,14 @@ public class SqlServerSchemaProviderTest : DatabaseBackedBaseTest
 
             foreach (var sqlServerDatabaseObjectModel in tenantModel.DatabaseObjects)
             {
-                sqlServerDatabaseObjectModel.ExecuteOnSave = false;
+                sqlServerDatabaseObjectModel.Execute = false;
             }
             
             var udfScalar = tenantModel.DatabaseObjects
                 .First(obj => obj.Type == SqlServerDatabaseObjectTypes.Function && obj.Name == "udf_scalar");
 
             udfScalar.Sql = "create function udf_scalar() returns float as begin return 0.815 end";
-            udfScalar.ExecuteOnSave = true;
+            udfScalar.Execute = true;
 
             serializedTenantModel = JsonSerializer.Serialize(tenantModel, new JsonSerializerOptions
             {

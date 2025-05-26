@@ -109,12 +109,10 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                                 throw new Exception($"No notification with identifier {notificationIdentifier}");
                             }
 
-                            var notificationTrigger =
-                                MetadataAdapter.CreateNotificationTriggerForTenantAndNotificationBehalfOfUser(tenant.Id,
-                                    notification.Id, userId.Value);
-                            notificationTrigger.Params = notificationParams;
-                            MetadataAdapter.SaveNotificationTriggerBehalfOfUser(tenant.Id, userId.Value,
-                                notificationTrigger);
+                            MetadataAdapter.CreateNotificationTriggerForTenantBehalfOfUser(tenant.Id, userId.Value, new NotificationTriggerCreatePayload()
+                            {
+                                NotificationId = notification.Id
+                            });
                         }))
                     .Evaluate((tenant.ServerScriptDefinitions ?? "") + "\n" +
                               "item=JSON.parse(item);" +
@@ -170,12 +168,10 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                                 throw new Exception($"No notification with identifier {notificationIdentifier}");
                             }
 
-                            var notificationTrigger =
-                                MetadataAdapter.CreateNotificationTriggerForTenantAndNotificationBehalfOfUser(tenant.Id,
-                                    notification.Id, userId.Value);
-                            notificationTrigger.Params = notificationParams;
-                            MetadataAdapter.SaveNotificationTriggerBehalfOfUser(tenant.Id, userId.Value,
-                                notificationTrigger);
+                            MetadataAdapter.CreateNotificationTriggerForTenantBehalfOfUser(tenant.Id, userId.Value, new NotificationTriggerCreatePayload()
+                            {
+                                NotificationId = notification.Id
+                            });
                         }))
                     .Evaluate((tenant.ServerScriptDefinitions ?? "") + "\n" + "item=JSON.parse(item);" + "\n" +
                               entity.SaveScript);

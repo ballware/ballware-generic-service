@@ -127,7 +127,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         }
         
         var changedStatements = nextTenantModel.DatabaseObjects?
-            .Where(obj => obj.Type == SqlServerDatabaseObjectTypes.Statement && obj.ExecuteOnSave);
+            .Where(obj => obj.Type == SqlServerDatabaseObjectTypes.Statement && obj.Execute);
         
         foreach (var changed in changedStatements ?? [])
         {
@@ -170,7 +170,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         
         var nextItems = 
             next
-                .Where(obj => obj.Type == type && obj.ExecuteOnSave)
+                .Where(obj => obj.Type == type && obj.Execute)
                 .ToDictionary(obj => obj.Name, obj => obj);
         
         var changedItems = 

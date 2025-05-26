@@ -15,8 +15,6 @@ public class MetaServiceGenericMetadataProfile : Profile
             Ballware.Generic.Metadata.ReportDatasourceDefinition>();
         CreateMap<Ballware.Meta.Client.ServiceTenantReportDatasourceTable,
             Ballware.Generic.Metadata.ReportDatasourceTable>();
-        CreateMap<Ballware.Meta.Client.ServiceTenantReportDatasourceRelation,
-            Ballware.Generic.Metadata.ReportDatasourceRelation>();
         
         CreateMap<Ballware.Meta.Client.ServiceEntity, Ballware.Generic.Metadata.Entity>()
             .ForMember(dst => dst.ExtendedRightsCheckScript, 
@@ -27,8 +25,6 @@ public class MetaServiceGenericMetadataProfile : Profile
         CreateMap<Ballware.Meta.Client.ProcessingStateSelectListEntry, Ballware.Generic.Metadata.ProcessingStateSelectListEntry>();
         CreateMap<Ballware.Meta.Client.ProcessingStateSelectListEntry, Ballware.Generic.Metadata.ProcessingState>();
         CreateMap<Ballware.Meta.Client.Notification, Ballware.Generic.Metadata.Notification>();
-        CreateMap<Ballware.Meta.Client.NotificationTrigger, Ballware.Generic.Metadata.NotificationTrigger>();
-        CreateMap<Ballware.Generic.Metadata.NotificationTrigger, Ballware.Meta.Client.NotificationTrigger>();
         CreateMap<Ballware.Generic.Metadata.JobCreatePayload, Ballware.Meta.Client.JobCreatePayload>();
         CreateMap<Ballware.Generic.Metadata.JobUpdatePayload, Ballware.Meta.Client.JobUpdatePayload>();
         CreateMap<Ballware.Generic.Metadata.ExportCreatePayload, Ballware.Meta.Client.ExportCreatePayload>();

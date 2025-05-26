@@ -3,7 +3,6 @@ using Ballware.Generic.Metadata;
 using JobCreatePayload = Ballware.Generic.Metadata.JobCreatePayload;
 using JobUpdatePayload = Ballware.Generic.Metadata.JobUpdatePayload;
 using MlModel = Ballware.Generic.Metadata.MlModel;
-using NotificationTrigger = Ballware.Generic.Metadata.NotificationTrigger;
 using ProcessingStateSelectListEntry = Ballware.Generic.Metadata.ProcessingStateSelectListEntry;
 
 namespace Ballware.Generic.Service.Adapter;
@@ -74,15 +73,9 @@ public class MetaServiceMetadataAdapter : IMetadataAdapter
         return Mapper.Map<Notification>(MetaClient.NotificationMetadataByTenantAndIdentifier(tenant, identifier));
     }
 
-    public NotificationTrigger CreateNotificationTriggerForTenantAndNotificationBehalfOfUser(Guid tenant, Guid notification,
-        Guid userId)
+    public void CreateNotificationTriggerForTenantBehalfOfUser(Guid tenant, Guid userId, NotificationTriggerCreatePayload payload)
     {
-        return Mapper.Map<NotificationTrigger>(MetaClient.NotificationTriggerCreateForTenantAndNotificationBehalfOfUser(tenant, notification, userId));
-    }
-
-    public void SaveNotificationTriggerBehalfOfUser(Guid tenant, Guid userId, NotificationTrigger notificationTrigger)
-    {
-        MetaClient.NotificationTriggerSaveForTenantBehalfOfUser(tenant, userId, Mapper.Map<Ballware.Meta.Client.NotificationTrigger>(notificationTrigger));
+        MetaClient.NotificationTriggerCreateForTenantBehalfOfUser(tenant, userId, Mapper.Map<Ballware.Meta.Client.NotificationTriggerCreatePayload>(payload));
     }
 
     public async Task<Guid?> CreateJobForTenantBehalfOfUserAsync(Guid tenant, Guid userId, JobCreatePayload payload)

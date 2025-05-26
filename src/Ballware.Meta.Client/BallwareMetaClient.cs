@@ -232,6 +232,12 @@ namespace Ballware.Meta.Client
                             throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
+                        if (status_ == 404)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
+                        }
+                        else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
@@ -539,6 +545,12 @@ namespace Ballware.Meta.Client
                         {
                             string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -1088,6 +1100,12 @@ namespace Ballware.Meta.Client
                             throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
+                        if (status_ == 404)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
+                        }
+                        else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
@@ -1190,6 +1208,12 @@ namespace Ballware.Meta.Client
                         {
                             string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -1396,6 +1420,12 @@ namespace Ballware.Meta.Client
                             throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
+                        if (status_ == 404)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
+                        }
+                        else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
@@ -1498,6 +1528,12 @@ namespace Ballware.Meta.Client
                         {
                             string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -1709,6 +1745,12 @@ namespace Ballware.Meta.Client
                             throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
+                        if (status_ == 404)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
+                        }
+                        else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
@@ -1813,112 +1855,10 @@ namespace Ballware.Meta.Client
                             throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
-                        {
-                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Create new notification trigger for tenant behalf of user
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<NotificationTrigger> NotificationTriggerCreateForTenantAndNotificationBehalfOfUserAsync(System.Guid tenantId, System.Guid notificationId, System.Guid userId)
-        {
-            return NotificationTriggerCreateForTenantAndNotificationBehalfOfUserAsync(tenantId, notificationId, userId, System.Threading.CancellationToken.None);
-        }
-
-        /// <summary>
-        /// Create new notification trigger for tenant behalf of user
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual NotificationTrigger NotificationTriggerCreateForTenantAndNotificationBehalfOfUser(System.Guid tenantId, System.Guid notificationId, System.Guid userId)
-        {
-            return System.Threading.Tasks.Task.Run(async () => await NotificationTriggerCreateForTenantAndNotificationBehalfOfUserAsync(tenantId, notificationId, userId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Create new notification trigger for tenant behalf of user
-        /// </summary>
-        /// <returns>OK</returns>
-        /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<NotificationTrigger> NotificationTriggerCreateForTenantAndNotificationBehalfOfUserAsync(System.Guid tenantId, System.Guid notificationId, System.Guid userId, System.Threading.CancellationToken cancellationToken)
-        {
-            if (tenantId == null)
-                throw new System.ArgumentNullException("tenantId");
-
-            if (notificationId == null)
-                throw new System.ArgumentNullException("notificationId");
-
-            if (userId == null)
-                throw new System.ArgumentNullException("userId");
-
-            var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("meta/notificationtrigger/createnotificationtriggerfortenantandnotificationbehalfofuser/{tenantId}/{notificationId}/{userId}");
-            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{notificationId}", System.Uri.EscapeDataString(ConvertToString(notificationId, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
-
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<NotificationTrigger>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        if (status_ == 401)
+                        if (status_ == 404)
                         {
                             string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -1941,32 +1881,32 @@ namespace Ballware.Meta.Client
         }
 
         /// <summary>
-        /// Save notification trigger behalf of user
+        /// Create new notification trigger for tenant behalf of user
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task NotificationTriggerSaveForTenantBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, NotificationTrigger body)
+        public virtual System.Threading.Tasks.Task NotificationTriggerCreateForTenantBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, NotificationTriggerCreatePayload body)
         {
-            return NotificationTriggerSaveForTenantBehalfOfUserAsync(tenantId, userId, body, System.Threading.CancellationToken.None);
+            return NotificationTriggerCreateForTenantBehalfOfUserAsync(tenantId, userId, body, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
-        /// Save notification trigger behalf of user
+        /// Create new notification trigger for tenant behalf of user
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual void NotificationTriggerSaveForTenantBehalfOfUser(System.Guid tenantId, System.Guid userId, NotificationTrigger body)
+        public virtual void NotificationTriggerCreateForTenantBehalfOfUser(System.Guid tenantId, System.Guid userId, NotificationTriggerCreatePayload body)
         {
-            System.Threading.Tasks.Task.Run(async () => await NotificationTriggerSaveForTenantBehalfOfUserAsync(tenantId, userId, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            System.Threading.Tasks.Task.Run(async () => await NotificationTriggerCreateForTenantBehalfOfUserAsync(tenantId, userId, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
-        /// Save notification trigger behalf of user
+        /// Create new notification trigger for tenant behalf of user
         /// </summary>
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task NotificationTriggerSaveForTenantBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, NotificationTrigger body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task NotificationTriggerCreateForTenantBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, NotificationTriggerCreatePayload body, System.Threading.CancellationToken cancellationToken)
         {
             if (tenantId == null)
                 throw new System.ArgumentNullException("tenantId");
@@ -1978,7 +1918,7 @@ namespace Ballware.Meta.Client
                 throw new System.ArgumentNullException("body");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("meta/notificationtrigger/savenotificationtriggerbehalfofuser/{tenantId}/{userId}");
+            urlBuilder_.Append("meta/notificationtrigger/createnotificationtriggerfortenantbehalfofuser/{tenantId}/{userId}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -2136,6 +2076,12 @@ namespace Ballware.Meta.Client
                         {
                             string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -2458,6 +2404,12 @@ namespace Ballware.Meta.Client
                             throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
+                        if (status_ == 404)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
+                        }
+                        else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
@@ -2560,6 +2512,12 @@ namespace Ballware.Meta.Client
                         {
                             string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Not Found", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -3270,13 +3228,13 @@ namespace Ballware.Meta.Client
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class JobCreatePayload
     {
-        [Newtonsoft.Json.JsonProperty("Scheduler", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Scheduler", Required = Newtonsoft.Json.Required.AllowNull)]
         public string? Scheduler { get; set; } = default!;
 
-        [Newtonsoft.Json.JsonProperty("Identifier", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Identifier", Required = Newtonsoft.Json.Required.AllowNull)]
         public string? Identifier { get; set; } = default!;
 
-        [Newtonsoft.Json.JsonProperty("Options", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Options", Required = Newtonsoft.Json.Required.AllowNull)]
         public string? Options { get; set; } = default!;
 
         public string ToJson()
@@ -3527,19 +3485,14 @@ namespace Ballware.Meta.Client
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class NotificationTrigger
+    public partial class NotificationTriggerCreatePayload
     {
-        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid? Id { get; set; } = default!;
-
-        [Newtonsoft.Json.JsonProperty("NotificationId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Guid? NotificationId { get; set; } = default!;
+        [Newtonsoft.Json.JsonProperty("NotificationId", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public System.Guid NotificationId { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("Params", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string? Params { get; set; } = default!;
-
-        [Newtonsoft.Json.JsonProperty("Finished", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? Finished { get; set; } = default!;
 
         public string ToJson()
         {
@@ -3547,10 +3500,10 @@ namespace Ballware.Meta.Client
             return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings());
 
         }
-        public static NotificationTrigger FromJson(string data)
+        public static NotificationTriggerCreatePayload FromJson(string data)
         {
 
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<NotificationTrigger>(data, new Newtonsoft.Json.JsonSerializerSettings());
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<NotificationTriggerCreatePayload>(data, new Newtonsoft.Json.JsonSerializerSettings());
 
         }
 
@@ -3703,7 +3656,7 @@ namespace Ballware.Meta.Client
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ServiceEntityCustomFunction
     {
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.AllowNull)]
         public string? Id { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -3909,36 +3862,6 @@ namespace Ballware.Meta.Client
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ServiceTenantReportDatasourceRelation
-    {
-        [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string? Name { get; set; } = default!;
-
-        [Newtonsoft.Json.JsonProperty("ChildTable", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string? ChildTable { get; set; } = default!;
-
-        [Newtonsoft.Json.JsonProperty("MasterColumn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string? MasterColumn { get; set; } = default!;
-
-        [Newtonsoft.Json.JsonProperty("ChildColumn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string? ChildColumn { get; set; } = default!;
-
-        public string ToJson()
-        {
-
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings());
-
-        }
-        public static ServiceTenantReportDatasourceRelation FromJson(string data)
-        {
-
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<ServiceTenantReportDatasourceRelation>(data, new Newtonsoft.Json.JsonSerializerSettings());
-
-        }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ServiceTenantReportDatasourceTable
     {
         [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -3949,9 +3872,6 @@ namespace Ballware.Meta.Client
 
         [Newtonsoft.Json.JsonProperty("Query", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string? Query { get; set; } = default!;
-
-        [Newtonsoft.Json.JsonProperty("Relations", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ServiceTenantReportDatasourceRelation>? Relations { get; set; } = default!;
 
         public string ToJson()
         {

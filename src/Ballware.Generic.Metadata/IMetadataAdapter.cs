@@ -21,10 +21,8 @@ public interface IMetadataAdapter
     ProcessingState? SingleProcessingStateForTenantAndEntityByValue(Guid tenant, string entity, int state);
     
     Notification? MetadataForNotificationByTenantAndIdentifier(Guid tenant, string identifier);
-
-    NotificationTrigger CreateNotificationTriggerForTenantAndNotificationBehalfOfUser(Guid tenant, Guid notification, Guid userId);
     
-    void SaveNotificationTriggerBehalfOfUser(Guid tenant, Guid userId, NotificationTrigger notificationTrigger);
+    void CreateNotificationTriggerForTenantBehalfOfUser(Guid tenant, Guid userId, NotificationTriggerCreatePayload payload);
 
     Task<Guid?> CreateJobForTenantBehalfOfUserAsync(Guid tenant, Guid userId, JobCreatePayload payload);
     Task<Guid> CreateExportForTenantBehalfOfUserAsync(Guid tenant, Guid userId, ExportCreatePayload payload);

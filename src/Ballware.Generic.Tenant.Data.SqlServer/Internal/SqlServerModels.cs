@@ -141,7 +141,7 @@ class SqlServerDatabaseObjectModel
     public required string Name { get; set; }
     public required SqlServerDatabaseObjectTypes Type { get; set; }
     public required string Sql { get; set; }
-    public required bool ExecuteOnSave { get; set; }
+    public required bool Execute { get; set; }
 }
 
 class SqlServerTenantModel
