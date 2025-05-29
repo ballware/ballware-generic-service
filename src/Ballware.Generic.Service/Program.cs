@@ -4,11 +4,18 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
 var environment = builder.Environment;
 
+builder.Host.UseSerilog();
 builder.Configuration.Sources.Clear();
 builder.Configuration.AddJsonFile("appsettings.json", true, true);
 builder.Configuration.AddJsonFile($"appsettings.{environment.EnvironmentName}.json", true, true);
@@ -30,6 +37,8 @@ catch (ConfigurationException ex)
 }
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 startup.InitializeApp(app);
 
