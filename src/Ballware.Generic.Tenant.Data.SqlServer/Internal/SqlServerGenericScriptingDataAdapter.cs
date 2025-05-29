@@ -79,7 +79,7 @@ class SqlServerGenericScriptingDataAdapter : ITenantDataAdapter
     public void Save(IDbConnection db, IDbTransaction transaction, Metadata.Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> claims,
         string statementIdentifier, IDictionary<string, object> p)
     {
-        GenericProvider.ProcessSaveAsync(db, transaction, tenant, entity, userId, "primary", claims, p).GetAwaiter().GetResult();
+        GenericProvider.ProcessSaveAsync(db, transaction, tenant, entity, userId, statementIdentifier, claims, p).GetAwaiter().GetResult();
     }
 
     public (bool Result, IEnumerable<string> Messages) Remove(IDbConnection db, IDbTransaction transaction, Metadata.Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> claims,

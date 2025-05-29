@@ -17,6 +17,7 @@ public class MetaServiceGenericMetadataProfile : Profile
             Ballware.Generic.Metadata.ReportDatasourceTable>();
         
         CreateMap<Ballware.Meta.Client.ServiceEntity, Ballware.Generic.Metadata.Entity>()
+            .ForMember(dst => dst.Identifier, opt => opt.MapFrom(source => source.Entity))
             .ForMember(dst => dst.ExtendedRightsCheckScript, 
                 opt => opt.MapFrom(source => source.CustomScripts.ExtendedRightsCheck));
         CreateMap<Ballware.Meta.Client.Lookup, Ballware.Generic.Metadata.Lookup>();
