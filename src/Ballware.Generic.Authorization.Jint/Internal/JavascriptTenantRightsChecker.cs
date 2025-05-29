@@ -6,7 +6,7 @@ namespace Ballware.Generic.Authorization.Jint.Internal;
 
 class JavascriptTenantRightsChecker : ITenantRightsChecker
 {
-    public async Task<bool> HasRightAsync(Tenant tenant, string application, string entity, Dictionary<string, object> claims, string right)
+    public async Task<bool> HasRightAsync(Tenant tenant, string application, string entity, IDictionary<string, object> claims, string right)
     {
         var result = true;
 
