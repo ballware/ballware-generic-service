@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Ml.Client", "src\B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Api", "src\Ballware.Generic.Api\Ballware.Generic.Api.csproj", "{742F4519-B7C5-4E23-9E99-81588094B997}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Api.Tests", "test\Ballware.Generic.Api.Tests\Ballware.Generic.Api.Tests.csproj", "{F8823BA6-E77D-4CB5-BEA7-19834C2E4817}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -96,5 +98,9 @@ Global
 		{742F4519-B7C5-4E23-9E99-81588094B997}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{742F4519-B7C5-4E23-9E99-81588094B997}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{742F4519-B7C5-4E23-9E99-81588094B997}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8823BA6-E77D-4CB5-BEA7-19834C2E4817}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8823BA6-E77D-4CB5-BEA7-19834C2E4817}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8823BA6-E77D-4CB5-BEA7-19834C2E4817}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8823BA6-E77D-4CB5-BEA7-19834C2E4817}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

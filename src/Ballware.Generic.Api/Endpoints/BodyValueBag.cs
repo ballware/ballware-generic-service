@@ -10,16 +10,26 @@ public class BodyValueBag
 
     public static async ValueTask<BodyValueBag?> BindAsync(HttpContext context, ParameterInfo parameter)
     {
-        if (context.Request.ContentLength > 0)
+        context.Request.EnableBuffering();
+        
+        if (context.Request.Body.CanRead)
         {
             using var ms = new MemoryStream();
             await context.Request.Body.CopyToAsync(ms);
-            
-            JsonDocument doc = JsonDocument.Parse(ms.ToArray());
+            context.Request.Body.Position = 0;
 
-            var value = (Dictionary<string, object>)ReadElement(doc.RootElement);
+            try
+            {
+                JsonDocument doc = JsonDocument.Parse(ms.ToArray());
 
-            return new BodyValueBag() { Value = value };            
+                var value = (Dictionary<string, object>)ReadElement(doc.RootElement);
+
+                return new BodyValueBag() { Value = value };    
+            }
+            catch 
+            {
+                return null;
+            }
         }
 
         return null;

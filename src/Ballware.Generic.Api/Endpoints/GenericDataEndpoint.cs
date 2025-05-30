@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -23,6 +24,9 @@ public class CountResult
 
 public static class GenericDataEndpoint
 {
+    private static readonly string DefaultQuery = "primary";
+    private static readonly string TenantOrEntityNotFoundError = "Unknown tenant or entity";
+    
     public static IEndpointRouteBuilder MapGenericDataApi(this IEndpointRouteBuilder app, 
         string basePath,
         string apiTag = "Generic",
@@ -113,7 +117,7 @@ public static class GenericDataEndpoint
             .WithSummary("Save list of items for entity by identifier");
 
         
-        app.MapDelete(basePath + "/{application}/{entity}/remove", HandleRemoveAsync)
+        app.MapDelete(basePath + "/{application}/{entity}/remove/{id}", HandleRemoveAsync)
             .RequireAuthorization(authorizationScope)
             .Produces<object>()
             .Produces(StatusCodes.Status401Unauthorized)
@@ -168,6 +172,7 @@ public static class GenericDataEndpoint
         return app;
     }
 
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public static async Task<IResult> HandleAllAsync(IPrincipalUtils principalUtils, ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker,
         IMetadataAdapter metadataAdapter, ITenantGenericProvider genericProvider, ClaimsPrincipal user,
         string application, string entity,
@@ -176,33 +181,27 @@ public static class GenericDataEndpoint
         var tenantId = principalUtils.GetUserTenandId(user);
         var claims = principalUtils.GetUserClaims(user);
         
-        try
+        var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
+        var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
+
+        if (tenant == null || metaData == null)
         {
-            var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
-            var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
+            return Results.NotFound(TenantOrEntityNotFoundError);
+        }
 
-            if (tenant == null || metaData == null)
-            {
-                return Results.NotFound("Unknown tenant or entity");
-            }
+    
+        var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, "view");
+        var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, "view", new Dictionary<string, object>(), tenantAuthorized);
 
+        if (!authorized)
+        {
+            return Results.Unauthorized();
+        }
         
-            var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, "view");
-            var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, "view", new Dictionary<string, object>(), tenantAuthorized);
-
-            if (!authorized)
-            {
-                return Results.Unauthorized();
-            }
-            
-            return Results.Ok(await genericProvider.AllAsync<dynamic>(tenant, metaData, identifier, claims));
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(await genericProvider.AllAsync<dynamic>(tenant, metaData, identifier, claims));
     }
     
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public static async Task<IResult> HandleQueryAsync(IPrincipalUtils principalUtils, ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker,
         IMetadataAdapter metadataAdapter, ITenantGenericProvider genericProvider, ClaimsPrincipal user,
         string application, string entity,
@@ -213,32 +212,26 @@ public static class GenericDataEndpoint
         var claims = principalUtils.GetUserClaims(user);
         var queryParams = GetQueryParams(query.Query);
         
-        try
+        var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
+        var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
+
+        if (tenant == null || metaData == null)
         {
-            var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
-            var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
-
-            if (tenant == null || metaData == null)
-            {
-                return Results.NotFound("Unknown tenant or entity");
-            }
-
-            var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, "view");
-            var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, "view", queryParams, tenantAuthorized);
-
-            if (!authorized)
-            {
-                return Results.Unauthorized();
-            }
-            
-            return Results.Ok(await genericProvider.QueryAsync<dynamic>(tenant, metaData, identifier, claims, queryParams));
+            return Results.NotFound(TenantOrEntityNotFoundError);
         }
-        catch (Exception ex)
+
+        var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, "view");
+        var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, "view", queryParams, tenantAuthorized);
+
+        if (!authorized)
         {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+            return Results.Unauthorized();
         }
+        
+        return Results.Ok(await genericProvider.QueryAsync<dynamic>(tenant, metaData, identifier, claims, queryParams));
     }
     
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public static async Task<IResult> HandleCountAsync(IPrincipalUtils principalUtils, ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker,
         IMetadataAdapter metadataAdapter, ITenantGenericProvider genericProvider, ClaimsPrincipal user,
         string application, string entity,
@@ -249,32 +242,26 @@ public static class GenericDataEndpoint
         var claims = principalUtils.GetUserClaims(user);
         var queryParams = GetQueryParams(query.Query);
         
-        try
-        {
-            var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
-            var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
+        var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
+        var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
 
-            if (tenant == null || metaData == null)
-            {
-                return Results.NotFound("Unknown tenant or entity");
-            }
+        if (tenant == null || metaData == null)
+        {
+            return Results.NotFound(TenantOrEntityNotFoundError);
+        }
+    
+        var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, "view");
+        var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, "view", queryParams, tenantAuthorized);
+
+        if (!authorized)
+        {
+            return Results.Unauthorized();
+        }
         
-            var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, "view");
-            var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, "view", queryParams, tenantAuthorized);
-
-            if (!authorized)
-            {
-                return Results.Unauthorized();
-            }
-            
-            return Results.Ok(new CountResult { Count = await genericProvider.CountAsync(tenant, metaData, identifier, claims, queryParams) });
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Ok(new CountResult { Count = await genericProvider.CountAsync(tenant, metaData, identifier, claims, queryParams) });
     }
 
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public static async Task<IResult> HandleNewAsync(IPrincipalUtils principalUtils,
         ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker,
         IMetadataAdapter metadataAdapter, ITenantGenericProvider genericProvider, ClaimsPrincipal user,
@@ -285,32 +272,26 @@ public static class GenericDataEndpoint
 
         var claims = principalUtils.GetUserClaims(user);
         
-        try
+        var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
+        var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
+
+        if (tenant == null || metaData == null)
         {
-            var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
-            var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
-
-            if (tenant == null || metaData == null)
-            {
-                return Results.NotFound("Unknown tenant or entity");
-            }
-
-            var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, "add");
-            var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, "add", new Dictionary<string, object>(), tenantAuthorized);
-
-            if (!authorized)
-            {
-                return Results.Unauthorized();
-            }
-            
-            return Results.Ok(await genericProvider.NewAsync<dynamic>(tenant, metaData, identifier, claims));
+            return Results.NotFound(TenantOrEntityNotFoundError);
         }
-        catch (Exception ex)
+
+        var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, "add");
+        var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, "add", new Dictionary<string, object>(), tenantAuthorized);
+
+        if (!authorized)
         {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+            return Results.Unauthorized();
         }
+        
+        return Results.Ok(await genericProvider.NewAsync<dynamic>(tenant, metaData, identifier, claims));
     }
     
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public static async Task<IResult> HandleNewQueryAsync(IPrincipalUtils principalUtils,
         ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker,
         IMetadataAdapter metadataAdapter, ITenantGenericProvider genericProvider, ClaimsPrincipal user,
@@ -322,32 +303,26 @@ public static class GenericDataEndpoint
         var claims = principalUtils.GetUserClaims(user);
         var queryParams = GetQueryParams(query.Query);
         
-        try
+        var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
+        var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
+
+        if (tenant == null || metaData == null)
         {
-            var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
-            var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
-
-            if (tenant == null || metaData == null)
-            {
-                return Results.NotFound("Unknown tenant or entity");
-            }
-
-            var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, "add");
-            var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, "add", queryParams, tenantAuthorized);
-
-            if (!authorized)
-            {
-                return Results.Unauthorized();
-            }
-            
-            return Results.Ok(await genericProvider.NewQueryAsync<dynamic>(tenant, metaData, identifier, claims, queryParams));
+            return Results.NotFound(TenantOrEntityNotFoundError);
         }
-        catch (Exception ex)
+
+        var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, "add");
+        var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, "add", queryParams, tenantAuthorized);
+
+        if (!authorized)
         {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+            return Results.Unauthorized();
         }
+        
+        return Results.Ok(await genericProvider.NewQueryAsync<dynamic>(tenant, metaData, identifier, claims, queryParams));
     }
 
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public static async Task<IResult> HandleByIdAsync(IPrincipalUtils principalUtils,
         ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker,
         IMetadataAdapter metadataAdapter, ITenantGenericProvider genericProvider, ClaimsPrincipal user,
@@ -358,34 +333,33 @@ public static class GenericDataEndpoint
 
         var claims = principalUtils.GetUserClaims(user);
         
-        try
+        var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
+        var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
+
+        if (tenant == null || metaData == null)
         {
-            var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
-            var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
-
-            if (tenant == null || metaData == null)
-            {
-                return Results.NotFound("Unknown tenant or entity");
-            }
-            
-            var value = await genericProvider.ByIdAsync<dynamic>(tenant, metaData, identifier, claims, id);
-
-            var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, "view");
-            var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, "view", value, tenantAuthorized);
-
-            if (!authorized)
-            {
-                return Results.Unauthorized();
-            }
-
-            return Results.Ok(value);
+            return Results.NotFound(TenantOrEntityNotFoundError);
         }
-        catch (Exception ex)
+        
+        var value = await genericProvider.ByIdAsync<dynamic>(tenant, metaData, identifier, claims, id);
+        
+        if (value == null)
         {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+            return Results.NotFound("Item not found");
         }
+
+        var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, "view");
+        var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, "view", value, tenantAuthorized);
+
+        if (!authorized)
+        {
+            return Results.Unauthorized();
+        }
+
+        return Results.Ok(value);
     }
 
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public static async Task<IResult> HandleSaveAsync(IPrincipalUtils principalUtils,
         ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker,
         IMetadataAdapter metadataAdapter, ITenantGenericProvider genericProvider, ClaimsPrincipal user,
@@ -397,39 +371,33 @@ public static class GenericDataEndpoint
 
         var claims = principalUtils.GetUserClaims(user);
         
-        try
+        var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
+        var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
+
+        if (tenant == null || metaData == null)
         {
-            var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
-            var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
-
-            if (tenant == null || metaData == null)
-            {
-                return Results.NotFound("Unknown tenant or entity");
-            }
-
-            if (value == null)
-            {
-                return Results.BadRequest("No value provided");
-            }
-            
-            var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, identifier == "primary" ? "edit" : identifier);
-            var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, identifier == "primary" ? "edit" : identifier, value.Value, tenantAuthorized);
-
-            if (!authorized)
-            {
-                return Results.Unauthorized();
-            }
-            
-            await genericProvider.SaveAsync(tenant, metaData, currentUserId, identifier, claims, value.Value);
-
-            return Results.Ok();
+            return Results.NotFound(TenantOrEntityNotFoundError);
         }
-        catch (Exception ex)
+
+        if (value == null)
         {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+            return Results.BadRequest("No value provided");
         }
+        
+        var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, identifier == DefaultQuery ? "edit" : identifier);
+        var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, identifier == DefaultQuery ? "edit" : identifier, value.Value, tenantAuthorized);
+
+        if (!authorized)
+        {
+            return Results.Unauthorized();
+        }
+        
+        await genericProvider.SaveAsync(tenant, metaData, currentUserId, identifier, claims, value.Value);
+
+        return Results.Ok();
     }
     
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public static async Task<IResult> HandleSaveBatchAsync(IPrincipalUtils principalUtils,
         ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker,
         IMetadataAdapter metadataAdapter, ITenantGenericProvider genericProvider, ClaimsPrincipal user,
@@ -441,45 +409,39 @@ public static class GenericDataEndpoint
 
         var claims = principalUtils.GetUserClaims(user);
         
-        try
-        {
-            var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
-            var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
+        var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
+        var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
 
-            if (tenant == null || metaData == null)
-            {
-                return Results.NotFound("Unknown tenant or entity");
-            }
-            
-            if (values == null)
-            {
-                return Results.BadRequest("No values provided");
-            }
+        if (tenant == null || metaData == null)
+        {
+            return Results.NotFound(TenantOrEntityNotFoundError);
+        }
         
-            foreach (var value in values.Values)
-            {
-                var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, identifier == "primary" ? "edit" : identifier);
-                var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, identifier == "primary" ? "edit" : identifier, value, tenantAuthorized);
-
-                if (!authorized)
-                {
-                    return Results.Unauthorized();
-                }
-            }
-            
-            foreach (var value in values.Values)
-            {
-                await genericProvider.SaveAsync(tenant, metaData, currentUserId, identifier, claims, value);
-            }
-
-            return Results.Ok();
-        }
-        catch (Exception ex)
+        if (values == null)
         {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+            return Results.BadRequest("No values provided");
         }
+    
+        foreach (var value in values.Values)
+        {
+            var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, identifier == DefaultQuery ? "edit" : identifier);
+            var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, identifier == DefaultQuery ? "edit" : identifier, value, tenantAuthorized);
+
+            if (!authorized)
+            {
+                return Results.Unauthorized();
+            }
+        }
+        
+        foreach (var value in values.Values)
+        {
+            await genericProvider.SaveAsync(tenant, metaData, currentUserId, identifier, claims, value);
+        }
+
+        return Results.Ok();
     }
 
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public static async Task<IResult> HandleRemoveAsync(IPrincipalUtils principalUtils,
         ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker,
         IMetadataAdapter metadataAdapter, ITenantGenericProvider genericProvider, ClaimsPrincipal user,
@@ -490,41 +452,35 @@ public static class GenericDataEndpoint
         var tenantId = principalUtils.GetUserTenandId(user);
         var claims = principalUtils.GetUserClaims(user);
         
-        try
+        var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
+        var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
+
+        if (tenant == null || metaData == null)
         {
-            var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
-            var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
-
-            if (tenant == null || metaData == null)
-            {
-                return Results.NotFound("Unknown tenant or entity");
-            }
-
-            var value = await genericProvider.ByIdAsync<dynamic>(tenant, metaData, "primary", claims, id);
-
-            var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, "delete");
-            var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, "delete", value, tenantAuthorized);
-
-            if (!authorized)
-            {
-                return Results.Unauthorized();
-            }
-            
-            var removeResult = await genericProvider.RemoveAsync(tenant, metaData, currentUserId, claims, id);
-
-            if (!removeResult.Result)
-            {
-                return Results.BadRequest(new Exception(string.Join("\r\n", removeResult.Messages)));
-            }
-
-            return Results.Ok();
+            return Results.NotFound(TenantOrEntityNotFoundError);
         }
-        catch (Exception ex)
+
+        var value = await genericProvider.ByIdAsync<dynamic>(tenant, metaData, DefaultQuery, claims, id);
+
+        var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, "delete");
+        var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, "delete", value, tenantAuthorized);
+
+        if (!authorized)
         {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+            return Results.Unauthorized();
         }
+        
+        var removeResult = await genericProvider.RemoveAsync(tenant, metaData, currentUserId, claims, id);
+
+        if (!removeResult.Result)
+        {
+            return Results.BadRequest(new Exception(string.Join("\r\n", removeResult.Messages)));
+        }
+
+        return Results.Ok();
     }
 
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public static async Task<IResult> HandleImportAsync(ISchedulerFactory schedulerFactory,
         IPrincipalUtils principalUtils, ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker,
         IMetadataAdapter metadataAdapter, ClaimsPrincipal user, IGenericFileStorageAdapter storageAdapter,
@@ -536,86 +492,82 @@ public static class GenericDataEndpoint
         var tenantId = principalUtils.GetUserTenandId(user);
         var claims = principalUtils.GetUserClaims(user);
         
-        try
+        foreach (var file in files)
         {
-            foreach (var file in files)
+            if (file != null)
             {
-                if (file != null)
+                var jobData = new JobDataMap();
+
+                jobData["tenantId"] = tenantId;
+                jobData["userId"] = currentUserId;
+                jobData["application"] = application;
+                jobData["entity"] = entity;
+                jobData["identifier"] = identifier;
+                jobData["claims"] = JsonSerializer.Serialize(claims);
+                jobData["filename"] = file.FileName;
+
+                await storageAdapter.UploadFileForOwnerAsync(currentUserId.ToString(), file.FileName, file.ContentType, file.OpenReadStream());
+
+                var jobPayload = new JobCreatePayload()
                 {
-                    var jobData = new JobDataMap();
+                    Identifier = "import",
+                    Scheduler = "generic",
+                    Options = JsonSerializer.Serialize(jobData)
+                };
+                
+                var job = await metadataAdapter.CreateJobForTenantBehalfOfUserAsync(tenantId, currentUserId, jobPayload);
 
-                    jobData["tenantId"] = tenantId;
-                    jobData["userId"] = currentUserId;
-                    jobData["application"] = application;
-                    jobData["entity"] = entity;
-                    jobData["identifier"] = identifier;
-                    jobData["claims"] = JsonSerializer.Serialize(claims);
-                    jobData["filename"] = file.FileName;
+                jobData["jobId"] = job;
 
-                    await storageAdapter.UploadFileForOwnerAsync(currentUserId.ToString(), file.FileName, file.ContentType, file.OpenReadStream());
-
-                    var jobPayload = new JobCreatePayload()
-                    {
-                        Identifier = "import",
-                        Scheduler = "generic",
-                        Options = JsonSerializer.Serialize(jobData)
-                    };
-                    
-                    var job = await metadataAdapter.CreateJobForTenantBehalfOfUserAsync(tenantId, currentUserId, jobPayload);
-
-                    jobData["jobId"] = job;
-
-                    await (await schedulerFactory.GetScheduler()).TriggerJob(JobKey.Create("import", "generic"), jobData);
-                }
+                await (await schedulerFactory.GetScheduler()).TriggerJob(JobKey.Create("import", "generic"), jobData);
             }
+        }
 
-            return Results.Ok();
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        return Results.Created();
     }
 
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public static async Task<IResult> HandleExportAsync(
         IPrincipalUtils principalUtils, ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker,
         IMetadataAdapter metadataAdapter, 
         ITenantGenericProvider genericProvider, ClaimsPrincipal user,
         string application, string entity,
-        string identifier, [FromBody] IDictionary<string, StringValues> query)
+        string identifier, HttpRequest request)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
         var claims = principalUtils.GetUserClaims(user);
-        var queryParams = GetQueryParams(query);
         
-        try
-        {
-            var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
-            var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
-
-            if (tenant == null || metaData == null)
-            {
-                return Results.NotFound("Unknown tenant or entity");
-            }
-        
-            var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, identifier);
-            var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, identifier, queryParams, tenantAuthorized);
-
-            if (!authorized)
-            {
-                return Results.Unauthorized();
-            }
+        var query = request.Query;
             
-            var export = await genericProvider.ExportAsync(tenant, metaData, identifier, claims, queryParams);
+        var queryParams = new Dictionary<string, object>();
 
-            return Results.Content(Encoding.UTF8.GetString(export.Data), export.MediaType);
-        }
-        catch (Exception ex)
+        foreach (var queryEntry in query)
         {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+            queryParams.Add(queryEntry.Key, queryEntry.Value);
         }
+        
+        var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
+        var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
+
+        if (tenant == null || metaData == null)
+        {
+            return Results.NotFound(TenantOrEntityNotFoundError);
+        }
+    
+        var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, identifier);
+        var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, identifier, queryParams, tenantAuthorized);
+
+        if (!authorized)
+        {
+            return Results.Unauthorized();
+        }
+        
+        var export = await genericProvider.ExportAsync(tenant, metaData, identifier, claims, queryParams);
+
+        return Results.Content(Encoding.UTF8.GetString(export.Data), export.MediaType);
     }
 
+    [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
     public static async Task<IResult> HandleExportUrlAsync(IPrincipalUtils principalUtils,
         ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker,
         IMetadataAdapter metadataAdapter, ITenantGenericProvider genericProvider,
@@ -636,45 +588,38 @@ public static class GenericDataEndpoint
             queryParams.Add(queryEntry.Key, queryEntry.Value);
         }
         
-        try
+        var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
+        var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
+
+        if (tenant == null || metaData == null)
         {
-            var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
-            var metaData = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
-
-            if (tenant == null || metaData == null)
-            {
-                return Results.NotFound("Unknown tenant or entity");
-            }
-
-            var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, identifier);
-            var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, identifier, queryParams, tenantAuthorized);
-
-            if (!authorized)
-            {
-                return Results.Unauthorized();
-            }
-            
-            var export = await genericProvider.ExportAsync(tenant, metaData, identifier, claims, queryParams);
-            
-            var exportPayload = new ExportCreatePayload()
-            {
-                Application = application,
-                Entity = entity,
-                Query = identifier,
-                MediaType = export.MediaType,
-                ExpirationStamp = DateTime.Now.AddDays(1)
-            };
-            
-            var exportId = await metadataAdapter.CreateExportForTenantBehalfOfUserAsync(tenantId, currentUserId, exportPayload);
-            
-            await storageAdapter.UploadFileForOwnerAsync("export", $"{exportId}{MimeTypeMap.GetExtension(export.MediaType)}", export.MediaType, new MemoryStream(export.Data));
-
-            return Results.Ok(exportId.ToString());
+            return Results.NotFound(TenantOrEntityNotFoundError);
         }
-        catch (Exception ex)
+
+        var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, identifier);
+        var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, identifier, queryParams, tenantAuthorized);
+
+        if (!authorized)
         {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
+            return Results.Unauthorized();
         }
+        
+        var export = await genericProvider.ExportAsync(tenant, metaData, identifier, claims, queryParams);
+        
+        var exportPayload = new ExportCreatePayload()
+        {
+            Application = application,
+            Entity = entity,
+            Query = identifier,
+            MediaType = export.MediaType,
+            ExpirationStamp = DateTime.Now.AddDays(1)
+        };
+        
+        var exportId = await metadataAdapter.CreateExportForTenantBehalfOfUserAsync(tenantId, currentUserId, exportPayload);
+        
+        await storageAdapter.UploadFileForOwnerAsync("export", $"{exportId}{MimeTypeMap.GetExtension(export.MediaType)}", export.MediaType, new MemoryStream(export.Data));
+
+        return Results.Content(exportId.ToString());
     }
 
     public static async Task<IResult> HandleDownloadExportAsync(
@@ -687,23 +632,16 @@ public static class GenericDataEndpoint
     {
         var tenantId = principalUtils.GetUserId(user);
         
-        try
+        var export = await metadataAdapter.FetchExportByIdForTenantAsync(tenantId, id);
+
+        if (export == null || export.ExpirationStamp <= DateTime.Now)
         {
-            var export = await metadataAdapter.FetchExportByIdForTenantAsync(tenantId, id);
-
-            if (export == null || export.ExpirationStamp <= DateTime.Now)
-            {
-                return Results.NotFound();
-            }
-
-            var fileContent = await storageAdapter.FileByNameForOwnerAsync("export", $"{export.Id}{MimeTypeMap.GetExtension(export.MediaType)}");
-
-            return Results.File(fileContent, export.MediaType, $"{export.Query}_{DateTime.Now:yyyyMMdd_HHmmss}{MimeTypeMap.GetExtension(export.MediaType)}");
+            return Results.NotFound();
         }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+
+        var fileContent = await storageAdapter.FileByNameForOwnerAsync("export", $"{export.Id}{MimeTypeMap.GetExtension(export.MediaType)}");
+
+        return Results.File(fileContent, export.MediaType, $"{export.Query}_{DateTime.Now:yyyyMMdd_HHmmss}{MimeTypeMap.GetExtension(export.MediaType)}");
     }
     
     private static Dictionary<string, object> GetQueryParams(IDictionary<string, StringValues> query)

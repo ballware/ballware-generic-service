@@ -6,7 +6,7 @@ namespace Ballware.Generic.Authorization.Jint.Internal;
 
 class JavascriptEntityRightsChecker : IEntityRightsChecker
 {
-    public async Task<bool> HasRightAsync(Guid tenantId, Entity metadata, IDictionary<string, object> claims, string right, IDictionary<string, object> param,
+    public async Task<bool> HasRightAsync(Guid tenantId, Entity metadata, IDictionary<string, object> claims, string right, object param,
         bool tenantResult)
     {
         var result = tenantResult;
