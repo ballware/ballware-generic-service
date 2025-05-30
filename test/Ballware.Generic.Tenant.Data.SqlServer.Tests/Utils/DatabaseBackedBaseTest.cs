@@ -16,8 +16,6 @@ public abstract class DatabaseBackedBaseTest
     [OneTimeSetUp]
     public async Task MssqlSetUp()
     {
-        var basePath = AppDomain.CurrentDomain.BaseDirectory;
-        
         var configurationBuilder = new ConfigurationBuilder()
             .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json"), optional: false)
             .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsettings.local.json"), true, true)
@@ -32,7 +30,10 @@ public abstract class DatabaseBackedBaseTest
             .WithPortBinding(1433, assignRandomHostPort: true)
             .WithEnvironment("ACCEPT_EULA", "1")
             .WithEnvironment("SA_PASSWORD", password)
-            .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(1433))
+            .WithWaitStrategy(Wait
+                .ForUnixContainer()
+                .UntilMessageIsLogged("SQL Server is now ready for client connections")
+                .AddCustomWaitStrategy(new DelayWaitStrategy(TimeSpan.FromSeconds(5))))
             .Build();
 
         await _mssqlContainer.StartAsync();

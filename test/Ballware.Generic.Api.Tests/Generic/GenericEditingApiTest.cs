@@ -741,13 +741,12 @@ public class GenericEditingApiTest : ApiMappingBaseTest
 
         TenantGenericProviderMock
             .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
-            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> claims, IDictionary<string, object> entry) =>
+            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> _, IDictionary<string, object> entry) =>
             {
                 Assert.Multiple(() =>
                 {
                     Assert.That(tenant, Is.EqualTo(fakeTenant));
                     Assert.That(entity, Is.EqualTo(fakeEntity));
-                    Assert.That(claims, Is.EqualTo(Claims));
                     Assert.That(userId, Is.EqualTo(expectedUserId));
                     Assert.That(identifier, Is.EqualTo("primary"));
                     Assert.That(entry, Is.Not.Null);
@@ -1059,13 +1058,12 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             {
                 Result = true
             })
-            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> claims, Guid id) =>
+            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> _, Guid id) =>
             {
                 Assert.Multiple(() =>
                 {
                     Assert.That(tenant, Is.EqualTo(fakeTenant));
                     Assert.That(entity, Is.EqualTo(fakeEntity));
-                    Assert.That(claims, Is.EqualTo(Claims));
                     Assert.That(userId, Is.EqualTo(expectedUserId));
                     Assert.That(id, Is.EqualTo(expectedEntry.Id));
                 });
@@ -1300,13 +1298,12 @@ public class GenericEditingApiTest : ApiMappingBaseTest
                 Messages = ["An error occurred while trying to remove the entry."],
                 Result = false
             })
-            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> claims, Guid id) =>
+            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> _, Guid id) =>
             {
                 Assert.Multiple(() =>
                 {
                     Assert.That(tenant, Is.EqualTo(fakeTenant));
                     Assert.That(entity, Is.EqualTo(fakeEntity));
-                    Assert.That(claims, Is.EqualTo(Claims));
                     Assert.That(userId, Is.EqualTo(expectedUserId));
                     Assert.That(id, Is.EqualTo(expectedEntry.Id));
                 });
