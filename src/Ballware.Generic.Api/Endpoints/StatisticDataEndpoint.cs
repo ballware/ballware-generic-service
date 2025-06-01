@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
 using Ballware.Generic.Tenant.Data;
 using Ballware.Generic.Authorization;
@@ -31,7 +29,7 @@ public static class StatisticDataEndpoint
         return app;
     }
     
-    public static async Task<IResult> HandleDataByIdentifierAsync(IPrincipalUtils principalUtils, IMetadataAdapter metadataAdapter, ITenantStatisticProvider statisticProvider, ClaimsPrincipal user, string identifier, QueryValueBag query)
+    private static async Task<IResult> HandleDataByIdentifierAsync(IPrincipalUtils principalUtils, IMetadataAdapter metadataAdapter, ITenantStatisticProvider statisticProvider, ClaimsPrincipal user, string identifier, QueryValueBag query)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
         var currentUserId = principalUtils.GetUserId(user);
@@ -50,16 +48,19 @@ public static class StatisticDataEndpoint
             }
         }
 
-        try
+        var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
+        var statistic = await metadataAdapter.MetadataForStatisticByTenantAndIdentifierAsync(tenantId, identifier);
+        
+        if (tenant == null)
         {
-            var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
-            var statistic = await metadataAdapter.MetadataForStatisticByTenantAndIdentifierAsync(tenantId, identifier);
-                
-            return Results.Ok(await statisticProvider.FetchDataAsync(tenant, statistic, currentUserId, claims, queryParams));
+            return Results.NotFound($"Tenant with ID {tenantId} not found.");
         }
-        catch (Exception ex)
+        
+        if (statistic == null)
         {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+            return Results.NotFound($"Statistic with identifier {identifier} not found for tenant {tenantId}.");
+        }        
+        
+        return Results.Ok(await statisticProvider.FetchDataAsync(tenant, statistic, currentUserId, claims, queryParams));
     }
 }

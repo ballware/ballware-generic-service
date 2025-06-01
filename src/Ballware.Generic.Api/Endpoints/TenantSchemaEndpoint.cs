@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Ballware.Generic.Api.Public;
 using Ballware.Generic.Tenant.Data;
 using Microsoft.AspNetCore.Builder;
@@ -59,59 +56,31 @@ public static class TenantSchemaEndpoint
         return app;
     }
 
-    public static async Task<IResult> HandleCreateOrUpdateEntitySchemaForTenantBehalfOfUserAsync(ITenantSchemaProvider tenantSchemaProvider, Guid tenantId, EntitySchema payload)
+    private static async Task<IResult> HandleCreateOrUpdateEntitySchemaForTenantBehalfOfUserAsync(ITenantSchemaProvider tenantSchemaProvider, Guid tenantId, EntitySchema payload)
     {
-        try
-        {
-            await tenantSchemaProvider.CreateOrUpdateEntityAsync(tenantId, payload.SerializedEntityModel, payload.UserId);
-        
-            return Results.Ok();   
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        await tenantSchemaProvider.CreateOrUpdateEntityAsync(tenantId, payload.SerializedEntityModel, payload.UserId);
+    
+        return Results.Ok();
     }
     
-    public static async Task<IResult> HandleDropEntitySchemaForTenantBehalfOfUserAsync(ITenantSchemaProvider tenantSchemaProvider, Guid tenantId, string identifier, Guid? userId = null)
+    private static async Task<IResult> HandleDropEntitySchemaForTenantBehalfOfUserAsync(ITenantSchemaProvider tenantSchemaProvider, Guid tenantId, string identifier, Guid? userId = null)
     {
-        try
-        {
-            await tenantSchemaProvider.DropEntityAsync(tenantId, identifier, userId);
-        
-            return Results.Ok();   
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        await tenantSchemaProvider.DropEntityAsync(tenantId, identifier, userId);
+    
+        return Results.Ok();
     }
     
-    public static async Task<IResult> HandleCreateOrUpdateSchemaForTenantBehalfOfUserAsync(ITenantSchemaProvider tenantSchemaProvider, Guid tenantId, TenantSchema payload)
+    private static async Task<IResult> HandleCreateOrUpdateSchemaForTenantBehalfOfUserAsync(ITenantSchemaProvider tenantSchemaProvider, Guid tenantId, TenantSchema payload)
     {
-        try
-        {
-            await tenantSchemaProvider.CreateOrUpdateTenantAsync(tenantId, payload.Provider, payload.SerializedTenantModel, payload.UserId);
-        
-            return Results.Ok();  
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        await tenantSchemaProvider.CreateOrUpdateTenantAsync(tenantId, payload.Provider, payload.SerializedTenantModel, payload.UserId);
+    
+        return Results.Ok();
     }
     
-    public static async Task<IResult> HandleDropSchemaForTenantBehalfOfUserAsync(ITenantSchemaProvider tenantSchemaProvider, Guid tenantId, Guid? userId = null)
+    private static async Task<IResult> HandleDropSchemaForTenantBehalfOfUserAsync(ITenantSchemaProvider tenantSchemaProvider, Guid tenantId, Guid? userId = null)
     {
-        try
-        {
-            await tenantSchemaProvider.DropTenantAsync(tenantId, userId);
-        
-            return Results.Ok();
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+        await tenantSchemaProvider.DropTenantAsync(tenantId, userId);
+    
+        return Results.Ok();
     }
 }

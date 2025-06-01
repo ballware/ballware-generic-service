@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
 using Ballware.Generic.Tenant.Data;
 using Ballware.Generic.Authorization;
@@ -50,98 +48,106 @@ public static class ProcessingStateDataEndpoint
         return app;
     }
     
-    public static async Task<IResult> HandleSelectListAllowedSuccessorsForEntityByIdentifierAndIdAsync(IPrincipalUtils principalUtils, IMetadataAdapter metadataAdapter, ITenantGenericProvider tenantGenericProvider, ClaimsPrincipal user, string entity, Guid id)
+    private static async Task<IResult> HandleSelectListAllowedSuccessorsForEntityByIdentifierAndIdAsync(IPrincipalUtils principalUtils, IMetadataAdapter metadataAdapter, ITenantGenericProvider tenantGenericProvider, ClaimsPrincipal user, string entity, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
         var claims = principalUtils.GetUserClaims(user);
         var rights = principalUtils.GetUserRights(user);
 
-        try
+        var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
+        var entityMeta = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
+        
+        if (tenant == null)
         {
-            var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
-            var entityMeta = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
-            
-            var currentState = await tenantGenericProvider.GetScalarValueAsync(tenant, entityMeta, entityMeta.StateColumn, id, 0);
-            
-            var possibleStates = await metadataAdapter.SelectListPossibleSuccessorsForEntityAsync(tenantId, entity, currentState);
-
-            var allowedStates = possibleStates?.Where(ps => tenantGenericProvider.StateAllowedAsync(tenant, entityMeta, id, ps.State, claims, rights).Result);
-
-            return Results.Ok(allowedStates);
+            return Results.NotFound($"Tenant with ID {tenantId} not found.");
         }
-        catch (Exception ex)
+        
+        if (entityMeta == null || string.IsNullOrEmpty(entityMeta.StateColumn))
         {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+            return Results.NotFound($"Entity with identifier {entity} not found or has no state support for tenant {tenantId}.");
+        }       
+        
+        var currentState = await tenantGenericProvider.GetScalarValueAsync(tenant, entityMeta, entityMeta.StateColumn, id, 0);
+        
+        var possibleStates = await metadataAdapter.SelectListPossibleSuccessorsForEntityAsync(tenantId, entity, currentState);
+
+        var allowedStates = possibleStates?.Where(ps => tenantGenericProvider.StateAllowedAsync(tenant, entityMeta, id, ps.State, claims, rights).Result);
+
+        return Results.Ok(allowedStates);
     }
     
-    public static async Task<IResult> HandleSelectListAllowedSuccessorsForEntityByIdentifierAndIdsAsync(IPrincipalUtils principalUtils, IMetadataAdapter metadataAdapter, ITenantGenericProvider tenantGenericProvider, ClaimsPrincipal user, string entity, QueryValueBag query)
+    private static async Task<IResult> HandleSelectListAllowedSuccessorsForEntityByIdentifierAndIdsAsync(IPrincipalUtils principalUtils, IMetadataAdapter metadataAdapter, ITenantGenericProvider tenantGenericProvider, ClaimsPrincipal user, string entity, QueryValueBag query)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
         var claims = principalUtils.GetUserClaims(user);
         var rights = principalUtils.GetUserRights(user);
 
-        try
+        var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
+        var entityMeta = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
+
+        if (tenant == null)
         {
-            var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
-            var entityMeta = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
-
-            if (query.Query.TryGetValue("id", out var ids))
+            return Results.NotFound($"Tenant with ID {tenantId} not found.");
+        }
+        
+        if (entityMeta == null || string.IsNullOrEmpty(entityMeta.StateColumn))
+        {
+            return Results.NotFound($"Entity with identifier {entity} not found or has no state support for tenant {tenantId}.");
+        }   
+        
+        if (query.Query.TryGetValue("id", out var ids))
+        {
+            var listOfStates = (await Task.WhenAll(ids.Select(Guid.Parse).AsParallel().Select(async (id) =>
             {
-                var listOfStates = await Task.WhenAll(ids.Select(Guid.Parse).AsParallel().Select(async (id) =>
-                {
-                    var currentState = await tenantGenericProvider.GetScalarValueAsync(tenant, entityMeta, entityMeta.StateColumn, id, 0);
-                    var possibleStates = await metadataAdapter.SelectListPossibleSuccessorsForEntityAsync(tenantId, entity, currentState);
-                    var allowedStates = possibleStates?.Where(ps => tenantGenericProvider.StateAllowedAsync(tenant, entityMeta, id, ps.State, claims, rights).GetAwaiter().GetResult());
+                var currentState = await tenantGenericProvider.GetScalarValueAsync(tenant, entityMeta, entityMeta.StateColumn, id, 0);
+                var possibleStates = await metadataAdapter.SelectListPossibleSuccessorsForEntityAsync(tenantId, entity, currentState);
+                var allowedStates = possibleStates?.Where(ps => tenantGenericProvider.StateAllowedAsync(tenant, entityMeta, id, ps.State, claims, rights).GetAwaiter().GetResult());
 
-                    return allowedStates;
+                return allowedStates;
+            })))?.ToList();
+
+            if (listOfStates != null && listOfStates.Count > 1)
+            {
+                return Results.Ok(listOfStates.Skip(1).Aggregate(new HashSet<ProcessingStateSelectListEntry>(listOfStates[0]), (h, e) =>
+                {
+                    h.IntersectWith(e);
+                    return h;
                 }));
-
-                if (listOfStates.Count() > 1)
-                {
-                    return Results.Ok(listOfStates.Skip(1).Aggregate(new HashSet<ProcessingStateSelectListEntry>(listOfStates.First()), (h, e) =>
-                    {
-                        h.IntersectWith(e);
-                        return h;
-                    }));
-                }
-                else if (listOfStates.Count() == 1)
-                {
-                    return Results.Ok(listOfStates.First());
-                }
             }
+            
+            if (listOfStates != null && listOfStates.Count == 1)
+            {
+                return Results.Ok(listOfStates[0]);
+            }
+        }
 
+        return Results.Ok();
+    }
+    
+    private static async Task<IResult> HandleIsStateAllowedForEntityByIdentifierStateAndIdAsync(IPrincipalUtils principalUtils, IMetadataAdapter metadataAdapter, ITenantGenericProvider tenantGenericProvider, ClaimsPrincipal user, string entity, int state, Guid id)
+    {
+        var tenantId = principalUtils.GetUserTenandId(user);
+        var claims = principalUtils.GetUserClaims(user);
+        var rights = principalUtils.GetUserRights(user);
+
+        var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
+        var entityMeta = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
+        
+        if (tenant == null)
+        {
+            return Results.NotFound($"Tenant with ID {tenantId} not found.");
+        }
+    
+        if (entityMeta == null || string.IsNullOrEmpty(entityMeta.StateColumn))
+        {
+            return Results.NotFound($"Entity with identifier {entity} not found or has no state support for tenant {tenantId}.");
+        }   
+        
+        if (await tenantGenericProvider.StateAllowedAsync(tenant, entityMeta, id, state, claims, rights))
+        {
             return Results.Ok();
         }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
-    }
-    
-    public static async Task<IResult> HandleIsStateAllowedForEntityByIdentifierStateAndIdAsync(IPrincipalUtils principalUtils, IMetadataAdapter metadataAdapter, ITenantGenericProvider tenantGenericProvider, ClaimsPrincipal user, string entity, int state, Guid id)
-    {
-        var tenantId = principalUtils.GetUserTenandId(user);
-        var claims = principalUtils.GetUserClaims(user);
-        var rights = principalUtils.GetUserRights(user);
-
-        try
-        {
-            var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
-            var entityMeta = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
-            
-            if (await tenantGenericProvider.StateAllowedAsync(tenant, entityMeta, id, state, claims, rights))
-            {
-                return Results.Ok();
-            }
-            else
-            {
-                return Results.Forbid();
-            }
-        }
-        catch (Exception ex)
-        {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+         
+        return Results.Forbid();
     }
 }

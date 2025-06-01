@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using Ballware.Generic.Tenant.Data;
 using Ballware.Generic.Metadata;
@@ -33,7 +30,7 @@ public static class TenantDataEndpoint
         return app;
     }
 
-    public static async Task<IResult> HandleReportDatasourcesForTenant(ClaimsPrincipal user,
+    private static async Task<IResult> HandleReportDatasourcesForTenant(
         IMetadataAdapter metadataAdapter, ITenantStorageProvider storageProvider, Guid tenantId)
     {
         var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
@@ -73,9 +70,12 @@ public static class TenantDataEndpoint
                 {
                     var entityMeta = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, table.Entity);
 
-                    table.Query = storageProvider.ApplyTenantPlaceholderAsync(tenantId,
-                        entityMeta.ListQuery.FirstOrDefault(q => q.Identifier == (table.Query ?? DefaultQuery))?.Query,
-                        TenantPlaceholderOptions.Create().WithReplaceTenantId()).GetAwaiter().GetResult();
+                    if (entityMeta != null)
+                    {
+                        table.Query = storageProvider.ApplyTenantPlaceholderAsync(tenantId,
+                            entityMeta.ListQuery.FirstOrDefault(q => q.Identifier == (table.Query ?? DefaultQuery))?.Query ?? "primary",
+                            TenantPlaceholderOptions.Create().WithReplaceTenantId()).GetAwaiter().GetResult();    
+                    }
                 }
             }
 

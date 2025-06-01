@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
 using Ballware.Generic.Authorization;
 using Ballware.Generic.Metadata;
@@ -31,20 +29,21 @@ public static class MlModelDataEndpoint
         return app;
     }
     
-    public static async Task<IResult> HandleTrainingDataByTenantAndIdAsync(IPrincipalUtils principalUtils, IMetadataAdapter metadataAdapter, ITenantMlModelProvider modelProvider, ClaimsPrincipal user, Guid tenantId, Guid id)
+    private static async Task<IResult> HandleTrainingDataByTenantAndIdAsync(IMetadataAdapter metadataAdapter, ITenantMlModelProvider modelProvider, Guid tenantId, Guid id)
     {
-        try
+        var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
+        var model = await metadataAdapter.MetadataForMlModelByTenantAndIdAsync(tenantId, id);
+        
+        if (tenant == null)
         {
-            var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
-            var model = await metadataAdapter.MetadataForMlModelByTenantAndIdAsync(tenantId, id);
-            
-            var data = await modelProvider.TrainDataByModelAsync<dynamic>(tenant, model);
-            
-            return Results.Ok(data);
+            return Results.NotFound($"Tenant with ID {tenantId} not found.");
         }
-        catch (Exception ex)
+        
+        if (model == null)
         {
-            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, title: ex.Message, detail: ex.StackTrace);
-        }
+            return Results.NotFound($"Model with ID {id} not found for tenant {tenantId}.");
+        }        
+        
+        return Results.Ok(await modelProvider.TrainDataByModelAsync<dynamic>(tenant, model));
     }
 }
