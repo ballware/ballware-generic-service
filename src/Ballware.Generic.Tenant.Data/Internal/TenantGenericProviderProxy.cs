@@ -71,6 +71,21 @@ class TenantGenericProviderProxy : ITenantGenericProvider
         return await provider.RemoveAsync(tenant, entity, userId, claims, id);
     }
 
+    public async Task<T> GetScalarValueAsync<T>(Metadata.Tenant tenant, Entity entity, string column, Guid id, T defaultValue)
+    {
+        var provider = ProviderRegistry.GetGenericProvider(tenant.Provider);
+        
+        return await provider.GetScalarValueAsync<T>(tenant, entity, column, id, defaultValue);
+    }
+
+    public async Task<bool> StateAllowedAsync(Metadata.Tenant tenant, Entity entity, Guid id, int currentState, IDictionary<string, object> claims,
+        IEnumerable<string> rights)
+    {
+        var provider = ProviderRegistry.GetGenericProvider(tenant.Provider);
+        
+        return await provider.StateAllowedAsync(tenant, entity, id, currentState, claims, rights);
+    }
+
     public async Task ImportAsync(Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> claims,
         Stream importStream, Func<IDictionary<string, object>, Task<bool>> authorized)
     {

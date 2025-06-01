@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Data;
+using System.Text.Json;
 using Ballware.Generic.Data.Public;
 using Ballware.Generic.Data.Repository;
 using Ballware.Generic.Metadata;
@@ -12,14 +13,12 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Newtonsoft.Json;
 
 namespace Ballware.Generic.Tenant.Data.SqlServer.Tests.Generic;
 
 [TestFixture]
-public class SqlServerGenericProviderTest
+public class SqlServerGenericProviderTest : DatabaseBackedBaseTest
 {
-    private WebApplicationBuilder PreparedBuilder { get; set; } = null!;
     private SqlServerTenantConfiguration Configuration { get; set; } = null!;
     private Mock<ITenantConnectionRepository> ConnectionRepositoryMock { get; set; } = null!;
     private Mock<IGenericEntityScriptingExecutor> ScriptingExecutorMock { get; set; } = null!;
@@ -35,7 +34,7 @@ public class SqlServerGenericProviderTest
     private Dictionary<string, object> Claims { get; set; } = null!;
     
     private ITenantSchemaProvider SchemaProvider { get; set; } = null!;
-    
+
     [SetUp]
     public async Task Setup()
     {
@@ -59,17 +58,9 @@ public class SqlServerGenericProviderTest
         
         SqlMapper.AddTypeHandler(new SqlServerColumnTypeHandler());
         
-        PreparedBuilder = WebApplication.CreateBuilder();
-
-        PreparedBuilder.Configuration.Sources.Clear();
-        PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json"), optional: false);
-        PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsetting.{PreparedBuilder.Environment.EnvironmentName}.json"), true, true);
-        PreparedBuilder.Configuration.AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"appsettings.local.json"), true, true);
-        PreparedBuilder.Configuration.AddEnvironmentVariables();
-        
         Configuration = new SqlServerTenantConfiguration()
         {
-            TenantMasterConnectionString = PreparedBuilder.Configuration.GetConnectionString("TenantConnection"),
+            TenantMasterConnectionString = MasterConnectionString/*PreparedBuilder.Configuration.GetConnectionString("TenantConnection")*/,
             UseContainedDatabase = false
         };
         
@@ -104,7 +95,10 @@ public class SqlServerGenericProviderTest
             DatabaseObjects = []
         };
         
-        var serializedTenantModel = JsonConvert.SerializeObject(tenantModel);
+        var serializedTenantModel = JsonSerializer.Serialize(tenantModel, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
 
         {
             await using var tenantDb = new SqlConnection(Configuration.TenantMasterConnectionString);
@@ -114,7 +108,7 @@ public class SqlServerGenericProviderTest
         
         SchemaProvider = new SqlServerSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
             
-        await SchemaProvider.CreateOrUpdateTenantAsync(TenantId, serializedTenantModel, UserId);
+        await SchemaProvider.CreateOrUpdateTenantAsync(TenantId, "mssql", serializedTenantModel, UserId);
     }
 
     [TearDown]
@@ -158,9 +152,12 @@ public class SqlServerGenericProviderTest
             CustomIndexes = []
         };
             
-        var serializedEntityModel = JsonConvert.SerializeObject(entityModel);
+        var serializedEntityModel = JsonSerializer.Serialize(entityModel, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
         
-        await SchemaProvider.CreateOrUpdateEntityAsync(TenantId, "testentity", serializedEntityModel, UserId);
+        await SchemaProvider.CreateOrUpdateEntityAsync(TenantId, serializedEntityModel, UserId);
         
         var genericProvider = new SqlServerGenericProvider(new SqlServerStorageProvider(ConnectionRepositoryMock.Object), app.Services);
 
@@ -169,7 +166,8 @@ public class SqlServerGenericProviderTest
             Application = "test",
             Identifier = "testentity",
             ListQuery = [
-                new QueryEntry() { Identifier = "primary", Query = "select Uuid as Id, Coltextline, Colnumber from testentity" }
+                new QueryEntry() { Identifier = "primary", Query = "select Uuid as Id, Coltextline, Colnumber from testentity" },
+                new QueryEntry() { Identifier = "count", Query = "select count (*) from testentity" }
             ],
             NewQuery = [
                 new QueryEntry() { Identifier = "primary", Query = "select Id=NEWID(), Coltextline = 'test textline', Colnumber = 3" }
@@ -218,14 +216,26 @@ public class SqlServerGenericProviderTest
         Assert.That(byIdEntry.Coltextline, Is.EqualTo("test textline updated"));
         Assert.That(byIdEntry.Colnumber, Is.EqualTo(7));
         
-        var countResult = await genericProvider.CountAsync(Tenant, entity, "primary", Claims, ImmutableDictionary<string, object>.Empty);
+        var countResult = await genericProvider.CountAsync(Tenant, entity, "count", Claims, ImmutableDictionary<string, object>.Empty);
         
         Assert.That(countResult, Is.EqualTo(1));
         
+        var secondEntry = await genericProvider.NewAsync<dynamic>(Tenant, entity, "primary", Claims);
+
+        Assert.That(secondEntry, Is.Not.Null);
+        
+        secondEntry.Coltextline = "test textline second entry";
+
+        await genericProvider.SaveAsync(Tenant, entity, UserId, "primary", Claims, secondEntry);
+        
+        countResult = await genericProvider.CountAsync(Tenant, entity, "count", Claims, ImmutableDictionary<string, object>.Empty);
+        
+        Assert.That(countResult, Is.EqualTo(2)); 
+        
         await genericProvider.RemoveAsync(Tenant, entity, UserId, Claims, queryEntry.Id);
         
-        countResult = await genericProvider.CountAsync(Tenant, entity, "notexistingforcedefault", Claims, ImmutableDictionary<string, object>.Empty);
+        countResult = await genericProvider.CountAsync(Tenant, entity, "count", Claims, ImmutableDictionary<string, object>.Empty);
         
-        Assert.That(countResult, Is.EqualTo(0));        
+        Assert.That(countResult, Is.EqualTo(1));        
     }
 }

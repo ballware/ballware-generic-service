@@ -15,7 +15,7 @@ public class TenantConnection : IEntity, IAuditable
     [StringLength(50)]
     public string? Schema { get; set; }
     
-    [StringLength(200)]
+    [StringLength(500)]
     public string? ConnectionString { get; set; }
     
     public string? Model { get; set; }

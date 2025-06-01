@@ -1,0 +1,12 @@
+mode: ContinuousDelivery
+branches:
+  main:
+    regex: ^main$
+    increment: Minor
+    track-merge-target: false
+    label: ''
+  develop:
+    regex: ^develop$
+    increment: Minor
+    label: 'alpha'
+    track-merge-target: false

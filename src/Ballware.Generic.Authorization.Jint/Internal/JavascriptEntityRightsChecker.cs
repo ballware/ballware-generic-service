@@ -1,12 +1,12 @@
+using System.Text.Json;
 using Ballware.Generic.Metadata;
 using Jint;
-using Newtonsoft.Json;
 
 namespace Ballware.Generic.Authorization.Jint.Internal;
 
 class JavascriptEntityRightsChecker : IEntityRightsChecker
 {
-    public async Task<bool> HasRightAsync(Guid tenantId, Entity metadata, Dictionary<string, object> claims, string right, IDictionary<string, object> param,
+    public async Task<bool> HasRightAsync(Guid tenantId, Entity metadata, IDictionary<string, object> claims, string right, object param,
         bool tenantResult)
     {
         var result = tenantResult;
@@ -14,7 +14,7 @@ class JavascriptEntityRightsChecker : IEntityRightsChecker
 
         if (!string.IsNullOrWhiteSpace(rightsScript))
         {
-            var userinfo = JsonConvert.SerializeObject(claims);
+            var userinfo = JsonSerializer.Serialize(claims);
 
             result = bool.Parse(new Engine()
                 .SetValue("application", metadata.Application)

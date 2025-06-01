@@ -25,4 +25,19 @@ class DefaultProviderRegistry : IProviderRegistry
     {
         return Configuration.GetSchemaProvider(providerName, ServiceProvider);
     }
+
+    public ITenantLookupProvider GetLookupProvider(string providerName)
+    {
+        return Configuration.GetLookupProvider(providerName, ServiceProvider);
+    }
+
+    public ITenantMlModelProvider GetMlModelProvider(string providerName)
+    {
+        return Configuration.GetMlModelProvider(providerName, ServiceProvider);
+    }
+    
+    public ITenantStatisticProvider GetStatisticProvider(string providerName)
+    {
+        return Configuration.GetStatisticProvider(providerName, ServiceProvider);
+    }
 }

@@ -5,7 +5,7 @@ using Dapper;
 
 namespace Ballware.Generic.Tenant.Data.SqlServer.Internal;
 
-public class SqlServerGenericScriptingDataAdapter : ITenantDataAdapter
+class SqlServerGenericScriptingDataAdapter : ITenantDataAdapter
 {
     private SqlServerGenericProvider GenericProvider { get; }
     
@@ -44,9 +44,7 @@ public class SqlServerGenericScriptingDataAdapter : ITenantDataAdapter
     {
         var result = QuerySingle(db, transaction, tenant, entity, claims, entity.ScalarValueQuery ?? "primary", p);
 
-        object? value = null;
-        
-        if (result is IDictionary<string, object> && result.TryGetValue(column, out value))
+        if (result is IDictionary<string, object> resultDict && resultDict.TryGetValue(column, out object? value))
         {
             return value;
         }
@@ -81,7 +79,7 @@ public class SqlServerGenericScriptingDataAdapter : ITenantDataAdapter
     public void Save(IDbConnection db, IDbTransaction transaction, Metadata.Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> claims,
         string statementIdentifier, IDictionary<string, object> p)
     {
-        GenericProvider.ProcessSaveAsync(db, transaction, tenant, entity, userId, "primary", claims, p).GetAwaiter().GetResult();
+        GenericProvider.ProcessSaveAsync(db, transaction, tenant, entity, userId, statementIdentifier, claims, p).GetAwaiter().GetResult();
     }
 
     public (bool Result, IEnumerable<string> Messages) Remove(IDbConnection db, IDbTransaction transaction, Metadata.Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> claims,

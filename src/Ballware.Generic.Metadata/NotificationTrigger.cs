@@ -1,6 +1,8 @@
 namespace Ballware.Generic.Metadata;
 
-public class NotificationTrigger
+public class NotificationTriggerCreatePayload
 {
+    public required Guid NotificationId { get; set; }
+    
     public string? Params { get; set; }
 }

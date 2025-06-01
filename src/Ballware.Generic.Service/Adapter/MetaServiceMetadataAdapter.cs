@@ -1,18 +1,18 @@
 using AutoMapper;
 using Ballware.Generic.Metadata;
-using Ballware.Meta.Client;
 using JobCreatePayload = Ballware.Generic.Metadata.JobCreatePayload;
 using JobUpdatePayload = Ballware.Generic.Metadata.JobUpdatePayload;
-using NotificationTrigger = Ballware.Generic.Metadata.NotificationTrigger;
+using MlModel = Ballware.Generic.Metadata.MlModel;
+using ProcessingStateSelectListEntry = Ballware.Generic.Metadata.ProcessingStateSelectListEntry;
 
 namespace Ballware.Generic.Service.Adapter;
 
 public class MetaServiceMetadataAdapter : IMetadataAdapter
 {
     private IMapper Mapper { get; }
-    private BallwareMetaClient MetaClient { get; }
+    private Ballware.Meta.Client.BallwareMetaClient MetaClient { get; }
     
-    public MetaServiceMetadataAdapter(IMapper mapper, BallwareMetaClient metaClient)
+    public MetaServiceMetadataAdapter(IMapper mapper, Ballware.Meta.Client.BallwareMetaClient metaClient)
     {
         Mapper = mapper;
         MetaClient = metaClient;
@@ -20,69 +20,85 @@ public class MetaServiceMetadataAdapter : IMetadataAdapter
 
     public async Task<Metadata.Tenant?> MetadataForTenantByIdAsync(Guid tenantId)
     {
-        return Mapper.Map<Metadata.Tenant>(await MetaClient.ServiceMetadataForTenantByIdAsync(tenantId));
+        return Mapper.Map<Metadata.Tenant>(await MetaClient.TenantServiceMetadataAsync(tenantId));
     }
 
     public async Task<Entity?> MetadataForEntityByTenantAndIdentifierAsync(Guid tenantId, string identifier)
     {
-        return Mapper.Map<Entity?>(await MetaClient.MetadataForEntityByTenantdAndIdentifierAsync(tenantId, identifier));
+        return Mapper.Map<Entity?>(await MetaClient.EntityServiceMetadataForTenantByIdentifierAsync(tenantId, identifier));
+    }
+
+    public async Task<Lookup?> MetadataForLookupByTenantAndIdAsync(Guid tenantId, Guid id)
+    {
+        return Mapper.Map<Lookup?>(await MetaClient.LookupMetadataForTenantAndIdAsync(tenantId, id));
+    }
+
+    public async Task<Lookup?> MetadataForLookupByTenantAndIdentifierAsync(Guid tenantId, string identifier)
+    {
+        return Mapper.Map<Lookup?>(await MetaClient.LookupMetadataForTenantAndIdentifierAsync(tenantId, identifier));
+    }
+
+    public async Task<IEnumerable<Lookup>> MetadataForLookupsByTenantAsync(Guid tenantId)
+    {
+        return Mapper.Map<IEnumerable<Lookup>>(await MetaClient.LookupMetadataForTenantAsync(tenantId));
+    }
+
+    public async Task<MlModel?> MetadataForMlModelByTenantAndIdAsync(Guid tenantId, Guid id)
+    {
+        return Mapper.Map<MlModel?>(await MetaClient.MlModelMetadataByTenantAndIdAsync(tenantId, id));
+    }
+
+    public async Task<Statistic?> MetadataForStatisticByTenantAndIdentifierAsync(Guid tenantId, string identifier)
+    {
+        return Mapper.Map<Statistic?>(await MetaClient.StatisticMetadataByTenantAndIdentifierAsync(tenantId, identifier));
     }
 
     public Entity MetadataForEntityByTenantAndIdentifier(Guid tenant, string identifier)
     {
-        return Mapper.Map<Entity>(MetaClient.MetadataForEntityByTenantdAndIdentifier(tenant, identifier));
+        return Mapper.Map<Entity>(MetaClient.EntityServiceMetadataForTenantByIdentifier(tenant, identifier));
+    }
+
+    public async Task<IEnumerable<ProcessingStateSelectListEntry>> SelectListPossibleSuccessorsForEntityAsync(Guid tenantId, string entity, int state)
+    {
+        return Mapper.Map<IEnumerable<ProcessingStateSelectListEntry>>(await MetaClient.ProcessingStateSelectListAllSuccessorsForTenantAndEntityByIdentifierAsync(tenantId, entity, state));
     }
 
     public ProcessingState? SingleProcessingStateForTenantAndEntityByValue(Guid tenant, string entity, int state)
     {
-        return Mapper.Map<ProcessingState>(MetaClient.SingleProcessingStateForTenantAndEntityByValue(tenant, entity, state));
+        return Mapper.Map<ProcessingState>(MetaClient.ProcessingStateSelectByStateForTenantAndEntityByIdentifier(tenant, entity, state));
     }
 
     public Notification? MetadataForNotificationByTenantAndIdentifier(Guid tenant, string identifier)
     {
-        return Mapper.Map<Notification>(MetaClient.MetadataForNotificationByTenantAndIdentifier(tenant, identifier));
+        return Mapper.Map<Notification>(MetaClient.NotificationMetadataByTenantAndIdentifier(tenant, identifier));
     }
 
-    public NotificationTrigger CreateNotificationTriggerForTenantAndNotificationBehalfOfUser(Guid tenant, Guid notification,
-        Guid userId)
+    public void CreateNotificationTriggerForTenantBehalfOfUser(Guid tenant, Guid userId, NotificationTriggerCreatePayload payload)
     {
-        return Mapper.Map<NotificationTrigger>(MetaClient.CreateNotificationTriggerForTenantAndNotificationBehalfOfUser(tenant, notification, userId));
+        MetaClient.NotificationTriggerCreateForTenantBehalfOfUser(tenant, userId, Mapper.Map<Ballware.Meta.Client.NotificationTriggerCreatePayload>(payload));
     }
 
-    public void SaveNotificationTriggerBehalfOfUser(Guid tenant, Guid userId, NotificationTrigger notificationTrigger)
+    public async Task<Guid?> CreateJobForTenantBehalfOfUserAsync(Guid tenant, Guid userId, JobCreatePayload payload)
     {
-        MetaClient.SaveNotificationTriggerBehalfOfUser(tenant, userId, Mapper.Map<Ballware.Meta.Client.NotificationTrigger>(notificationTrigger));
-    }
-
-    public async Task<Guid> CreateJobForTenantBehalfOfUserAsync(Guid tenant, Guid userId, JobCreatePayload payload)
-    {
-        var metaJob = await MetaClient.CreateJobForTenantBehalfOfUserAsync(tenant, userId, Mapper.Map<Ballware.Meta.Client.JobCreatePayload>(payload));
+        var metaJob = await MetaClient.JobCreateForTenantBehalfOfUserAsync(tenant, userId, Mapper.Map<Ballware.Meta.Client.JobCreatePayload>(payload));
         
         return metaJob.Id;
     }
 
     public async Task<Guid> CreateExportForTenantBehalfOfUserAsync(Guid tenant, Guid userId, ExportCreatePayload payload)
     {
-        var metaExport = await MetaClient.CreateExportForTenantBehalfOfUserAsync(tenant, userId);
-
-        metaExport.Application = payload.Application;
-        metaExport.Entity = payload.Entity;
-        metaExport.Query = payload.Query;
-        metaExport.ExpirationStamp = payload.ExpirationStamp;
-        metaExport.MediaType = payload.MediaType;
+        var exportId = await MetaClient.ExportCreateForTenantBehalfOfUserAsync(tenant, userId, Mapper.Map<Ballware.Meta.Client.ExportCreatePayload>(payload));
         
-        await MetaClient.SaveExportBehalfOfUserAsync(tenant, userId, metaExport);
-        
-        return metaExport.Id;
+        return exportId;
     }
 
     public async Task<Export> FetchExportByIdForTenantAsync(Guid tenant, Guid id)
     {
-        return Mapper.Map<Export>(await MetaClient.FetchExportByIdForTenantAsync(tenant, id));
+        return Mapper.Map<Export>(await MetaClient.ExportFetchForTenantByIdAsync(tenant, id));
     }
 
     public async Task UpdateJobForTenantBehalfOfUserAsync(Guid tenant, Guid userId, JobUpdatePayload payload)
     {
-        await MetaClient.UpdateJobForTenantBehalfOfUserAsync(tenant, userId, Mapper.Map<Ballware.Meta.Client.JobUpdatePayload>(payload));
+        await MetaClient.JobUpdateForTenantBehalfOfUserAsync(tenant, userId, Mapper.Map<Ballware.Meta.Client.JobUpdatePayload>(payload));
     }
 }

@@ -1,3 +1,5 @@
+using Ballware.Generic.Api;
+using Ballware.Generic.Api.Endpoints;
 using Ballware.Generic.Authorization;
 using Ballware.Generic.Authorization.Jint;
 using Ballware.Generic.Data.Ef;
@@ -7,30 +9,39 @@ using Ballware.Generic.Scripting.Jint;
 using Ballware.Generic.Service.Adapter;
 using Ballware.Generic.Service.Configuration;
 using Ballware.Generic.Service.Jobs;
+using Ballware.Generic.Service.Mappings;
 using Ballware.Generic.Tenant.Data;
 using Ballware.Generic.Tenant.Data.SqlServer;
+using Ballware.Generic.Tenant.Data.SqlServer.Configuration;
 using Ballware.Meta.Client;
+using Ballware.Meta.Service.Adapter;
+using Ballware.Ml.Client;
 using Ballware.Storage.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json.Serialization;
 using Quartz;
 using Quartz.AspNetCore;
 using CorsOptions = Ballware.Generic.Service.Configuration.CorsOptions;
 using SwaggerOptions = Ballware.Generic.Service.Configuration.SwaggerOptions;
+using Serilog;
 
 namespace Ballware.Generic.Service;
 
 
 public class Startup(IWebHostEnvironment environment, ConfigurationManager configuration, IServiceCollection services)
 {
+    private readonly string ClaimTypeScope = "scope";
+    
     private IWebHostEnvironment Environment { get; } = environment;
     private ConfigurationManager Configuration { get; } = configuration;
     private IServiceCollection Services { get; } = services;
@@ -41,9 +52,12 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         AuthorizationOptions? authorizationOptions =
             Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
         StorageOptions? storageOptions = Configuration.GetSection("Storage").Get<StorageOptions>();
+        SqlServerTenantStorageOptions? sqlServerTenantStorageOptions = Configuration.GetSection("SqlServerTenantStorage").Get<SqlServerTenantStorageOptions>();
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
         ServiceClientOptions? metaClientOptions = Configuration.GetSection("MetaClient").Get<ServiceClientOptions>();
         ServiceClientOptions? storageClientOptions = Configuration.GetSection("StorageClient").Get<ServiceClientOptions>();
+        ServiceClientOptions? mlClientOptions = Configuration.GetSection("MlClient").Get<ServiceClientOptions>();
+        
         var tenantMasterConnectionString = Configuration.GetConnectionString("TenantMasterConnection");
 
         Services.AddOptionsWithValidateOnStart<AuthorizationOptions>()
@@ -65,8 +79,12 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddOptionsWithValidateOnStart<ServiceClientOptions>()
             .Bind(Configuration.GetSection("StorageClient"))
             .ValidateDataAnnotations();
+        
+        Services.AddOptionsWithValidateOnStart<ServiceClientOptions>()
+            .Bind(Configuration.GetSection("MlClient"))
+            .ValidateDataAnnotations();
 
-        if (authorizationOptions == null || storageOptions == null || string.IsNullOrEmpty(tenantMasterConnectionString))
+        if (authorizationOptions == null || storageOptions == null || sqlServerTenantStorageOptions == null || string.IsNullOrEmpty(tenantMasterConnectionString))
         {
             throw new ConfigurationException("Required configuration for authorization and storage is missing");
         }
@@ -79,6 +97,11 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         if (storageClientOptions == null)
         {
             throw new ConfigurationException("Required configuration for storageClient is missing");
+        }
+        
+        if (mlClientOptions == null)
+        {
+            throw new ConfigurationException("Required configuration for mlClient is missing");
         }
 
         Services.AddMemoryCache();
@@ -104,9 +127,30 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             .AddPolicy("genericApi", policy => policy.RequireAssertion(context =>
                 context.User
                     .Claims
-                    .Where(c => "scope" == c.Type)
+                    .Where(c => ClaimTypeScope == c.Type)
                     .SelectMany(c => c.Value.Split(' '))
                     .Any(s => s.Equals(authorizationOptions.RequiredMetaScope, StringComparison.Ordinal)))
+            )
+            .AddPolicy("metaApi", policy => policy.RequireAssertion(context =>
+                    context.User
+                        .Claims
+                        .Where(c => ClaimTypeScope == c.Type)
+                        .SelectMany(c => c.Value.Split(' '))
+                        .Any(s => s.Equals(authorizationOptions.RequiredMetaScope, StringComparison.Ordinal)))
+            )
+            .AddPolicy("serviceApi", policy => policy.RequireAssertion(context =>
+                context.User
+                    .Claims
+                    .Where(c => ClaimTypeScope == c.Type)
+                    .SelectMany(c => c.Value.Split(' '))
+                    .Any(s => s.Equals(authorizationOptions.RequiredServiceScope, StringComparison.Ordinal)))
+            )
+            .AddPolicy("schemaApi", policy => policy.RequireAssertion(context =>
+                context.User
+                    .Claims
+                    .Where(c => ClaimTypeScope == c.Type)
+                    .SelectMany(c => c.Value.Split(' '))
+                    .Any(s => s.Equals(authorizationOptions.RequiredSchemaScope, StringComparison.Ordinal)))
             );
 
         if (corsOptions != null)
@@ -121,18 +165,24 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 });
             });
         }
-
+        
+        Services.Configure<JsonOptions>(options =>
+        {
+            options.JsonSerializerOptions.PropertyNamingPolicy = null;
+        });
+        
+        Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+        {
+            options.SerializerOptions.PropertyNamingPolicy = null;
+        });
+        
         Services.AddHttpContextAccessor();
 
         Services.AddMvcCore()
-            .AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null)
-            .AddNewtonsoftJson(opts => opts.SerializerSettings.ContractResolver = new DefaultContractResolver())
             .AddApiExplorer();
 
-        Services.AddControllers()
-            .AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null)
-            .AddNewtonsoftJson(opts => opts.SerializerSettings.ContractResolver = new DefaultContractResolver());
-
+        Services.AddControllers();
+        
         Services.Configure<QuartzOptions>(Configuration.GetSection("Quartz"));
         Services.AddQuartz(q =>
         {
@@ -162,43 +212,75 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 client.ClientSecret = storageClientOptions.ClientSecret;
 
                 client.Scope = storageClientOptions.Scopes;
+            })
+            .AddClient("ml", client =>
+            {
+                client.TokenEndpoint = mlClientOptions.TokenEndpoint;
+
+                client.ClientId = mlClientOptions.ClientId;
+                client.ClientSecret = mlClientOptions.ClientSecret;
+
+                client.Scope = mlClientOptions.Scopes;
             });
         
         Services.AddHttpClient<BallwareMetaClient>(client =>
             {
                 client.BaseAddress = new Uri(metaClientOptions.ServiceUrl);
             })
-            /*
+#if DEBUG            
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
             {
                 ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             })
-            */
+#endif                  
             .AddClientCredentialsTokenHandler("meta");
 
         Services.AddHttpClient<BallwareStorageClient>(client =>
             {
                 client.BaseAddress = new Uri(storageClientOptions.ServiceUrl);
             })
+#if DEBUG            
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            })
+#endif            
             .AddClientCredentialsTokenHandler("storage");
+        
+        Services.AddHttpClient<BallwareMlClient>(client =>
+            {
+                client.BaseAddress = new Uri(mlClientOptions.ServiceUrl);
+            })
+#if DEBUG            
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            })
+#endif                        
+            .AddClientCredentialsTokenHandler("ml");
         
         Services.AddAutoMapper(config =>
         {
             config.AddBallwareTenantStorageMappings();
+            config.AddProfile<MetaServiceGenericMetadataProfile>();
         });
 
-        Services.AddSingleton<IMetadataAdapter, MetaServiceMetadataAdapter>();
+        Services.AddScoped<IMetadataAdapter, MetaServiceMetadataAdapter>();
+        Services.AddScoped<IMlAdapter, MlServiceMlAdapter>();
+        Services.AddScoped<IGenericFileStorageAdapter, StorageServiceGenericFileStorageAdapter>();
         
-        Services.AddBallwareAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
-        Services.AddBallwareJintRightsChecker();
+        Services.AddBallwareGenericAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
+        Services.AddBallwareGenericJintRightsChecker();
         Services.AddBallwareJintGenericScripting();
         
         Services.AddBallwareTenantStorage(storageOptions, tenantMasterConnectionString);
         
         Services.AddBallwareTenantGenericStorage(builder =>
         {
-            builder.AddSqlServerTenantDataStorage(tenantMasterConnectionString);
+            builder.AddSqlServerTenantDataStorage(tenantMasterConnectionString, sqlServerTenantStorageOptions);
         });
+
+        Services.AddEndpointsApiExplorer();
         
         if (swaggerOptions != null)
         {
@@ -207,6 +289,18 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 c.SwaggerDoc("generic", new Microsoft.OpenApi.Models.OpenApiInfo
                 {
                     Title = "ballware Generic API",
+                    Version = "v1"
+                });
+                
+                c.SwaggerDoc("service", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "ballware Service API",
+                    Version = "v1"
+                });
+                
+                c.SwaggerDoc("schema", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "ballware Schema API",
                     Version = "v1"
                 });
 
@@ -228,8 +322,6 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                     }
                 });
             });
-
-            Services.AddSwaggerGenNewtonsoftSupport();
         }
     }
 
@@ -240,13 +332,48 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             app.UseDeveloperExceptionPage();
             IdentityModelEventSource.ShowPII = true;
         }
+        
+        app.UseExceptionHandler(errorApp =>
+        {
+            errorApp.Run(async context =>
+            {
+                var exceptionFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+                var exception = exceptionFeature?.Error;
+
+                if (exception != null)
+                {
+                    Log.Error(exception, "Unhandled exception occurred");
+
+                    var problemDetails = new ProblemDetails
+                    {
+                        Type = "https://httpstatuses.com/500",
+                        Title = "An unexpected error occurred.",
+                        Status = StatusCodes.Status500InternalServerError,
+                        Detail = app.Environment.IsDevelopment() ? exception.ToString() : null,
+                        Instance = context.Request.Path
+                    };
+
+                    context.Response.StatusCode = problemDetails.Status.Value;
+                    context.Response.ContentType = "application/problem+json";
+                    await context.Response.WriteAsJsonAsync(problemDetails);
+                }
+            });
+        });
 
         app.UseCors();
         app.UseRouting();
 
         app.UseAuthorization();
 
-        app.MapControllers();
+        app.MapLookupUserDataApi("/tenant/lookup");
+        app.MapLookupServiceDataApi("/tenant/lookup");
+        app.MapMlModelDataApi("/tenent/mlmodel");
+        app.MapProcessingStateDataApi("/tenant/processingstate");
+        app.MapStatisticDataApi("/tenant/statistic");
+        app.MapTenantServiceDataApi("/tenant/tenant");
+        app.MapGenericDataApi("/generic");
+        
+        app.MapTenantServiceSchemaApi("/api/tenant");
 
         var authorizationOptions = app.Services.GetService<IOptions<AuthorizationOptions>>()?.Value;
         var swaggerOptions = app.Services.GetService<IOptions<SwaggerOptions>>()?.Value;
@@ -262,6 +389,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("generic/swagger.json", "ballware Generic API");
+                    c.SwaggerEndpoint("service/swagger.json", "ballware Service API");
+                    c.SwaggerEndpoint("schema/swagger.json", "ballware Schema API");
 
                     c.OAuthClientId(swaggerOptions.ClientId);
                     c.OAuthClientSecret(swaggerOptions.ClientSecret);

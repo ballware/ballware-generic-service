@@ -26,6 +26,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Tenant.Dat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Metadata", "src\Ballware.Generic.Metadata\Ballware.Generic.Metadata.csproj", "{11C7DACA-70ED-4FEF-96B4-4BF04DC01805}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Ml.Client", "src\Ballware.Ml.Client\Ballware.Ml.Client.csproj", "{59937DE4-29C0-4E66-B2C7-2E633DF9A711}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Api", "src\Ballware.Generic.Api\Ballware.Generic.Api.csproj", "{742F4519-B7C5-4E23-9E99-81588094B997}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Api.Tests", "test\Ballware.Generic.Api.Tests\Ballware.Generic.Api.Tests.csproj", "{F8823BA6-E77D-4CB5-BEA7-19834C2E4817}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,5 +90,17 @@ Global
 		{11C7DACA-70ED-4FEF-96B4-4BF04DC01805}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11C7DACA-70ED-4FEF-96B4-4BF04DC01805}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{11C7DACA-70ED-4FEF-96B4-4BF04DC01805}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59937DE4-29C0-4E66-B2C7-2E633DF9A711}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59937DE4-29C0-4E66-B2C7-2E633DF9A711}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59937DE4-29C0-4E66-B2C7-2E633DF9A711}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59937DE4-29C0-4E66-B2C7-2E633DF9A711}.Release|Any CPU.Build.0 = Release|Any CPU
+		{742F4519-B7C5-4E23-9E99-81588094B997}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{742F4519-B7C5-4E23-9E99-81588094B997}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{742F4519-B7C5-4E23-9E99-81588094B997}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{742F4519-B7C5-4E23-9E99-81588094B997}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8823BA6-E77D-4CB5-BEA7-19834C2E4817}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8823BA6-E77D-4CB5-BEA7-19834C2E4817}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8823BA6-E77D-4CB5-BEA7-19834C2E4817}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8823BA6-E77D-4CB5-BEA7-19834C2E4817}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

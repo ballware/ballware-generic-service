@@ -4,6 +4,13 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <Title>Ballware authorization interface for generic data access</Title>
+        <Authors>Frank Ballmeyer</Authors>
+        <PackageProjectUrl>https://github.com/ballware/ballware-generic-service</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/ballware/ballware-generic-service</RepositoryUrl>
+        <IncludeSource>true</IncludeSource>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <ItemGroup>

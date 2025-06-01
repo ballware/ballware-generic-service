@@ -1,28 +1,28 @@
 using System.Data;
 using System.Text;
+using System.Text.Json;
 using Ballware.Generic.Scripting;
 using Ballware.Generic.Metadata;
 using CsvHelper;
 using MimeTypes;
-using Newtonsoft.Json;
 using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Ballware.Generic.Tenant.Data.SqlServer.Internal;
 
-public class SqlServerGenericProvider : ITenantGenericProvider
+class SqlServerGenericProvider : ITenantGenericProvider
 {
     private const string DefaultQueryIdentifier = "primary";
     private const string TenantVariableIdentifier = "tenantId";
     private const string ClaimVariablePrefix = "claim_";
     
     private ITenantStorageProvider StorageProvider { get; }
-    private IGenericEntityScriptingExecutor ScriptingExecutor { get; }
+    private IServiceProvider Services { get; }
     
     public SqlServerGenericProvider(ITenantStorageProvider storageProvider, IServiceProvider serviceProvider)
     {
         StorageProvider = storageProvider;
-        ScriptingExecutor = serviceProvider.GetService<IGenericEntityScriptingExecutor>();
+        Services = serviceProvider;
     }
     
     public async Task<IEnumerable<T>> AllAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims) where T : class
@@ -103,6 +103,21 @@ public class SqlServerGenericProvider : ITenantGenericProvider
         }
     }
 
+    public async Task<T> GetScalarValueAsync<T>(Metadata.Tenant tenant, Entity entity, string column, Guid id, T defaultValue)
+    {
+        using var db = await StorageProvider.OpenConnectionAsync(tenant.Id);
+        
+        return await ProcessScalarValueAsync(db, null, tenant, entity, column, id, defaultValue);
+    }
+
+    public async Task<bool> StateAllowedAsync(Metadata.Tenant tenant, Entity entity, Guid id, int currentState, IDictionary<string, object> claims,
+        IEnumerable<string> rights)
+    {
+        using var db = await StorageProvider.OpenConnectionAsync(tenant.Id);
+        
+        return await ProcessStateAllowedAsync(db, null, tenant, entity, id, currentState, claims, rights);
+    }
+
     public async Task ImportAsync(Metadata.Tenant tenant, Entity entity,
       Guid? userId,
       string identifier,
@@ -136,6 +151,8 @@ public class SqlServerGenericProvider : ITenantGenericProvider
     
     public async Task<IEnumerable<T>> ProcessQueryListAsync<T>(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims, IDictionary<string, object> p) where T : class
     {
+        var scriptingExecutor = Services.GetRequiredService<IGenericEntityScriptingExecutor>();
+        
         var query = entity.ListQuery.FirstOrDefault(q => q.Identifier.Equals(identifier));
 
         if (query == null)
@@ -153,7 +170,7 @@ public class SqlServerGenericProvider : ITenantGenericProvider
         queryParams = Utils.TransferToSqlVariables(queryParams, claims, ClaimVariablePrefix);
         queryParams[TenantVariableIdentifier] = tenant.Id;
 
-        return ScriptingExecutor.ListScript<T>(db, transaction, tenant, entity, identifier, claims, await db.QueryAsync<T>(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, query.Query, TenantPlaceholderOptions.Create()), queryParams, transaction));
+        return scriptingExecutor.ListScript<T>(db, transaction, tenant, entity, identifier, claims, await db.QueryAsync<T>(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, query.Query, TenantPlaceholderOptions.Create()), queryParams, transaction));
     }
 
     public async Task<long> ProcessCountAsync(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims, IDictionary<string, object> p)
@@ -176,11 +193,13 @@ public class SqlServerGenericProvider : ITenantGenericProvider
 
         queryParams = Utils.TransferToSqlVariables(queryParams, claims, ClaimVariablePrefix);
 
-        return (await db.QueryAsync<dynamic>(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, query.Query, TenantPlaceholderOptions.Create()), queryParams, transaction)).LongCount();
+        return await db.QuerySingleAsync<long>(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, query.Query, TenantPlaceholderOptions.Create()), queryParams, transaction);
     }
 
     public async Task<T?> ProcessQuerySingleAsync<T>(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims, IDictionary<string, object> p) where T : class
     {
+        var scriptingExecutor = Services.GetRequiredService<IGenericEntityScriptingExecutor>();
+        
         var query = entity.ByIdQuery.FirstOrDefault(q => q.Identifier.Equals(identifier));
 
         if (query == null)
@@ -203,7 +222,7 @@ public class SqlServerGenericProvider : ITenantGenericProvider
 
         if (item != null)
         {
-            item = await ScriptingExecutor.ByIdScriptAsync(
+            item = await scriptingExecutor.ByIdScriptAsync(
                 db,
                 transaction,
                 tenant,
@@ -241,6 +260,8 @@ public class SqlServerGenericProvider : ITenantGenericProvider
 
     public async Task ProcessSaveAsync(IDbConnection db, IDbTransaction transaction, Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> claims, IDictionary<string, object> value)
     {
+        var scriptingExecutor = Services.GetRequiredService<IGenericEntityScriptingExecutor>();
+        
         value[TenantVariableIdentifier] = tenant.Id;
 
         value = Utils.TransferToSqlVariables(value, claims, ClaimVariablePrefix);
@@ -280,7 +301,7 @@ public class SqlServerGenericProvider : ITenantGenericProvider
             insert = true;
         }
 
-        await ScriptingExecutor.BeforeSaveScriptAsync(
+        await scriptingExecutor.BeforeSaveScriptAsync(
             db,
             transaction, 
             tenant,
@@ -291,9 +312,9 @@ public class SqlServerGenericProvider : ITenantGenericProvider
             insert,
             value);
 
-        await db.ExecuteAsync(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, saveStatement.Query, TenantPlaceholderOptions.Create()), value, transaction);
+        await db.ExecuteAsync(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, saveStatement.Query, TenantPlaceholderOptions.Create()), Utils.FilterNestedDictionaries(value), transaction);
 
-        await ScriptingExecutor.SaveScriptAsync(
+        await scriptingExecutor.SaveScriptAsync(
             db,
             transaction, 
             tenant,
@@ -307,7 +328,9 @@ public class SqlServerGenericProvider : ITenantGenericProvider
 
     public async Task<RemoveResult> ProcessRemoveAsync(IDbConnection db, IDbTransaction transaction, Metadata.Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> p)
     {
-        var preliminaryCheckResult = await ScriptingExecutor.RemovePreliminaryCheckAsync(
+        var scriptingExecutor = Services.GetRequiredService<IGenericEntityScriptingExecutor>();
+        
+        var preliminaryCheckResult = await scriptingExecutor.RemovePreliminaryCheckAsync(
             db,
             transaction, 
             tenant,
@@ -329,7 +352,7 @@ public class SqlServerGenericProvider : ITenantGenericProvider
         
         queryParams[TenantVariableIdentifier] = tenant.Id;
 
-        await ScriptingExecutor.RemoveScriptAsync(
+        await scriptingExecutor.RemoveScriptAsync(
             db,
             transaction, 
             tenant,
@@ -347,6 +370,47 @@ public class SqlServerGenericProvider : ITenantGenericProvider
         };
     }
 
+    public async Task<T> ProcessScalarValueAsync<T>(IDbConnection db,
+        IDbTransaction? transaction, 
+        Metadata.Tenant tenant, 
+        Entity entity, 
+        string column, 
+        Guid id, 
+        T defaultValue)
+    {
+        var query = entity.ByIdQuery.FirstOrDefault(q => q.Identifier.Equals(entity.ScalarValueQuery ?? "primary"));
+
+        if (query == null)
+        {
+            return defaultValue;
+        }
+        
+        var item = (await db.QueryAsync<Dictionary<string, object>>(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, query.Query, TenantPlaceholderOptions.Create()), new { tenantId = tenant.Id, id }, transaction)).FirstOrDefault();
+
+        if (item != null && item.TryGetValue(column, out object? value))
+        {
+            return (T)value;
+        }
+        
+        return defaultValue;
+    }
+    
+    public async Task<bool> ProcessStateAllowedAsync(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Entity entity, Guid id, int currentState, IDictionary<string, object> claims,
+        IEnumerable<string> rights)
+    {
+        var scriptingExecutor = Services.GetRequiredService<IGenericEntityScriptingExecutor>();
+        
+        return await scriptingExecutor.StateAllowedScriptAsync(
+            db,
+            transaction,
+            tenant,
+            entity,
+            id,
+            currentState,
+            claims,
+            rights);
+    }
+    
     public async Task ProcessImportAsync(
         IDbConnection db,
         IDbTransaction transaction,
@@ -394,7 +458,7 @@ public class SqlServerGenericProvider : ITenantGenericProvider
                 {
                     using var reader = new StreamReader(importStream);
 
-                    var items = JsonConvert.DeserializeObject<IDictionary<string, object>[]>(await reader.ReadToEndAsync());
+                    var items = JsonSerializer.Deserialize<IDictionary<string, object>[]>(await reader.ReadToEndAsync());
 
                     if (items != null)
                     {
@@ -415,6 +479,8 @@ public class SqlServerGenericProvider : ITenantGenericProvider
 
     public async Task<GenericExport> ProcessExportAsync(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims, IDictionary<string, object> p)
     {
+        var scriptingExecutor = Services.GetRequiredService<IGenericEntityScriptingExecutor>();
+        
         var queryParams = Utils.TransferToSqlVariables(new Dictionary<string, object>(p), claims, "claim_");
      
         queryParams[TenantVariableIdentifier] = tenant.Id;
@@ -464,7 +530,7 @@ public class SqlServerGenericProvider : ITenantGenericProvider
                 break;
             case "json":
                 {
-                    var items = await Task.WhenAll(queryResult.Select(async item => await ScriptingExecutor.ByIdScriptAsync(
+                    var items = await Task.WhenAll(queryResult.Select(async item => await scriptingExecutor.ByIdScriptAsync(
                         db,
                         transaction, 
                         tenant,
@@ -473,7 +539,7 @@ public class SqlServerGenericProvider : ITenantGenericProvider
                         claims,
                         item)));
 
-                    result.Data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(items));
+                    result.Data = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(items));
                 }
                 break;
             default:

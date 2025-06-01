@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
+using System.Text.Json;
 using Ballware.Generic.Data.Public;
 using Ballware.Generic.Data.Repository;
 using Dapper;
 using Microsoft.Data.SqlClient;
-using Newtonsoft.Json;
 
 namespace Ballware.Generic.Tenant.Data.SqlServer.Internal;
 
@@ -20,7 +20,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         StorageProvider = tenantStorageProvider;
     }
     
-    public async Task CreateOrUpdateEntityAsync(Guid tenant, string entity, string serializedEntityModel, Guid? userId)
+    public async Task CreateOrUpdateEntityAsync(Guid tenant, string serializedEntityModel, Guid? userId)
     {
         var connection = await Repository.ByIdAsync(tenant);
 
@@ -28,13 +28,16 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         {
             using var tenantDb = await StorageProvider.OpenConnectionAsync(tenant);
             
-            var tableModel = JsonConvert.DeserializeObject<SqlServerTableModel>(serializedEntityModel) ?? SqlServerTableModel.Empty;
+            var tableModel = JsonSerializer.Deserialize<SqlServerTableModel>(serializedEntityModel, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            }) ?? SqlServerTableModel.Empty;
             
             tenantDb.CreateOrUpdateTable(connection.Schema ?? "dbo", tableModel);
         }
     }
 
-    public async Task DropEntityAsync(Guid tenant, string entity, Guid? userId)
+    public async Task DropEntityAsync(Guid tenant, string identifier, Guid? userId)
     {
         var connection = await Repository.ByIdAsync(tenant);
 
@@ -42,13 +45,16 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         {
             using var tenantDb = await StorageProvider.OpenConnectionAsync(tenant);
             
-            tenantDb.DropTable(connection.Schema ?? "dbo", entity);
+            tenantDb.DropTable(connection.Schema ?? "dbo", identifier);
         }
     }
 
-    public async Task CreateOrUpdateTenantAsync(Guid tenant, string serializedTenantModel, Guid? userId)
+    public async Task CreateOrUpdateTenantAsync(Guid tenant, string provider, string serializedTenantModel, Guid? userId)
     {   
-        var nextTenantModel = JsonConvert.DeserializeObject<SqlServerTenantModel>(serializedTenantModel) ?? SqlServerTenantModel.Empty;
+        var nextTenantModel = JsonSerializer.Deserialize<SqlServerTenantModel>(serializedTenantModel, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        }) ?? SqlServerTenantModel.Empty;
         
         var tenantConnection = await Repository.ByIdAsync(tenant);
         
@@ -57,7 +63,10 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
             tenantConnection = await CreateTenantAsync(tenant, nextTenantModel, userId);
         }
         
-        var previousTenantModel = JsonConvert.DeserializeObject<SqlServerTenantModel>(tenantConnection.Model ?? "{}") ?? SqlServerTenantModel.Empty; 
+        var previousTenantModel = JsonSerializer.Deserialize<SqlServerTenantModel>(tenantConnection.Model ?? "{}", new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        }) ?? SqlServerTenantModel.Empty; 
         
         await using var tenantDb = new SqlConnection(tenantConnection.ConnectionString);
 
@@ -118,14 +127,17 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         }
         
         var changedStatements = nextTenantModel.DatabaseObjects?
-            .Where(obj => obj.Type == SqlServerDatabaseObjectTypes.Statement && obj.ExecuteOnSave);
+            .Where(obj => obj.Type == SqlServerDatabaseObjectTypes.Statement && obj.Execute);
         
         foreach (var changed in changedStatements ?? [])
         {
             await tenantDb.ExecuteAsync(changed.Sql);
         }
         
-        tenantConnection.Model = JsonConvert.SerializeObject(nextTenantModel);
+        tenantConnection.Model = JsonSerializer.Serialize(nextTenantModel, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        });
         
         await Repository.SaveAsync(userId, "primary", ImmutableDictionary<string, object>.Empty, tenantConnection);
     }
@@ -158,7 +170,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         
         var nextItems = 
             next
-                .Where(obj => obj.Type == type && obj.ExecuteOnSave)
+                .Where(obj => obj.Type == type && obj.Execute)
                 .ToDictionary(obj => obj.Name, obj => obj);
         
         var changedItems = 
@@ -200,20 +212,25 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
     private async Task<TenantConnection> CreateTenantAsync(Guid tenant, SqlServerTenantModel tenantModel, Guid? userId)
     {
         var tenantConnection = await Repository.NewAsync("primary", ImmutableDictionary<string, object>.Empty);
-            
+
+        tenantConnection.Id = tenant;
+        
         var masterConnectionStringBuilder =
             new SqlConnectionStringBuilder(Configuration.TenantMasterConnectionString);
+        
+        var user = $"tenant_{tenant.ToString().ToLower()}";
+        var password = Guid.NewGuid().ToString();
+        
+        tenantModel.Server ??= masterConnectionStringBuilder.DataSource;
+        tenantModel.Catalog ??= masterConnectionStringBuilder.InitialCatalog;
+        tenantModel.Schema ??= "dbo";
+        
         var tenantCreationConnectionStringBuilder =
             new SqlConnectionStringBuilder(Configuration.TenantMasterConnectionString)
             {
-                DataSource = tenantModel.Server ?? masterConnectionStringBuilder.DataSource,
-                InitialCatalog = tenantModel.Catalog ?? masterConnectionStringBuilder.InitialCatalog,
+                DataSource = tenantModel.Server,
+                InitialCatalog = tenantModel.Catalog,
             };
-
-        var user = $"tenant_{tenant.ToString().ToLower()}";
-        var password = Guid.NewGuid().ToString();
-        var catalog = tenantModel.Catalog ?? masterConnectionStringBuilder.InitialCatalog;
-        var schema = tenantModel.Schema ?? "dbo";
         
         var tenantConnectionString = tenantCreationConnectionStringBuilder.ToString();
 
@@ -221,18 +238,18 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
 
         if (Configuration.UseContainedDatabase)
         {
-            await tenantDb.CreateContainedSchemaForUserAsync(catalog, schema, user, password);
+            await tenantDb.CreateContainedSchemaForUserAsync(tenantModel.Catalog, tenantModel.Schema, user, password);
         }
         else
         {
-            await tenantDb.CreateSchemaForUserAsync(catalog, schema, user, password);
+            await tenantDb.CreateSchemaForUserAsync(tenantModel.Catalog, tenantModel.Schema, user, password);
         }
 
         tenantCreationConnectionStringBuilder.UserID = user;
         tenantCreationConnectionStringBuilder.Password = password;
         
         tenantConnection.Provider = "mssql";
-        tenantConnection.Schema = schema;
+        tenantConnection.Schema = tenantModel.Schema;
         tenantConnection.ConnectionString = tenantCreationConnectionStringBuilder.ToString();
         
         await Repository.SaveAsync(userId, "primary", ImmutableDictionary<string, object>.Empty, tenantConnection);

@@ -7,4 +7,10 @@ public interface IProviderRegistry
     ITenantGenericProvider GetGenericProvider(string providerName);
     
     ITenantSchemaProvider GetSchemaProvider(string providerName);
+    
+    ITenantLookupProvider GetLookupProvider(string providerName);
+    
+    ITenantMlModelProvider GetMlModelProvider(string providerName);
+    
+    ITenantStatisticProvider GetStatisticProvider(string providerName);
 }

@@ -1,8 +1,8 @@
 using System.Data;
 using System.Runtime.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Dapper;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace Ballware.Generic.Tenant.Data.SqlServer.Internal;
 
@@ -38,6 +38,7 @@ class SqlServerColumnType
     public static SqlServerColumnType Float = new SqlServerColumnType("float");
     public static SqlServerColumnType Datetime = new SqlServerColumnType("datetime");
     public static SqlServerColumnType String = new SqlServerColumnType("nvarchar");
+    public static SqlServerColumnType Text = new SqlServerColumnType("text");
 
     public static SqlServerColumnType Custom(string literalValue)
     {
@@ -58,17 +59,29 @@ class SqlServerColumnTypeHandler : SqlMapper.TypeHandler<SqlServerColumnType>
     }
 }
 
-class SqlServerColumnTypeConverter : JsonConverter<SqlServerColumnType>
+class SqlServerComplexTypeHandler : SqlMapper.TypeHandler<Dictionary<string, object>>
 {
-    public override void WriteJson(JsonWriter writer, SqlServerColumnType? value, JsonSerializer serializer)
+    public override Dictionary<string, object>? Parse(object value)
     {
-        writer.WriteValue(value?.ToString());
+        return new Dictionary<string, object>();
     }
 
-    public override SqlServerColumnType? ReadJson(JsonReader reader, Type objectType, SqlServerColumnType? existingValue,
-        bool hasExistingValue, JsonSerializer serializer)
+    public override void SetValue(IDbDataParameter parameter, Dictionary<string, object>? value)
     {
-        return SqlServerColumnType.Parse(reader.Value.ToString());
+        parameter.Value = DBNull.Value;
+    }
+}
+
+class SqlServerColumnTypeConverter : JsonConverter<SqlServerColumnType>
+{
+    public override SqlServerColumnType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        return SqlServerColumnType.Parse(reader.GetString());
+    }
+
+    public override void Write(Utf8JsonWriter writer, SqlServerColumnType value, JsonSerializerOptions options)
+    {
+        writer.WriteStringValue(value?.ToString());
     }
 }
 
@@ -106,7 +119,7 @@ class SqlServerTableModel
         };
 }
 
-[JsonConverter(typeof(StringEnumConverter))]
+[JsonConverter(typeof(JsonStringEnumConverter))]
 enum SqlServerDatabaseObjectTypes
 {
     [EnumMember(Value = "unknown")]
@@ -128,7 +141,7 @@ class SqlServerDatabaseObjectModel
     public required string Name { get; set; }
     public required SqlServerDatabaseObjectTypes Type { get; set; }
     public required string Sql { get; set; }
-    public required bool ExecuteOnSave { get; set; }
+    public required bool Execute { get; set; }
 }
 
 class SqlServerTenantModel
