@@ -6,7 +6,6 @@ branches:
     prevent-increment-of-merged-branch-version: true
     is-source-branch-for:
       - develop
-    is-mainline: true
     tag: ''
   develop:
     regex: ^develop$
@@ -14,7 +13,6 @@ branches:
     is-source-branch-for:
       - feature
       - bugfix
-    is-mainline: false
     tag: alpha
   feature:
     regex: ^feature[/-]
@@ -22,7 +20,6 @@ branches:
     source-branches:
       - develop
     is-release-branch: false
-    is-mainline: false
     tag: useBranchName
   bugfix:
     regex: ^bugfix[/-]
@@ -31,7 +28,6 @@ branches:
       - develop
       - main
     is-release-branch: false
-    is-mainline: false
     tag: useBranchName
 ignore:
   sha: []
