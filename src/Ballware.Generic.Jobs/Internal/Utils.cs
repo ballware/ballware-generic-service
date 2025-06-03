@@ -1,6 +1,6 @@
 using Newtonsoft.Json.Linq;
 
-namespace Ballware.Generic.Service.Jobs;
+namespace Ballware.Generic.Jobs.Internal;
 
 public static class Utils
 {
@@ -20,5 +20,10 @@ public static class Utils
     public static IDictionary<string, object?> NormalizeJsonMember(IDictionary<string, object?> input)
     {
         return input.ToDictionary(kv => kv.Key, kv => NormalizeJsonValue(kv.Value));
+    }
+    
+    public static IDictionary<string, object> DropNullMember(IDictionary<string, object?> input)
+    {
+        return input.Where(kv => kv.Value != null).ToDictionary(kv => kv.Key, kv => kv.Value!);
     }
 }

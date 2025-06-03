@@ -4,11 +4,11 @@ using Ballware.Generic.Authorization;
 using Ballware.Generic.Authorization.Jint;
 using Ballware.Generic.Data.Ef;
 using Ballware.Generic.Data.Ef.Configuration;
+using Ballware.Generic.Jobs;
 using Ballware.Generic.Metadata;
 using Ballware.Generic.Scripting.Jint;
 using Ballware.Generic.Service.Adapter;
 using Ballware.Generic.Service.Configuration;
-using Ballware.Generic.Service.Jobs;
 using Ballware.Generic.Service.Mappings;
 using Ballware.Generic.Tenant.Data;
 using Ballware.Generic.Tenant.Data.SqlServer;
@@ -30,7 +30,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using Quartz;
-using Quartz.AspNetCore;
 using CorsOptions = Ballware.Generic.Service.Configuration.CorsOptions;
 using SwaggerOptions = Ballware.Generic.Service.Configuration.SwaggerOptions;
 using Serilog;
@@ -184,15 +183,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddControllers();
         
         Services.Configure<QuartzOptions>(Configuration.GetSection("Quartz"));
-        Services.AddQuartz(q =>
-        {
-            q.AddJob<GenericImportJob>(GenericImportJob.Key, configurator => configurator.StoreDurably());
-        });
-
-        Services.AddQuartzServer(options =>
-        {
-            options.WaitForJobsToComplete = true;
-        });
+        Services.AddBallwareGenericBackgroundJobs();
 
         Services.AddClientCredentialsTokenManagement()
             .AddClient("meta", client =>

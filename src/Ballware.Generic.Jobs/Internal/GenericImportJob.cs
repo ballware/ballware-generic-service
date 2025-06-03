@@ -1,11 +1,10 @@
 using Ballware.Generic.Authorization;
 using Ballware.Generic.Tenant.Data;
 using Ballware.Generic.Metadata;
-using Ballware.Storage.Client;
 using Newtonsoft.Json;
 using Quartz;
 
-namespace Ballware.Generic.Service.Jobs;
+namespace Ballware.Generic.Jobs.Internal;
 
 public class GenericImportJob : IJob
 {
@@ -15,15 +14,15 @@ public class GenericImportJob : IJob
     private ITenantRightsChecker TenantRightsChecker { get; }
     private IEntityRightsChecker EntityRightsChecker { get; }
     private IMetadataAdapter MetadataAdapter { get; }
-    private BallwareStorageClient StorageClient { get; }
+    private IJobsFileStorageAdapter StorageAdapter { get; }
     
-    public GenericImportJob(ITenantGenericProvider genericProvider, ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker, IMetadataAdapter metadataAdapter, BallwareStorageClient storageClient)
+    public GenericImportJob(ITenantGenericProvider genericProvider, ITenantRightsChecker tenantRightsChecker, IEntityRightsChecker entityRightsChecker, IMetadataAdapter metadataAdapter, IJobsFileStorageAdapter storageAdapter)
     {
         GenericProvider = genericProvider;
         TenantRightsChecker = tenantRightsChecker;
         EntityRightsChecker = entityRightsChecker;
         MetadataAdapter = metadataAdapter;
-        StorageClient = storageClient;
+        StorageAdapter = storageAdapter;
     }
     
     public async Task Execute(IJobExecutionContext context)
@@ -31,11 +30,12 @@ public class GenericImportJob : IJob
         var tenantId = context.MergedJobDataMap.GetGuidValue("tenantId");
         var jobId = context.MergedJobDataMap.GetGuidValue("jobId");
         var userId = context.MergedJobDataMap.GetGuidValue("userId");
-        var application = context.MergedJobDataMap.GetString("application");
-        var entity = context.MergedJobDataMap.GetString("entity");
-        var identifier = context.MergedJobDataMap.GetString("identifier");
-        var claims = Utils.NormalizeJsonMember(JsonConvert.DeserializeObject<Dictionary<string, object>>(context.MergedJobDataMap.GetString("claims") ?? "{}"));
-        var filename = context.MergedJobDataMap.GetString("filename");
+        context.MergedJobDataMap.TryGetString("application", out var application);
+        context.MergedJobDataMap.TryGetString("entity", out var entity);
+        context.MergedJobDataMap.TryGetString("identifier", out var identifier);
+        var claims = Utils.DropNullMember(Utils.NormalizeJsonMember(JsonConvert.DeserializeObject<Dictionary<string, object?>>(context.MergedJobDataMap.GetString("claims") ?? "{}")
+                     ?? new Dictionary<string, object?>()));
+        context.MergedJobDataMap.TryGetString("filename", out var filename);
         
         var jobPayload = new JobUpdatePayload()
         {
@@ -45,14 +45,24 @@ public class GenericImportJob : IJob
         };
         
         try
-        {   
+        {
+            if (identifier == null || application == null || entity == null || filename == null) 
+            {
+                throw new ArgumentException($"Mandatory parameter missing");
+            }
+            
             await MetadataAdapter.UpdateJobForTenantBehalfOfUserAsync(tenantId, userId, jobPayload);
             var tenant = await MetadataAdapter.MetadataForTenantByIdAsync(tenantId);
             var metadata = await MetadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity);
+            
+            if (tenant == null || metadata == null)
+            {
+                throw new ArgumentException($"Tenant {tenantId} or entity {entity} unknown");
+            }
 
-            var file = await StorageClient.FileByNameForOwnerAsync(userId.ToString(), filename);
+            var file = await StorageAdapter.FileByNameForOwnerAsync(userId.ToString(), filename);
 
-            await GenericProvider.ImportAsync(tenant, metadata, userId, identifier, claims, file.Stream, async (item) =>
+            await GenericProvider.ImportAsync(tenant, metadata, userId, identifier, claims, file, async (item) =>
             {
                 var tenantAuthorized = await TenantRightsChecker.HasRightAsync(tenant, application, entity, claims, identifier);
                 var authorized = await EntityRightsChecker.HasRightAsync(tenantId, metadata, claims, identifier, item, tenantAuthorized);
@@ -60,7 +70,7 @@ public class GenericImportJob : IJob
                 return authorized;
             });
 
-            await StorageClient.RemoveFileForOwnerAsync(userId.ToString(), filename);
+            await StorageAdapter.RemoveFileForOwnerAsync(userId.ToString(), filename);
 
             jobPayload.State = JobStates.Finished;
             
