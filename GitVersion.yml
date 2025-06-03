@@ -29,4 +29,3 @@ branches:
       - main
 
 commit-message-incrementing: Enabled
-merge-message-strategy: MergeMessage
