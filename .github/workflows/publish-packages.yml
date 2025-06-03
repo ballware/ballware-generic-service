@@ -18,19 +18,21 @@ jobs:
         with:
           dotnet-version:
             8.0   
-      - name: Install GitVersion
-        run: dotnet tool install --global GitVersion.Tool      
-      - name: Determine version
-        id: version
-        run: |
-          VERSION=$(dotnet-gitversion /showvariable SemVer)
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
-      - name: Output determined version
-        run: echo 
+      - name: Fetch GitVersion
+        uses: gittools/actions/gitversion/execute@v0
+        with:
+          useConfigFile: true
       - name: Pack NuGet packages
         run: |
           dotnet restore ballware-generic-service.sln
-          dotnet pack ballware-generic-service.sln -p:Version=${{ env.VERSION }} --configuration Release --output ./nupkgs
+          dotnet pack ballware-generic-service.sln -p:Version=${{ env.GitVersion_SemVer }} --configuration Release --output ./nupkgs
       - name: Publish NuGet packages to GitHub Packages
         run: |
           dotnet nuget push ./nupkgs/*.nupkg --source https://nuget.pkg.github.com/ballware/index.json --api-key ${{ secrets.GITHUB_TOKEN }}
+      - name: Create veration tag
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag v${{ env.GitVersion_SemVer }}
+          git push origin v${{ env.GitVersion_SemVer }}          

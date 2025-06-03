@@ -1,12 +1,39 @@
-mode: ContinuousDelivery
+mode: ContinuousDeployment
 branches:
   main:
     regex: ^main$
-    increment: Minor
-    track-merge-target: false
-    label: ''
+    increment: Patch
+    prevent-increment-of-merged-branch-version: true
+    is-source-branch-for:
+      - develop
+    is-mainline: true
+    tag: ''
   develop:
     regex: ^develop$
     increment: Minor
-    label: 'alpha'
-    track-merge-target: false
+    is-source-branch-for:
+      - feature
+      - bugfix
+    is-mainline: false
+    tag: alpha
+  feature:
+    regex: ^feature[/-]
+    increment: Minor
+    source-branches:
+      - develop
+    is-release-branch: false
+    is-mainline: false
+    tag: useBranchName
+  bugfix:
+    regex: ^bugfix[/-]
+    increment: Patch
+    source-branches:
+      - develop
+      - main
+    is-release-branch: false
+    is-mainline: false
+    tag: useBranchName
+ignore:
+  sha: []
+commit-message-incrementing: Enabled
+merge-message-strategy: MergeMessage
