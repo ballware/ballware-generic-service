@@ -4,32 +4,28 @@ branches:
     regex: ^main$
     increment: Patch
     prevent-increment-of-merged-branch-version: true
-    is-source-branch-for:
-      - develop
-    tag: ''
+    tracks-release-branches: true
+    
   develop:
     regex: ^develop$
     increment: Minor
-    is-source-branch-for:
+    source-branches: 
+      - main
       - feature
       - bugfix
-    tag: alpha
+  
   feature:
     regex: ^feature[/-]
     increment: Minor
     source-branches:
       - develop
-    is-release-branch: false
-    tag: useBranchName
+  
   bugfix:
     regex: ^bugfix[/-]
     increment: Patch
     source-branches:
       - develop
       - main
-    is-release-branch: false
-    tag: useBranchName
-ignore:
-  sha: []
+
 commit-message-incrementing: Enabled
 merge-message-strategy: MergeMessage
