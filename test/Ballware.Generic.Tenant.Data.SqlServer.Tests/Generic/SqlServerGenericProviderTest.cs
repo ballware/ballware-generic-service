@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Data;
+using System.Text;
 using System.Text.Json;
 using Ballware.Generic.Data.Public;
 using Ballware.Generic.Data.Repository;
@@ -13,6 +14,8 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Ballware.Generic.Tenant.Data.SqlServer.Tests.Generic;
 
@@ -40,6 +43,7 @@ public class SqlServerGenericProviderTest : DatabaseBackedBaseTest
     {
         UserId = Guid.NewGuid();
         TenantId = Guid.NewGuid();
+        TenantConnection = null;
         
         Tenant = new Metadata.Tenant()
         {
@@ -114,9 +118,9 @@ public class SqlServerGenericProviderTest : DatabaseBackedBaseTest
     [TearDown]
     public async Task TearDown()
     {
-        await using var tenantDb = new SqlConnection(Configuration.TenantMasterConnectionString);
-        await tenantDb.DropSchemaForUserAsync("tenant", Schema, User);
-        await tenantDb.CloseAsync();
+        SchemaProvider = new SqlServerSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
+
+        await SchemaProvider.DropTenantAsync(TenantId, UserId);
     }
     
     [Test]
@@ -237,5 +241,124 @@ public class SqlServerGenericProviderTest : DatabaseBackedBaseTest
         countResult = await genericProvider.CountAsync(Tenant, entity, "count", Claims, ImmutableDictionary<string, object>.Empty);
         
         Assert.That(countResult, Is.EqualTo(1));        
+    }
+    
+    [Test]
+    [TenantConnection("generictenant2")]
+    public async Task Entity_import_export_succeeds()
+    {
+        using var listener = new SqlClientListener();
+
+        ScriptingExecutorMock.Setup(s => s.ListScript(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction?>(),
+                It.IsAny<Metadata.Tenant>(), It.IsAny<Entity>(), It.IsAny<string>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<IEnumerable<object>>()))
+            .Returns((IDbConnection _, IDbTransaction? _, Metadata.Tenant _, Entity _, string _, IDictionary<string, object> _, IEnumerable<object> items) => items);            
+        
+        ScriptingExecutorMock.Setup(s => s.ByIdScriptAsync(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction?>(),
+                It.IsAny<Metadata.Tenant>(), It.IsAny<Entity>(), It.IsAny<string>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<object>()))
+            .ReturnsAsync((IDbConnection _, IDbTransaction? _, Metadata.Tenant _, Entity _, string _, IDictionary<string, object> _, IDictionary<string, object> item) => item);            
+        
+        ScriptingExecutorMock.Setup(s => s.RemovePreliminaryCheckAsync(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction?>(),
+                It.IsAny<Metadata.Tenant>(), It.IsAny<Entity>(), UserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<object>()))
+            .ReturnsAsync((IDbConnection _, IDbTransaction? _, Metadata.Tenant _, Entity _, Guid? _, IDictionary<string, object> _, IDictionary<string, object> item) => (true, []));            
+        
+        PreparedBuilder.Services.AddSingleton(ScriptingExecutorMock.Object);
+        
+        var app = PreparedBuilder.Build();
+
+        var entityModel = new SqlServerTableModel()
+        {
+            TableName = "testentity",
+            NoIdentity = false,
+            CustomColumns = [
+                new SqlServerColumnModel() { ColumnName = "Coltextline", ColumnType = SqlServerColumnType.String, MaxLength = 50, Nullable = true },
+                new SqlServerColumnModel() { ColumnName = "Colnumber", ColumnType = SqlServerColumnType.Int, Nullable = true }
+            ],
+            CustomIndexes = []
+        };
+            
+        var serializedEntityModel = JsonSerializer.Serialize(entityModel, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
+        
+        await SchemaProvider.CreateOrUpdateEntityAsync(TenantId, serializedEntityModel, UserId);
+        
+        var genericProvider = new SqlServerGenericProvider(new SqlServerStorageProvider(ConnectionRepositoryMock.Object), app.Services);
+
+        var entity = new Metadata.Entity()
+        {
+            Application = "test",
+            Identifier = "testentity",
+            ListQuery = [
+                new QueryEntry() { Identifier = "primary", Query = "select Uuid as Id, Coltextline, Colnumber from testentity" },
+                new QueryEntry() { Identifier = "exportjson", Query = "select Uuid as Id, Coltextline, Colnumber from testentity" }
+            ],
+            NewQuery = [],
+            ByIdQuery = [
+                new QueryEntry() { Identifier = "primary", Query = "select Uuid as Id, Coltextline, Colnumber from testentity where TenantId=@tenantId and Uuid = @id" }
+            ],
+            SaveStatement = [
+                new QueryEntry() { Identifier = "primary", Query = "update testentity set ColTextline=@ColTextline, Colnumber=@Colnumber, LastChangerId = @claim_sub, LastChangeStamp = GETDATE() where TenantId=@tenantId and Uuid=@Id; if @@ROWCOUNT=0 begin insert into testentity (Uuid, TenantId, Coltextline, Colnumber, CreatorId, CreateStamp) select @Id, @tenantId, @Coltextline, @Colnumber, @claim_sub, GETDATE() where not exists (select * from testentity where TenantId=@tenantId and Uuid=@Id) end" }
+            ],
+            RemoveStatement = "delete from testentity where TenantId=@tenantId and Uuid=@id",
+            CustomFunctions = [
+                new CustomFunctionEntry()
+                {
+                    Id = "importjson", Options = new CustomFunctionOptions()
+                    {
+                        Format = "json"
+                    },
+                    Type = CustomFunctionTypes.Import
+                },
+                new CustomFunctionEntry()
+                {
+                    Id = "exportjson", Options = new CustomFunctionOptions()
+                    {
+                        Format = "json"
+                    },
+                    Type = CustomFunctionTypes.Export
+                }
+            ]
+        };
+
+        var expectedItems = new List<Dictionary<string, object>>()
+        {
+            new ()
+            {
+                { "Id", Guid.NewGuid() },
+                { "Coltextline", "text line 1" },
+                { "Colnumber", 11 }
+            },
+            new ()
+            {
+                { "Id", Guid.NewGuid() },
+                { "Coltextline", "text line 2" },
+                { "Colnumber", 12 }
+            },
+            new ()
+            {
+                { "Id", Guid.NewGuid() },
+                { "Coltextline", "text line 3" },
+                { "Colnumber", 13 }
+            },
+        };
+
+        var serializedExpectedItems = JsonConvert.SerializeObject(expectedItems);
+        
+        await genericProvider.ImportAsync(Tenant, entity, UserId, "importjson", Claims, new MemoryStream(Encoding.UTF8.GetBytes(serializedExpectedItems)),
+            item => Task.FromResult(true));
+        
+        var result = await genericProvider.ExportAsync(Tenant, entity, "exportjson", Claims, ImmutableDictionary<string, object>.Empty);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.MediaType, Is.EqualTo("application/json"));
+            Assert.That(result.FileName, Is.EqualTo("exportjson.json"));
+            
+            var actualSerializedItems = Encoding.UTF8.GetString(result.Data, 0, result.Data.Length);
+            
+            Assert.That(actualSerializedItems, Is.EqualTo(serializedExpectedItems));
+            
+        });
     }
 }
