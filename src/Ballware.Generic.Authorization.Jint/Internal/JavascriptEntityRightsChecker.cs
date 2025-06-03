@@ -1,6 +1,6 @@
-using System.Text.Json;
 using Ballware.Generic.Metadata;
 using Jint;
+using Newtonsoft.Json;
 
 namespace Ballware.Generic.Authorization.Jint.Internal;
 
@@ -14,7 +14,7 @@ class JavascriptEntityRightsChecker : IEntityRightsChecker
 
         if (!string.IsNullOrWhiteSpace(rightsScript))
         {
-            var userinfo = JsonSerializer.Serialize(claims);
+            var userinfo = JsonConvert.SerializeObject(claims);
 
             result = bool.Parse(new Engine()
                 .SetValue("application", metadata.Application)

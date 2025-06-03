@@ -34,7 +34,7 @@ public class GenericImportJob : IJob
         var application = context.MergedJobDataMap.GetString("application");
         var entity = context.MergedJobDataMap.GetString("entity");
         var identifier = context.MergedJobDataMap.GetString("identifier");
-        var claims = JsonConvert.DeserializeObject<Dictionary<string, object>>(context.MergedJobDataMap.GetString("claims") ?? "{}");
+        var claims = Utils.NormalizeJsonMember(JsonConvert.DeserializeObject<Dictionary<string, object>>(context.MergedJobDataMap.GetString("claims") ?? "{}"));
         var filename = context.MergedJobDataMap.GetString("filename");
         
         var jobPayload = new JobUpdatePayload()
