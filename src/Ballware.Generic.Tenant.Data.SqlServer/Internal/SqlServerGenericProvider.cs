@@ -85,7 +85,7 @@ class SqlServerGenericProvider : ITenantGenericProvider
 
         try
         {
-            await ProcessSaveAsync(new SqlServerGenericProcessingContext(db, null, tenant, entity), userId, identifier, claims, value);
+            await ProcessSaveAsync(new SqlServerGenericProcessingContext(db, transaction, tenant, entity), userId, identifier, claims, value);
             
             transaction.Commit();
         }
