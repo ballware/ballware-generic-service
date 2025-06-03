@@ -8,6 +8,7 @@
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
         <RootNamespace>Ballware.Generic.Tenant.Data.SqlServer.Tests</RootNamespace>
+        <SonarQubeExclude>true</SonarQubeExclude>
     </PropertyGroup>
 
     <ItemGroup>

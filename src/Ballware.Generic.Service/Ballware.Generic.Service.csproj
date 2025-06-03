@@ -36,6 +36,7 @@
       <ProjectReference Include="..\Ballware.Generic.Authorization.Jint\Ballware.Generic.Authorization.Jint.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Authorization\Ballware.Generic.Authorization.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Data.Ef\Ballware.Generic.Data.Ef.csproj" />
+      <ProjectReference Include="..\Ballware.Generic.Jobs\Ballware.Generic.Jobs.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Scripting.Jint\Ballware.Generic.Scripting.Jint.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Tenant.Data.SqlServer\Ballware.Generic.Tenant.Data.SqlServer.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Tenant.Data\Ballware.Generic.Tenant.Data.csproj" />
@@ -53,5 +54,9 @@
       <Content Include="appsettings.Development.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Jobs\" />
     </ItemGroup>
 </Project>

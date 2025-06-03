@@ -11,6 +11,7 @@ COPY ./Ballware.Generic.Authorization ./Ballware.Generic.Authorization
 COPY ./Ballware.Generic.Authorization.Jint ./Ballware.Generic.Authorization.Jint
 COPY ./Ballware.Generic.Data ./Ballware.Generic.Data
 COPY ./Ballware.Generic.Data.Ef ./Ballware.Generic.Data.Ef
+COPY ./Ballware.Generic.Jobs ./Ballware.Generic.Jobs
 COPY ./Ballware.Generic.Metadata ./Ballware.Generic.Metadata
 COPY ./Ballware.Generic.Scripting ./Ballware.Generic.Scripting
 COPY ./Ballware.Generic.Scripting.Jint ./Ballware.Generic.Scripting.Jint
