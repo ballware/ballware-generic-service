@@ -2,6 +2,7 @@ using Ballware.Generic.Api;
 using Ballware.Generic.Api.Endpoints;
 using Ballware.Generic.Authorization;
 using Ballware.Generic.Authorization.Jint;
+using Ballware.Generic.Caching;
 using Ballware.Generic.Data.Ef;
 using Ballware.Generic.Data.Ef.Configuration;
 using Ballware.Generic.Jobs;
@@ -52,6 +53,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
         StorageOptions? storageOptions = Configuration.GetSection("Storage").Get<StorageOptions>();
         SqlServerTenantStorageOptions? sqlServerTenantStorageOptions = Configuration.GetSection("SqlServerTenantStorage").Get<SqlServerTenantStorageOptions>();
+        CacheOptions? cacheOptions = Configuration.GetSection("Cache").Get<CacheOptions>();
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
         ServiceClientOptions? metaClientOptions = Configuration.GetSection("MetaClient").Get<ServiceClientOptions>();
         ServiceClientOptions? storageClientOptions = Configuration.GetSection("StorageClient").Get<ServiceClientOptions>();
@@ -66,6 +68,14 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddOptionsWithValidateOnStart<StorageOptions>()
             .Bind(Configuration.GetSection("Storage"))
             .ValidateDataAnnotations();        
+        
+        Services.AddOptionsWithValidateOnStart<Ballware.Generic.Caching.Configuration.CacheOptions>()
+            .Bind(Configuration.GetSection("Cache"))
+            .ValidateDataAnnotations();
+        
+        Services.AddOptionsWithValidateOnStart<CacheOptions>()
+            .Bind(Configuration.GetSection("Cache"))
+            .ValidateDataAnnotations();
 
         Services.AddOptionsWithValidateOnStart<SwaggerOptions>()
             .Bind(Configuration.GetSection("Swagger"))
@@ -87,6 +97,11 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         {
             throw new ConfigurationException("Required configuration for authorization and storage is missing");
         }
+        
+        if (cacheOptions == null)
+        {
+            cacheOptions = new CacheOptions();
+        }
 
         if (metaClientOptions == null)
         {
@@ -104,7 +119,21 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         }
 
         Services.AddMemoryCache();
-        Services.AddDistributedMemoryCache();
+        
+        if (!string.IsNullOrEmpty(cacheOptions.RedisConfiguration))
+        {
+            Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = cacheOptions.RedisConfiguration;
+                options.InstanceName = cacheOptions.RedisInstanceName;
+            });
+        }
+        else
+        {
+            Services.AddDistributedMemoryCache();
+        }
+
+        Services.AddBallwareGenericDistributedCaching();
 
         Services.AddAuthentication(options =>
         {

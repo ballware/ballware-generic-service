@@ -104,7 +104,7 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         });
     }
 
-    public async Task SaveAsync(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value)
+    public virtual async Task SaveAsync(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value)
     {
         var persistedItem = await Context.Set<TPersistable>()
             .FirstOrDefaultAsync(t => t.Uuid == value.Id);
@@ -145,7 +145,7 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         await Context.SaveChangesAsync();
     }
 
-    public async Task<RemoveResult> RemoveAsync(Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams)
+    public virtual async Task<RemoveResult> RemoveAsync(Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams)
     {
         var result = RemovePreliminaryCheck(userId, claims, removeParams);
 

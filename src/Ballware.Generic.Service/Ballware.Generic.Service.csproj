@@ -16,6 +16,7 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.16" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
         <PackageReference Include="MimeMapping" Version="3.1.0" />
         <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
@@ -35,6 +36,7 @@
       <ProjectReference Include="..\Ballware.Generic.Api\Ballware.Generic.Api.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Authorization.Jint\Ballware.Generic.Authorization.Jint.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Authorization\Ballware.Generic.Authorization.csproj" />
+      <ProjectReference Include="..\Ballware.Generic.Caching\Ballware.Generic.Caching.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Data.Ef\Ballware.Generic.Data.Ef.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Jobs\Ballware.Generic.Jobs.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Scripting.Jint\Ballware.Generic.Scripting.Jint.csproj" />
