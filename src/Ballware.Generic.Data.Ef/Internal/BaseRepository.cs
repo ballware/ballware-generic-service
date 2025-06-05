@@ -19,12 +19,6 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         Context = dbContext;
     }
 
-    protected virtual IQueryable<TPersistable> ListQuery(IQueryable<TPersistable> query, string identifier,
-        IDictionary<string, object> claims, IDictionary<string, object> queryParams)
-    {
-        return query;
-    }
-
     protected virtual IQueryable<TPersistable> ByIdQuery(IQueryable<TPersistable> query, string identifier,
         IDictionary<string, object> claims, Guid id)
     {
@@ -60,23 +54,6 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         TPersistable persistable)
     { }
 
-    public Task<IEnumerable<TEditable>> AllAsync(string identifier, IDictionary<string, object> claims)
-    {
-        return Task.Run(() => Context.Set<TPersistable>().AsEnumerable().Select(Mapper.Map<TEditable>));
-    }
-
-    public Task<IEnumerable<TEditable>> QueryAsync(string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
-    {
-        return Task.Run(() => ListQuery(Context.Set<TPersistable>(), identifier, claims, queryParams).AsEnumerable().Select(Mapper.Map<TEditable>));
-    }
-
-    public Task<long> CountAsync(string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
-    {
-        return Task.Run(() =>
-            ListQuery(Context.Set<TPersistable>(), identifier, claims, queryParams)
-                .LongCount());
-    }
-
     public Task<TEditable?> ByIdAsync(string identifier, IDictionary<string, object> claims, Guid id)
     {
         return Task.Run(() =>
@@ -94,17 +71,7 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         });
     }
 
-    public Task<TEditable> NewQueryAsync(string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
-    {
-        return Task.Run(() =>
-        {
-            var instance = New(identifier, claims, queryParams);
-
-            return Mapper.Map<TEditable>(instance);
-        });
-    }
-
-    public async Task SaveAsync(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value)
+    public virtual async Task SaveAsync(Guid? userId, string identifier, IDictionary<string, object> claims, TEditable value)
     {
         var persistedItem = await Context.Set<TPersistable>()
             .FirstOrDefaultAsync(t => t.Uuid == value.Id);
@@ -145,7 +112,7 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         await Context.SaveChangesAsync();
     }
 
-    public async Task<RemoveResult> RemoveAsync(Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams)
+    public virtual async Task<RemoveResult> RemoveAsync(Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> removeParams)
     {
         var result = RemovePreliminaryCheck(userId, claims, removeParams);
 
@@ -170,38 +137,5 @@ class BaseRepository<TEditable, TPersistable> : IRepository<TEditable> where TEd
         }
 
         return new RemoveResult() { Result = true, Messages = Array.Empty<string>() };
-    }
-
-    public async Task ImportAsync(Guid? userId, string identifier, IDictionary<string, object> claims, Stream importStream,
-        Func<TEditable, Task<bool>> authorized)
-    {
-        using var textReader = new StreamReader(importStream);
-
-        var items = JsonSerializer.Deserialize<IEnumerable<TEditable>>(await textReader.ReadToEndAsync());
-
-        if (items == null)
-        {
-            return;
-        }
-
-        foreach (var item in items)
-        {
-            if (await authorized(item))
-            {
-                await SaveAsync(userId, identifier, claims, item);
-            }
-        }
-    }
-
-    public async Task<ExportResult> ExportAsync(string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
-    {
-        var items = (await QueryAsync(identifier, claims, queryParams)).Select(e => ById(identifier, claims, e));
-
-        return new ExportResult()
-        {
-            FileName = $"{identifier}.json",
-            Data = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(items)),
-            MediaType = "application/json",
-        };
     }
 }

@@ -20,9 +20,17 @@ public static class ServiceCollectionExtensions
             });
 
         });
-        
-        services.AddScoped<IRepository<TenantConnection>, TenantConnectionRepository>();
-        services.AddScoped<ITenantConnectionRepository, TenantConnectionRepository>();
+
+        if (options.EnableCaching)
+        {
+            services.AddScoped<IRepository<TenantConnection>, CachableTenantConnectionRepository>();
+            services.AddScoped<ITenantConnectionRepository, CachableTenantConnectionRepository>(); 
+        }
+        else
+        {
+            services.AddScoped<IRepository<TenantConnection>, TenantConnectionRepository>();
+            services.AddScoped<ITenantConnectionRepository, TenantConnectionRepository>();    
+        }
         
         services.AddScoped<IRepository<TenantEntity>, TenantEntityRepository>();
         services.AddScoped<ITenantEntityRepository, TenantEntityRepository>();

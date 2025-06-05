@@ -22,6 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Ballware.Generic.Caching\Ballware.Generic.Caching.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Data\Ballware.Generic.Data.csproj" />
     </ItemGroup>
 

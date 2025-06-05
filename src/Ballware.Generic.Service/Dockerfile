@@ -9,6 +9,7 @@ WORKDIR /src
 COPY ./Ballware.Generic.Api ./Ballware.Generic.Api
 COPY ./Ballware.Generic.Authorization ./Ballware.Generic.Authorization
 COPY ./Ballware.Generic.Authorization.Jint ./Ballware.Generic.Authorization.Jint
+COPY ./Ballware.Generic.Caching ./Ballware.Generic.Caching
 COPY ./Ballware.Generic.Data ./Ballware.Generic.Data
 COPY ./Ballware.Generic.Data.Ef ./Ballware.Generic.Data.Ef
 COPY ./Ballware.Generic.Jobs ./Ballware.Generic.Jobs
