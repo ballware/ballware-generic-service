@@ -2,13 +2,14 @@ using Ballware.Generic.Api;
 using Ballware.Generic.Api.Endpoints;
 using Ballware.Generic.Authorization;
 using Ballware.Generic.Authorization.Jint;
+using Ballware.Generic.Caching;
 using Ballware.Generic.Data.Ef;
 using Ballware.Generic.Data.Ef.Configuration;
+using Ballware.Generic.Jobs;
 using Ballware.Generic.Metadata;
 using Ballware.Generic.Scripting.Jint;
 using Ballware.Generic.Service.Adapter;
 using Ballware.Generic.Service.Configuration;
-using Ballware.Generic.Service.Jobs;
 using Ballware.Generic.Service.Mappings;
 using Ballware.Generic.Tenant.Data;
 using Ballware.Generic.Tenant.Data.SqlServer;
@@ -30,7 +31,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using Quartz;
-using Quartz.AspNetCore;
 using CorsOptions = Ballware.Generic.Service.Configuration.CorsOptions;
 using SwaggerOptions = Ballware.Generic.Service.Configuration.SwaggerOptions;
 using Serilog;
@@ -53,6 +53,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
         StorageOptions? storageOptions = Configuration.GetSection("Storage").Get<StorageOptions>();
         SqlServerTenantStorageOptions? sqlServerTenantStorageOptions = Configuration.GetSection("SqlServerTenantStorage").Get<SqlServerTenantStorageOptions>();
+        CacheOptions? cacheOptions = Configuration.GetSection("Cache").Get<CacheOptions>();
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
         ServiceClientOptions? metaClientOptions = Configuration.GetSection("MetaClient").Get<ServiceClientOptions>();
         ServiceClientOptions? storageClientOptions = Configuration.GetSection("StorageClient").Get<ServiceClientOptions>();
@@ -67,6 +68,14 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddOptionsWithValidateOnStart<StorageOptions>()
             .Bind(Configuration.GetSection("Storage"))
             .ValidateDataAnnotations();        
+        
+        Services.AddOptionsWithValidateOnStart<Ballware.Generic.Caching.Configuration.CacheOptions>()
+            .Bind(Configuration.GetSection("Cache"))
+            .ValidateDataAnnotations();
+        
+        Services.AddOptionsWithValidateOnStart<CacheOptions>()
+            .Bind(Configuration.GetSection("Cache"))
+            .ValidateDataAnnotations();
 
         Services.AddOptionsWithValidateOnStart<SwaggerOptions>()
             .Bind(Configuration.GetSection("Swagger"))
@@ -88,6 +97,11 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         {
             throw new ConfigurationException("Required configuration for authorization and storage is missing");
         }
+        
+        if (cacheOptions == null)
+        {
+            cacheOptions = new CacheOptions();
+        }
 
         if (metaClientOptions == null)
         {
@@ -105,7 +119,21 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         }
 
         Services.AddMemoryCache();
-        Services.AddDistributedMemoryCache();
+        
+        if (!string.IsNullOrEmpty(cacheOptions.RedisConfiguration))
+        {
+            Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = cacheOptions.RedisConfiguration;
+                options.InstanceName = cacheOptions.RedisInstanceName;
+            });
+        }
+        else
+        {
+            Services.AddDistributedMemoryCache();
+        }
+
+        Services.AddBallwareGenericDistributedCaching();
 
         Services.AddAuthentication(options =>
         {
@@ -184,15 +212,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddControllers();
         
         Services.Configure<QuartzOptions>(Configuration.GetSection("Quartz"));
-        Services.AddQuartz(q =>
-        {
-            q.AddJob<GenericImportJob>(GenericImportJob.Key, configurator => configurator.StoreDurably());
-        });
-
-        Services.AddQuartzServer(options =>
-        {
-            options.WaitForJobsToComplete = true;
-        });
+        Services.AddBallwareGenericBackgroundJobs();
 
         Services.AddClientCredentialsTokenManagement()
             .AddClient("meta", client =>

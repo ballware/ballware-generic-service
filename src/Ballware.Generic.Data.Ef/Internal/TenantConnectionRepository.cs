@@ -8,7 +8,7 @@ class TenantConnectionRepository : BaseRepository<Public.TenantConnection, Persi
 {
     public TenantConnectionRepository(IMapper mapper, TenantDbContext dbContext) : base(mapper, dbContext) { }
     
-    public async Task<Public.TenantConnection?> ByIdAsync(Guid id)
+    public virtual async Task<Public.TenantConnection?> ByIdAsync(Guid id)
     {
         var result = await Context.TenantConnections.SingleOrDefaultAsync(t => t.Uuid == id);
 
