@@ -3117,6 +3117,36 @@ namespace Ballware.Meta.Client
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum EntityCustomFunctionTypes
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"add")]
+        Add = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"edit")]
+        Edit = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"default_add")]
+        Default_add = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"default_view")]
+        Default_view = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"default_edit")]
+        Default_edit = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"external")]
+        External = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"export")]
+        Export = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"import")]
+        Import = 7,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class Export
     {
         [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -3661,7 +3691,7 @@ namespace Ballware.Meta.Client
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public ServiceEntityCustomFunctionTypes? Type { get; set; } = default!;
+        public EntityCustomFunctionTypes? Type { get; set; } = default!;
 
         [Newtonsoft.Json.JsonProperty("options", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public ServiceEntityCustomFunctionOptions? Options { get; set; } = default!;
@@ -3702,36 +3732,6 @@ namespace Ballware.Meta.Client
             return Newtonsoft.Json.JsonConvert.DeserializeObject<ServiceEntityCustomFunctionOptions>(data, new Newtonsoft.Json.JsonSerializerSettings());
 
         }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public enum ServiceEntityCustomFunctionTypes
-    {
-
-        [System.Runtime.Serialization.EnumMember(Value = @"add")]
-        Add = 0,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"edit")]
-        Edit = 1,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"default_add")]
-        Default_add = 2,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"default_view")]
-        Default_view = 3,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"default_edit")]
-        Default_edit = 4,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"external")]
-        External = 5,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"export")]
-        Export = 6,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"import")]
-        Import = 7,
 
     }
 

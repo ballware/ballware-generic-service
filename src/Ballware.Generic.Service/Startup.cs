@@ -15,7 +15,6 @@ using Ballware.Generic.Tenant.Data;
 using Ballware.Generic.Tenant.Data.SqlServer;
 using Ballware.Generic.Tenant.Data.SqlServer.Configuration;
 using Ballware.Meta.Client;
-using Ballware.Meta.Service.Adapter;
 using Ballware.Ml.Client;
 using Ballware.Storage.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -287,7 +286,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
         Services.AddScoped<IMetadataAdapter, MetaServiceMetadataAdapter>();
         Services.AddScoped<IMlAdapter, MlServiceMlAdapter>();
-        Services.AddScoped<IGenericFileStorageAdapter, StorageServiceGenericFileStorageAdapter>();
+        Services.AddScoped<IGenericFileStorageAdapter, StorageServiceFileStorageAdapter>();
+        Services.AddScoped<IJobsFileStorageAdapter, StorageServiceFileStorageAdapter>();
         
         Services.AddBallwareGenericAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
         Services.AddBallwareGenericJintRightsChecker();
