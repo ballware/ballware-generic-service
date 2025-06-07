@@ -996,6 +996,399 @@ public class GenericEditingApiTest : ApiMappingBaseTest
     }
     
     [Test]
+    public async Task HandleSaveBatch_succeeds()
+    {
+        // Arrange
+        var expectedTenantId = Guid.NewGuid();
+        var expectedUserId = Guid.NewGuid();
+        var expectedApplication = "test";
+        var expectedEntity = "fakeentity";
+
+        var expectedEntries = new List<FakeEntity>()
+        {
+            new FakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 1"
+            },
+            new FakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 2"
+            },
+            new FakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 3"
+            }
+        };
+        
+        var fakeTenant = new Metadata.Tenant()
+        {
+            Id = expectedTenantId,
+            Provider = "mssql"
+        };
+        
+        var fakeEntity = new Entity()
+        {
+            Application = expectedApplication,
+            Identifier = expectedEntity
+        };
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserTenandId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedTenantId);
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedUserId);
+
+        MetadataAdapterMock
+            .Setup(m => m.MetadataForTenantByIdAsync(expectedTenantId))
+            .ReturnsAsync(fakeTenant);
+        
+        MetadataAdapterMock
+            .Setup(m => m.MetadataForEntityByTenantAndIdentifierAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(fakeEntity);
+
+        TenantRightsCheckerMock
+            .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
+                It.IsAny<Dictionary<string, object>>(), "edit"))
+            .ReturnsAsync(true);
+        
+        EntityRightsCheckerMock
+            .Setup(c => c.HasRightAsync(expectedTenantId, It.IsAny<Entity>(),
+                It.IsAny<IDictionary<string, object>>(), "edit", It.IsAny<object>(), true))
+            .ReturnsAsync(true);
+
+        var saveCallbackCount = 0;
+        
+        TenantGenericProviderMock
+            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> _, IDictionary<string, object> entry) =>
+            {
+                Assert.Multiple(() =>
+                {
+                    Assert.That(tenant, Is.EqualTo(fakeTenant));
+                    Assert.That(entity, Is.EqualTo(fakeEntity));
+                    Assert.That(userId, Is.EqualTo(expectedUserId));
+                    Assert.That(identifier, Is.EqualTo("primary"));
+                    Assert.That(entry, Is.Not.Null);
+                    Assert.That(entry["Id"], Is.EqualTo(expectedEntries[saveCallbackCount].Id.ToString()));
+                    Assert.That(entry["Name"], Is.EqualTo(expectedEntries[saveCallbackCount].Name));    
+                });
+
+                saveCallbackCount++;
+            });
+        
+        // Act
+        var response = await Client.PostAsync($"generic/{expectedApplication}/{expectedEntity}/savebatch?identifier=primary", JsonContent.Create(expectedEntries, null, new JsonSerializerOptions()
+        {
+            PropertyNamingPolicy = null
+        }));
+        
+        // Assert
+        Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
+        
+        TenantGenericProviderMock.Verify(r => r.SaveAsync(
+            fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()), Times.Exactly(3));
+    }
+    
+    [Test]
+    public async Task HandleSaveBatch_tenant_not_found()
+    {
+        // Arrange
+        var expectedTenantId = Guid.NewGuid();
+        var expectedUserId = Guid.NewGuid();
+        var expectedApplication = "test";
+        var expectedEntity = "fakeentity";
+
+        var expectedEntries = new List<FakeEntity>()
+        {
+            new FakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 1"
+            },
+            new FakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 2"
+            },
+            new FakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 3"
+            }
+        };
+        
+        var fakeTenant = new Metadata.Tenant()
+        {
+            Id = expectedTenantId,
+            Provider = "mssql"
+        };
+        
+        var fakeEntity = new Entity()
+        {
+            Application = expectedApplication,
+            Identifier = expectedEntity
+        };
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserTenandId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedTenantId);
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedUserId);
+
+        MetadataAdapterMock
+            .Setup(m => m.MetadataForTenantByIdAsync(expectedTenantId))
+            .ReturnsAsync(null as Metadata.Tenant);
+        
+        MetadataAdapterMock
+            .Setup(m => m.MetadataForEntityByTenantAndIdentifierAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(fakeEntity);
+
+        TenantRightsCheckerMock
+            .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
+                It.IsAny<Dictionary<string, object>>(), "edit"))
+            .ReturnsAsync(true);
+        
+        EntityRightsCheckerMock
+            .Setup(c => c.HasRightAsync(expectedTenantId, It.IsAny<Entity>(),
+                It.IsAny<IDictionary<string, object>>(), "edit", It.IsAny<object>(), true))
+            .ReturnsAsync(true);
+
+        var saveCallbackCount = 0;
+        
+        TenantGenericProviderMock
+            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> _, IDictionary<string, object> entry) =>
+            {
+                Assert.Multiple(() =>
+                {
+                    Assert.That(tenant, Is.EqualTo(fakeTenant));
+                    Assert.That(entity, Is.EqualTo(fakeEntity));
+                    Assert.That(userId, Is.EqualTo(expectedUserId));
+                    Assert.That(identifier, Is.EqualTo("primary"));
+                    Assert.That(entry, Is.Not.Null);
+                    Assert.That(entry["Id"], Is.EqualTo(expectedEntries[saveCallbackCount].Id.ToString()));
+                    Assert.That(entry["Name"], Is.EqualTo(expectedEntries[saveCallbackCount].Name));    
+                });
+
+                saveCallbackCount++;
+            });
+        
+        // Act
+        var response = await Client.PostAsync($"generic/{expectedApplication}/{expectedEntity}/savebatch?identifier=primary", JsonContent.Create(expectedEntries, null, new JsonSerializerOptions()
+        {
+            PropertyNamingPolicy = null
+        }));
+        
+        // Assert
+        Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.NotFound));
+        
+        TenantGenericProviderMock.Verify(r => r.SaveAsync(
+            fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()), Times.Never);
+    }
+    
+    [Test]
+    public async Task HandleSaveBatch_body_empty()
+    {
+        // Arrange
+        var expectedTenantId = Guid.NewGuid();
+        var expectedUserId = Guid.NewGuid();
+        var expectedApplication = "test";
+        var expectedEntity = "fakeentity";
+
+        var expectedEntries = new List<FakeEntity>()
+        {
+            new FakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 1"
+            },
+            new FakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 2"
+            },
+            new FakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 3"
+            }
+        };
+        
+        var fakeTenant = new Metadata.Tenant()
+        {
+            Id = expectedTenantId,
+            Provider = "mssql"
+        };
+        
+        var fakeEntity = new Entity()
+        {
+            Application = expectedApplication,
+            Identifier = expectedEntity
+        };
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserTenandId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedTenantId);
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedUserId);
+
+        MetadataAdapterMock
+            .Setup(m => m.MetadataForTenantByIdAsync(expectedTenantId))
+            .ReturnsAsync(fakeTenant);
+        
+        MetadataAdapterMock
+            .Setup(m => m.MetadataForEntityByTenantAndIdentifierAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(fakeEntity);
+
+        TenantRightsCheckerMock
+            .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
+                It.IsAny<Dictionary<string, object>>(), "edit"))
+            .ReturnsAsync(true);
+        
+        EntityRightsCheckerMock
+            .Setup(c => c.HasRightAsync(expectedTenantId, It.IsAny<Entity>(),
+                It.IsAny<IDictionary<string, object>>(), "edit", It.IsAny<object>(), true))
+            .ReturnsAsync(true);
+
+        var saveCallbackCount = 0;
+        
+        TenantGenericProviderMock
+            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> _, IDictionary<string, object> entry) =>
+            {
+                Assert.Multiple(() =>
+                {
+                    Assert.That(tenant, Is.EqualTo(fakeTenant));
+                    Assert.That(entity, Is.EqualTo(fakeEntity));
+                    Assert.That(userId, Is.EqualTo(expectedUserId));
+                    Assert.That(identifier, Is.EqualTo("primary"));
+                    Assert.That(entry, Is.Not.Null);
+                    Assert.That(entry["Id"], Is.EqualTo(expectedEntries[saveCallbackCount].Id.ToString()));
+                    Assert.That(entry["Name"], Is.EqualTo(expectedEntries[saveCallbackCount].Name));    
+                });
+
+                saveCallbackCount++;
+            });
+        
+        // Act
+        var response = await Client.PostAsync($"generic/{expectedApplication}/{expectedEntity}/savebatch?identifier=primary", new StringContent(string.Empty));
+        
+        // Assert
+        Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.BadRequest));
+        
+        TenantGenericProviderMock.Verify(r => r.SaveAsync(
+            fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()), Times.Never);
+    }
+    
+    [Test]
+    public async Task HandleSaveBatch_not_authorized()
+    {
+        // Arrange
+        var expectedTenantId = Guid.NewGuid();
+        var expectedUserId = Guid.NewGuid();
+        var expectedApplication = "test";
+        var expectedEntity = "fakeentity";
+
+        var expectedEntries = new List<FakeEntity>()
+        {
+            new FakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 1"
+            },
+            new FakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 2"
+            },
+            new FakeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Name 3"
+            }
+        };
+        
+        var fakeTenant = new Metadata.Tenant()
+        {
+            Id = expectedTenantId,
+            Provider = "mssql"
+        };
+        
+        var fakeEntity = new Entity()
+        {
+            Application = expectedApplication,
+            Identifier = expectedEntity
+        };
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserTenandId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedTenantId);
+        
+        PrincipalUtilsMock
+            .Setup(p => p.GetUserId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(expectedUserId);
+
+        MetadataAdapterMock
+            .Setup(m => m.MetadataForTenantByIdAsync(expectedTenantId))
+            .ReturnsAsync(fakeTenant);
+        
+        MetadataAdapterMock
+            .Setup(m => m.MetadataForEntityByTenantAndIdentifierAsync(expectedTenantId, expectedEntity))
+            .ReturnsAsync(fakeEntity);
+
+        TenantRightsCheckerMock
+            .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
+                It.IsAny<Dictionary<string, object>>(), "edit"))
+            .ReturnsAsync(true);
+        
+        EntityRightsCheckerMock
+            .Setup(c => c.HasRightAsync(expectedTenantId, It.IsAny<Entity>(),
+                It.IsAny<IDictionary<string, object>>(), "edit", It.IsAny<object>(), true))
+            .ReturnsAsync(false);
+
+        var saveCallbackCount = 0;
+        
+        TenantGenericProviderMock
+            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> _, IDictionary<string, object> entry) =>
+            {
+                Assert.Multiple(() =>
+                {
+                    Assert.That(tenant, Is.EqualTo(fakeTenant));
+                    Assert.That(entity, Is.EqualTo(fakeEntity));
+                    Assert.That(userId, Is.EqualTo(expectedUserId));
+                    Assert.That(identifier, Is.EqualTo("primary"));
+                    Assert.That(entry, Is.Not.Null);
+                    Assert.That(entry["Id"], Is.EqualTo(expectedEntries[saveCallbackCount].Id.ToString()));
+                    Assert.That(entry["Name"], Is.EqualTo(expectedEntries[saveCallbackCount].Name));    
+                });
+
+                saveCallbackCount++;
+            });
+        
+        // Act
+        var response = await Client.PostAsync($"generic/{expectedApplication}/{expectedEntity}/savebatch?identifier=primary", JsonContent.Create(expectedEntries, null, new JsonSerializerOptions()
+        {
+            PropertyNamingPolicy = null
+        }));
+        
+        // Assert
+        Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.Unauthorized));
+        
+        TenantGenericProviderMock.Verify(r => r.SaveAsync(
+            fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()), Times.Never);
+    }
+    
+    [Test]
     public async Task HandleRemove_succeeds()
     {
         // Arrange
