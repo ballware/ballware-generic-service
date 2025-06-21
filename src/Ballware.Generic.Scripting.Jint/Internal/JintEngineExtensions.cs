@@ -11,11 +11,11 @@ namespace Ballware.Generic.Scripting.Jint.Internal
         {
             return engine.SetValue("mlPredict", new Func<string, IDictionary<string, object>, object>((model, input) =>
             {
-                var predictInput = new Dictionary<string, IEnumerable<string>>();
+                var predictInput = new Dictionary<string, object>();
 
                 foreach (var val in input)
                 {
-                    predictInput.Add(val.Key, new [] { val.Value.ToString() });
+                    predictInput.Add(val.Key, val.Value.ToString());
                 }
                 
                 return mlAdapter.ConsumeByIdentifierBehalfOfUserAsync(tenantId, userId, model, predictInput).GetAwaiter().GetResult();
