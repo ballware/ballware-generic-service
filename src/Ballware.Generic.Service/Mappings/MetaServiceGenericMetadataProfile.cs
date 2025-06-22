@@ -15,6 +15,8 @@ public class MetaServiceGenericMetadataProfile : Profile
             Ballware.Generic.Metadata.ReportDatasourceDefinition>();
         CreateMap<Ballware.Meta.Client.ServiceTenantReportDatasourceTable,
             Ballware.Generic.Metadata.ReportDatasourceTable>();
+        CreateMap<Ballware.Meta.Client.ServiceTenantReportDatasourceRelation,
+            Ballware.Generic.Metadata.ReportDatasourceRelation>();
         
         CreateMap<Ballware.Meta.Client.ServiceEntity, Ballware.Generic.Metadata.Entity>()
             .ForMember(dst => dst.Identifier, opt => opt.MapFrom(source => source.Entity))
