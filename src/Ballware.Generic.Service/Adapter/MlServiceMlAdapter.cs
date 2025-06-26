@@ -15,7 +15,7 @@ public class MlServiceMlAdapter : IMlAdapter
         MlClient = mlClient;
     }
 
-    public async Task<object> ConsumeByIdentifierBehalfOfUserAsync(Guid tenant, Guid user, string model, IDictionary<string, IEnumerable<string>> query)
+    public async Task<object> ConsumeByIdentifierBehalfOfUserAsync(Guid tenant, Guid user, string model, IDictionary<string, object> query)
     {
         return await MlClient.MlModelConsumeByIdentifierBehalfOfUserAsync(tenant, user, model, query);
     }

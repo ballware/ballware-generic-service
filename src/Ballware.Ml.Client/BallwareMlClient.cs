@@ -48,50 +48,48 @@ namespace Ballware.Ml.Client
         /// <summary>
         /// Consume model by id behalf of user
         /// </summary>
-        /// <returns>Result</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<object> MlModelConsumeByIdBehalfOfUserAsync(System.Guid tenant, System.Guid user, System.Guid model, System.Collections.Generic.IDictionary<string, System.Collections.Generic.IEnumerable<string>> query)
+        public virtual System.Threading.Tasks.Task<object> MlModelConsumeByIdBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, System.Guid modelId, object body)
         {
-            return MlModelConsumeByIdBehalfOfUserAsync(tenant, user, model, query, System.Threading.CancellationToken.None);
+            return MlModelConsumeByIdBehalfOfUserAsync(tenantId, userId, modelId, body, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
         /// Consume model by id behalf of user
         /// </summary>
-        /// <returns>Result</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual object MlModelConsumeByIdBehalfOfUser(System.Guid tenant, System.Guid user, System.Guid model, System.Collections.Generic.IDictionary<string, System.Collections.Generic.IEnumerable<string>> query)
+        public virtual object MlModelConsumeByIdBehalfOfUser(System.Guid tenantId, System.Guid userId, System.Guid modelId, object body)
         {
-            return System.Threading.Tasks.Task.Run(async () => await MlModelConsumeByIdBehalfOfUserAsync(tenant, user, model, query, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await MlModelConsumeByIdBehalfOfUserAsync(tenantId, userId, modelId, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
         /// Consume model by id behalf of user
         /// </summary>
-        /// <returns>Result</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<object> MlModelConsumeByIdBehalfOfUserAsync(System.Guid tenant, System.Guid user, System.Guid model, System.Collections.Generic.IDictionary<string, System.Collections.Generic.IEnumerable<string>> query, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<object> MlModelConsumeByIdBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, System.Guid modelId, object body, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
 
-            if (user == null)
-                throw new System.ArgumentNullException("user");
+            if (userId == null)
+                throw new System.ArgumentNullException("userId");
 
-            if (model == null)
-                throw new System.ArgumentNullException("model");
+            if (modelId == null)
+                throw new System.ArgumentNullException("modelId");
+
+            if (body == null)
+                throw new System.ArgumentNullException("body");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/Ml/consumebyidbehalfofuser/{tenant}/{user}/{model}?");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{user}", System.Uri.EscapeDataString(ConvertToString(user, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{model}", System.Uri.EscapeDataString(ConvertToString(model, System.Globalization.CultureInfo.InvariantCulture)));
-            if (query != null)
-            {
-                foreach (var item_ in query) { urlBuilder_.Append(System.Uri.EscapeDataString(item_.Key) + "=").Append(System.Uri.EscapeDataString(ConvertToString(item_.Value, System.Globalization.CultureInfo.InvariantCulture))).Append("&"); }
-            }
-            urlBuilder_.Length--;
+            urlBuilder_.Append("ml/consumebyidbehalfofuser/{tenantId}/{userId}/{modelId}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{modelId}", System.Uri.EscapeDataString(ConvertToString(modelId, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -99,7 +97,11 @@ namespace Ballware.Ml.Client
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    var json_ = Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value);
+                    var content_ = new System.Net.Http.StringContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -123,12 +125,6 @@ namespace Ballware.Ml.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
-                        }
-                        else
                         if (status_ == 200)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -137,6 +133,12 @@ namespace Ballware.Ml.Client
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
                         {
@@ -161,50 +163,48 @@ namespace Ballware.Ml.Client
         /// <summary>
         /// Consume model by identifier behalf of user
         /// </summary>
-        /// <returns>Result</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<object> MlModelConsumeByIdentifierBehalfOfUserAsync(System.Guid tenant, System.Guid user, string model, System.Collections.Generic.IDictionary<string, System.Collections.Generic.IEnumerable<string>> query)
+        public virtual System.Threading.Tasks.Task<object> MlModelConsumeByIdentifierBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, string identifier, object body)
         {
-            return MlModelConsumeByIdentifierBehalfOfUserAsync(tenant, user, model, query, System.Threading.CancellationToken.None);
+            return MlModelConsumeByIdentifierBehalfOfUserAsync(tenantId, userId, identifier, body, System.Threading.CancellationToken.None);
         }
 
         /// <summary>
         /// Consume model by identifier behalf of user
         /// </summary>
-        /// <returns>Result</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual object MlModelConsumeByIdentifierBehalfOfUser(System.Guid tenant, System.Guid user, string model, System.Collections.Generic.IDictionary<string, System.Collections.Generic.IEnumerable<string>> query)
+        public virtual object MlModelConsumeByIdentifierBehalfOfUser(System.Guid tenantId, System.Guid userId, string identifier, object body)
         {
-            return System.Threading.Tasks.Task.Run(async () => await MlModelConsumeByIdentifierBehalfOfUserAsync(tenant, user, model, query, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await MlModelConsumeByIdentifierBehalfOfUserAsync(tenantId, userId, identifier, body, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>
         /// Consume model by identifier behalf of user
         /// </summary>
-        /// <returns>Result</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<object> MlModelConsumeByIdentifierBehalfOfUserAsync(System.Guid tenant, System.Guid user, string model, System.Collections.Generic.IDictionary<string, System.Collections.Generic.IEnumerable<string>> query, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<object> MlModelConsumeByIdentifierBehalfOfUserAsync(System.Guid tenantId, System.Guid userId, string identifier, object body, System.Threading.CancellationToken cancellationToken)
         {
-            if (tenant == null)
-                throw new System.ArgumentNullException("tenant");
+            if (tenantId == null)
+                throw new System.ArgumentNullException("tenantId");
 
-            if (user == null)
-                throw new System.ArgumentNullException("user");
+            if (userId == null)
+                throw new System.ArgumentNullException("userId");
 
-            if (model == null)
-                throw new System.ArgumentNullException("model");
+            if (identifier == null)
+                throw new System.ArgumentNullException("identifier");
+
+            if (body == null)
+                throw new System.ArgumentNullException("body");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("api/Ml/consumebyidentifierbehalfofuser/{tenant}/{user}/{model}?");
-            urlBuilder_.Replace("{tenant}", System.Uri.EscapeDataString(ConvertToString(tenant, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{user}", System.Uri.EscapeDataString(ConvertToString(user, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{model}", System.Uri.EscapeDataString(ConvertToString(model, System.Globalization.CultureInfo.InvariantCulture)));
-            if (query != null)
-            {
-                foreach (var item_ in query) { urlBuilder_.Append(System.Uri.EscapeDataString(item_.Key) + "=").Append(System.Uri.EscapeDataString(ConvertToString(item_.Value, System.Globalization.CultureInfo.InvariantCulture))).Append("&"); }
-            }
-            urlBuilder_.Length--;
+            urlBuilder_.Append("ml/consumebyidentifierbehalfofuser/{tenantId}/{userId}/{identifier}");
+            urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Replace("{identifier}", System.Uri.EscapeDataString(ConvertToString(identifier, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -212,7 +212,11 @@ namespace Ballware.Ml.Client
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    var json_ = Newtonsoft.Json.JsonConvert.SerializeObject(body, _settings.Value);
+                    var content_ = new System.Net.Http.StringContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -236,12 +240,6 @@ namespace Ballware.Ml.Client
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 401)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
-                        }
-                        else
                         if (status_ == 200)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
@@ -250,6 +248,12 @@ namespace Ballware.Ml.Client
                                 throw new SwaggerException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new SwaggerException("Unauthorized", status_, responseText_, headers_, null);
                         }
                         else
                         {
