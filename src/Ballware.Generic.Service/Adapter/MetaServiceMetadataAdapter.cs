@@ -92,9 +92,9 @@ public class MetaServiceMetadataAdapter : IMetadataAdapter
         return exportId;
     }
 
-    public async Task<Export> FetchExportByIdForTenantAsync(Guid tenant, Guid id)
+    public async Task<Export> FetchExportByIdAsync(Guid id)
     {
-        return Mapper.Map<Export>(await MetaClient.ExportFetchForTenantByIdAsync(tenant, id));
+        return Mapper.Map<Export>(await MetaClient.ExportFetchByIdAsync(id));
     }
 
     public async Task UpdateJobForTenantBehalfOfUserAsync(Guid tenant, Guid userId, JobUpdatePayload payload)

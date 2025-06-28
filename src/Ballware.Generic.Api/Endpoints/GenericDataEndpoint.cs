@@ -622,16 +622,12 @@ public static class GenericDataEndpoint
     }
 
     public static async Task<IResult> HandleDownloadExportAsync(
-        IPrincipalUtils principalUtils,
-        ClaimsPrincipal user,
         IMetadataAdapter metadataAdapter,
         IGenericFileStorageAdapter storageAdapter, 
         string application, string entity,
         Guid id)
     {
-        var tenantId = principalUtils.GetUserId(user);
-        
-        var export = await metadataAdapter.FetchExportByIdForTenantAsync(tenantId, id);
+        var export = await metadataAdapter.FetchExportByIdAsync(id);
 
         if (export == null || export.ExpirationStamp <= DateTime.Now)
         {
