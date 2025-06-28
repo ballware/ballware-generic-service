@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Primitives;
 using Moq;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -104,12 +105,13 @@ public class SqlServerGenericProviderTest : DatabaseBackedBaseTest
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
 
+        
+        await using (var tenantDb = new SqlConnection(Configuration.TenantMasterConnectionString))
         {
-            await using var tenantDb = new SqlConnection(Configuration.TenantMasterConnectionString);
             await tenantDb.DropSchemaForUserAsync("tenant", Schema, User);
             await tenantDb.CloseAsync();
         }
-        
+    
         SchemaProvider = new SqlServerSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
             
         await SchemaProvider.CreateOrUpdateTenantAsync(TenantId, "mssql", serializedTenantModel, UserId);
@@ -291,7 +293,7 @@ public class SqlServerGenericProviderTest : DatabaseBackedBaseTest
             Identifier = "testentity",
             ListQuery = [
                 new QueryEntry() { Identifier = "primary", Query = "select Uuid as Id, Coltextline, Colnumber from testentity" },
-                new QueryEntry() { Identifier = "exportjson", Query = "select Uuid as Id, Coltextline, Colnumber from testentity" }
+                new QueryEntry() { Identifier = "exportjson", Query = "select Uuid as Id, Coltextline, Colnumber from testentity where TenantId=@tenantId and Uuid in @id" }
             ],
             NewQuery = [],
             ByIdQuery = [
@@ -348,7 +350,10 @@ public class SqlServerGenericProviderTest : DatabaseBackedBaseTest
         await genericProvider.ImportAsync(Tenant, entity, UserId, "importjson", Claims, new MemoryStream(Encoding.UTF8.GetBytes(serializedExpectedItems)),
             item => Task.FromResult(true));
         
-        var result = await genericProvider.ExportAsync(Tenant, entity, "exportjson", Claims, ImmutableDictionary<string, object>.Empty);
+        var result = await genericProvider.ExportAsync(Tenant, entity, "exportjson", Claims, new Dictionary<string, object>()
+        {
+            { "id", new StringValues(expectedItems.Select(item => item["Id"].ToString()).ToArray()) }
+        });
 
         Assert.Multiple(() =>
         {
