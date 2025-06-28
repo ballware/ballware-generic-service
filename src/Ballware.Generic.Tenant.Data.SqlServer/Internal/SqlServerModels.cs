@@ -30,15 +30,16 @@ class SqlServerColumnType
         return Types.GetValueOrDefault(literalValue, SqlServerColumnType.Unknown);
     }
 
-    public static SqlServerColumnType Unknown = new SqlServerColumnType("unknown");
-    public static SqlServerColumnType Long = new SqlServerColumnType("bigint");
-    public static SqlServerColumnType Uuid = new SqlServerColumnType("uniqueidentifier");
-    public static SqlServerColumnType Bool = new SqlServerColumnType("bit");
-    public static SqlServerColumnType Int = new SqlServerColumnType("int");
-    public static SqlServerColumnType Float = new SqlServerColumnType("float");
-    public static SqlServerColumnType Datetime = new SqlServerColumnType("datetime");
-    public static SqlServerColumnType String = new SqlServerColumnType("nvarchar");
-    public static SqlServerColumnType Text = new SqlServerColumnType("text");
+    public static readonly SqlServerColumnType Unknown = new SqlServerColumnType("unknown");
+    public static readonly SqlServerColumnType Long = new SqlServerColumnType("bigint");
+    public static readonly SqlServerColumnType Uuid = new SqlServerColumnType("uniqueidentifier");
+    public static readonly SqlServerColumnType Bool = new SqlServerColumnType("bit");
+    public static readonly SqlServerColumnType Int = new SqlServerColumnType("int");
+    public static readonly SqlServerColumnType Float = new SqlServerColumnType("float");
+    public static readonly SqlServerColumnType Date = new SqlServerColumnType("date");
+    public static readonly SqlServerColumnType Datetime = new SqlServerColumnType("datetime");
+    public static readonly SqlServerColumnType String = new SqlServerColumnType("nvarchar");
+    public static readonly SqlServerColumnType Text = new SqlServerColumnType("text");
 
     public static SqlServerColumnType Custom(string literalValue)
     {
