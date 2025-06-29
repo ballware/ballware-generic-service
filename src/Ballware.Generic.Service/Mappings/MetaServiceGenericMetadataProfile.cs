@@ -28,6 +28,7 @@ public class MetaServiceGenericMetadataProfile : Profile
         CreateMap<Ballware.Meta.Client.ProcessingStateSelectListEntry, Ballware.Generic.Metadata.ProcessingStateSelectListEntry>();
         CreateMap<Ballware.Meta.Client.ProcessingStateSelectListEntry, Ballware.Generic.Metadata.ProcessingState>();
         CreateMap<Ballware.Meta.Client.Notification, Ballware.Generic.Metadata.Notification>();
+        CreateMap<Ballware.Meta.Client.Export, Ballware.Generic.Metadata.Export>();
         CreateMap<Ballware.Generic.Metadata.JobCreatePayload, Ballware.Meta.Client.JobCreatePayload>();
         CreateMap<Ballware.Generic.Metadata.JobUpdatePayload, Ballware.Meta.Client.JobUpdatePayload>();
         CreateMap<Ballware.Generic.Metadata.ExportCreatePayload, Ballware.Meta.Client.ExportCreatePayload>();
