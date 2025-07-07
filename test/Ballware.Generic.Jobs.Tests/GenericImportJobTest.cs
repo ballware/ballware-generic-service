@@ -19,7 +19,6 @@ public class FakeEntity
 public class TenantableMetaImportJobTest
 {
     private const string ExpectedFunctionIdentifier = "importjson";
-    private const string ExpectedFileName = "test-file.json";
     
     private Mock<ITenantGenericProvider> GenericProviderMock { get; set; }
     private Mock<ITenantRightsChecker> TenantRightsCheckerMock { get; set; }
@@ -75,6 +74,7 @@ public class TenantableMetaImportJobTest
     {
         // Arrange
         var expectedTenantId = Guid.NewGuid();
+        var expectedTemporaryId = Guid.NewGuid();
         var expectedJobId = Guid.NewGuid();
         var expectedUserId = Guid.NewGuid();
         var expectedClaims = new Dictionary<string, object>()
@@ -111,7 +111,7 @@ public class TenantableMetaImportJobTest
             .ReturnsAsync(expectedEntity);
         
         JobsFileStorageAdapterMock
-            .Setup(s => s.FileByNameForOwnerAsync(expectedUserId.ToString(), ExpectedFileName))
+            .Setup(s => s.TemporaryFileByIdAsync(expectedTenantId, expectedTemporaryId))
             .ReturnsAsync(expectedFileStream);
         
         GenericProviderMock
@@ -156,7 +156,7 @@ public class TenantableMetaImportJobTest
             { "userId", expectedUserId },
             { "identifier", ExpectedFunctionIdentifier },
             { "claims", JsonConvert.SerializeObject(expectedClaims) },
-            { "filename", ExpectedFileName }
+            { "file", expectedTemporaryId }
         };
 
         JobExecutionContextMock
@@ -178,8 +178,8 @@ public class TenantableMetaImportJobTest
             r => r.UpdateJobForTenantBehalfOfUserAsync(expectedTenantId, expectedUserId, It.IsAny<JobUpdatePayload>()),
             Times.Exactly(2));
         
-        JobsFileStorageAdapterMock.Verify(s => s.FileByNameForOwnerAsync(expectedUserId.ToString(), ExpectedFileName), Times.Once);
-        JobsFileStorageAdapterMock.Verify(s => s.RemoveFileForOwnerAsync(expectedUserId.ToString(), ExpectedFileName), Times.Once);
+        JobsFileStorageAdapterMock.Verify(s => s.TemporaryFileByIdAsync(expectedTenantId, expectedTemporaryId), Times.Once);
+        JobsFileStorageAdapterMock.Verify(s => s.RemoveTemporaryFileByIdBehalfOfUserAsync(expectedTenantId, expectedUserId, expectedTemporaryId), Times.Once);
         
         GenericProviderMock.Verify(r => r.ImportAsync(
             expectedTenant,
@@ -196,6 +196,7 @@ public class TenantableMetaImportJobTest
     {
         // Arrange
         var expectedTenantId = Guid.NewGuid();
+        var expectedTemporaryId = Guid.NewGuid();
         var expectedJobId = Guid.NewGuid();
         var expectedUserId = Guid.NewGuid();
         var expectedClaims = new Dictionary<string, object>()
@@ -227,7 +228,7 @@ public class TenantableMetaImportJobTest
             .ReturnsAsync(null as Metadata.Tenant);
         
         JobsFileStorageAdapterMock
-            .Setup(s => s.FileByNameForOwnerAsync(expectedUserId.ToString(), ExpectedFileName))
+            .Setup(s => s.TemporaryFileByIdAsync(expectedTenantId, expectedTemporaryId))
             .ReturnsAsync(expectedFileStream);
         
         GenericProviderMock
@@ -272,7 +273,7 @@ public class TenantableMetaImportJobTest
             { "entity", "fakeentity" },            
             { "identifier", ExpectedFunctionIdentifier },
             { "claims", JsonConvert.SerializeObject(expectedClaims) },
-            { "filename", ExpectedFileName }
+            { "file", expectedTemporaryId }
         };
 
         JobExecutionContextMock
@@ -294,8 +295,8 @@ public class TenantableMetaImportJobTest
             r => r.UpdateJobForTenantBehalfOfUserAsync(expectedTenantId, expectedUserId, It.IsAny<JobUpdatePayload>()),
             Times.Exactly(2));
         
-        JobsFileStorageAdapterMock.Verify(s => s.FileByNameForOwnerAsync(expectedUserId.ToString(), ExpectedFileName), Times.Never);
-        JobsFileStorageAdapterMock.Verify(s => s.RemoveFileForOwnerAsync(expectedUserId.ToString(), ExpectedFileName), Times.Never);
+        JobsFileStorageAdapterMock.Verify(s => s.TemporaryFileByIdAsync(expectedTenantId, expectedTemporaryId), Times.Never);
+        JobsFileStorageAdapterMock.Verify(s => s.RemoveTemporaryFileByIdBehalfOfUserAsync(expectedTenantId, expectedUserId, expectedTemporaryId), Times.Never);
         
         GenericProviderMock.Verify(r => r.ImportAsync(
             expectedTenant,
@@ -312,6 +313,7 @@ public class TenantableMetaImportJobTest
     {
         // Arrange
         var expectedTenantId = Guid.NewGuid();
+        var expectedTemporaryId = Guid.NewGuid();
         var expectedJobId = Guid.NewGuid();
         var expectedUserId = Guid.NewGuid();
         var expectedClaims = new Dictionary<string, object>();
@@ -340,7 +342,7 @@ public class TenantableMetaImportJobTest
             .ReturnsAsync(null as Metadata.Tenant);
         
         JobsFileStorageAdapterMock
-            .Setup(s => s.FileByNameForOwnerAsync(expectedUserId.ToString(), ExpectedFileName))
+            .Setup(s => s.TemporaryFileByIdAsync(expectedTenantId, expectedTemporaryId))
             .ReturnsAsync(expectedFileStream);
         
         GenericProviderMock
@@ -377,7 +379,7 @@ public class TenantableMetaImportJobTest
             { "jobId", expectedJobId },
             { "userId", expectedUserId },
             { "claims", JsonConvert.SerializeObject(expectedClaims) },
-            { "filename", ExpectedFileName }
+            { "file", expectedTemporaryId }
         };
 
         JobExecutionContextMock
@@ -399,8 +401,8 @@ public class TenantableMetaImportJobTest
             r => r.UpdateJobForTenantBehalfOfUserAsync(expectedTenantId, expectedUserId, It.IsAny<JobUpdatePayload>()),
             Times.Once);
         
-        JobsFileStorageAdapterMock.Verify(s => s.FileByNameForOwnerAsync(expectedUserId.ToString(), ExpectedFileName), Times.Never);
-        JobsFileStorageAdapterMock.Verify(s => s.RemoveFileForOwnerAsync(expectedUserId.ToString(), ExpectedFileName), Times.Never);
+        JobsFileStorageAdapterMock.Verify(s => s.TemporaryFileByIdAsync(expectedTenantId, expectedTemporaryId), Times.Never);
+        JobsFileStorageAdapterMock.Verify(s => s.RemoveTemporaryFileByIdBehalfOfUserAsync(expectedTenantId, expectedUserId, expectedTemporaryId), Times.Never);
         
         GenericProviderMock.Verify(r => r.ImportAsync(
             expectedTenant,

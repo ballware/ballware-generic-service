@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
+using Ballware.Generic.Api.Public;
 using Ballware.Generic.Authorization;
 using Ballware.Generic.Metadata;
 using Ballware.Generic.Tenant.Data;
@@ -151,7 +152,7 @@ public static class GenericDataEndpoint
             .RequireAuthorization(authorizationScope)
             .DisableAntiforgery()
             .Accepts<IFormCollection>("application/x-www-form-urlencoded")
-            .Produces<string>()
+            .Produces<ExportUrlResult>()
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "ExportUrl")
@@ -159,9 +160,9 @@ public static class GenericDataEndpoint
             .WithTags(apiTag)
             .WithSummary("Export to file by query");
         
-        app.MapGet(basePath + "/{application}/{entity}/download", HandleDownloadExportAsync)
+        app.MapGet(basePath + "/{application}/{entity}/download/{tenantId}/{id}", HandleDownloadExportAsync)
             .AllowAnonymous()
-            .Produces(StatusCodes.Status200OK, contentType: "application/json")
+            .Produces<FileStream>(StatusCodes.Status200OK, contentType: "application/json")
             .Produces(StatusCodes.Status404NotFound)
             .WithName(apiOperationPrefix + "Download")
             .WithGroupName(apiGroup)
@@ -493,33 +494,32 @@ public static class GenericDataEndpoint
         
         foreach (var file in files)
         {
-            if (file != null)
+            var temporaryId = Guid.NewGuid();
+            
+            var jobData = new JobDataMap();
+
+            jobData["tenantId"] = tenantId;
+            jobData["userId"] = currentUserId;
+            jobData["application"] = application;
+            jobData["entity"] = entity;
+            jobData["identifier"] = identifier;
+            jobData["claims"] = JsonConvert.SerializeObject(claims);
+            jobData["file"] = temporaryId;
+
+            await storageAdapter.UploadTemporaryFileBehalfOfUserAsync(tenantId, currentUserId, temporaryId, file.FileName, file.ContentType, file.OpenReadStream());
+
+            var jobPayload = new JobCreatePayload()
             {
-                var jobData = new JobDataMap();
+                Identifier = "import",
+                Scheduler = "generic",
+                Options = JsonConvert.SerializeObject(jobData)
+            };
+            
+            var job = await metadataAdapter.CreateJobForTenantBehalfOfUserAsync(tenantId, currentUserId, jobPayload);
 
-                jobData["tenantId"] = tenantId;
-                jobData["userId"] = currentUserId;
-                jobData["application"] = application;
-                jobData["entity"] = entity;
-                jobData["identifier"] = identifier;
-                jobData["claims"] = JsonConvert.SerializeObject(claims);
-                jobData["filename"] = file.FileName;
+            jobData["jobId"] = job;
 
-                await storageAdapter.UploadFileForOwnerAsync(currentUserId.ToString(), file.FileName, file.ContentType, file.OpenReadStream());
-
-                var jobPayload = new JobCreatePayload()
-                {
-                    Identifier = "import",
-                    Scheduler = "generic",
-                    Options = JsonConvert.SerializeObject(jobData)
-                };
-                
-                var job = await metadataAdapter.CreateJobForTenantBehalfOfUserAsync(tenantId, currentUserId, jobPayload);
-
-                jobData["jobId"] = job;
-
-                await (await schedulerFactory.GetScheduler()).TriggerJob(JobKey.Create("import", "generic"), jobData);
-            }
+            await (await schedulerFactory.GetScheduler()).TriggerJob(JobKey.Create("import", "generic"), jobData);
         }
 
         return Results.Created();
@@ -616,15 +616,20 @@ public static class GenericDataEndpoint
         
         var exportId = await metadataAdapter.CreateExportForTenantBehalfOfUserAsync(tenantId, currentUserId, exportPayload);
         
-        await storageAdapter.UploadFileForOwnerAsync("export", $"{exportId}{MimeTypeMap.GetExtension(export.MediaType)}", export.MediaType, new MemoryStream(export.Data));
+        await storageAdapter.UploadTemporaryFileBehalfOfUserAsync(tenantId, currentUserId, exportId, $"{exportId}{MimeTypeMap.GetExtension(export.MediaType)}", export.MediaType, new MemoryStream(export.Data));
 
-        return Results.Content(exportId.ToString());
+        return Results.Ok(new ExportUrlResult()
+        {
+            TenantId = tenantId,
+            Id = exportId 
+        });
     }
 
     public static async Task<IResult> HandleDownloadExportAsync(
         IMetadataAdapter metadataAdapter,
         IGenericFileStorageAdapter storageAdapter, 
         string application, string entity,
+        Guid tenantId,
         Guid id)
     {
         var export = await metadataAdapter.FetchExportByIdAsync(id);
@@ -634,7 +639,7 @@ public static class GenericDataEndpoint
             return Results.NotFound();
         }
 
-        var fileContent = await storageAdapter.FileByNameForOwnerAsync("export", $"{export.Id}{MimeTypeMap.GetExtension(export.MediaType)}");
+        var fileContent = await storageAdapter.TemporaryFileByIdAsync(tenantId, export.Id);
 
         return Results.File(fileContent, export.MediaType, $"{export.Query}_{DateTime.Now:yyyyMMdd_HHmmss}{MimeTypeMap.GetExtension(export.MediaType)}");
     }
