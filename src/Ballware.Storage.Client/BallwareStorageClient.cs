@@ -73,7 +73,7 @@ namespace Ballware.Storage.Client
                 throw new System.ArgumentNullException("ownerId");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("attachment/allfortenantentityandowner/{tenantId}/{entity}/{ownerId}");
+            urlBuilder_.Append("storage/attachment/allfortenantentityandowner/{tenantId}/{entity}/{ownerId}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{entity}", System.Uri.EscapeDataString(ConvertToString(entity, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{ownerId}", System.Uri.EscapeDataString(ConvertToString(ownerId, System.Globalization.CultureInfo.InvariantCulture)));
@@ -174,7 +174,7 @@ namespace Ballware.Storage.Client
                 throw new System.ArgumentNullException("id");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("attachment/downloadfortenantentityandownerbyid/{tenantId}/{entity}/{ownerId}/{id}");
+            urlBuilder_.Append("storage/attachment/downloadfortenantentityandownerbyid/{tenantId}/{entity}/{ownerId}/{id}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{entity}", System.Uri.EscapeDataString(ConvertToString(entity, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{ownerId}", System.Uri.EscapeDataString(ConvertToString(ownerId, System.Globalization.CultureInfo.InvariantCulture)));
@@ -274,7 +274,7 @@ namespace Ballware.Storage.Client
                 throw new System.ArgumentNullException("filename");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("attachment/downloadfortenantentityandownerbyfilename/{tenantId}/{entity}/{ownerId}/{filename}");
+            urlBuilder_.Append("storage/attachment/downloadfortenantentityandownerbyfilename/{tenantId}/{entity}/{ownerId}/{filename}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{entity}", System.Uri.EscapeDataString(ConvertToString(entity, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{ownerId}", System.Uri.EscapeDataString(ConvertToString(ownerId, System.Globalization.CultureInfo.InvariantCulture)));
@@ -374,7 +374,7 @@ namespace Ballware.Storage.Client
                 throw new System.ArgumentNullException("ownerId");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("attachment/uploadfortenantentityandownerbehalfofuser/{tenantId}/{userId}/{entity}/{ownerId}");
+            urlBuilder_.Append("storage/attachment/uploadfortenantentityandownerbehalfofuser/{tenantId}/{userId}/{entity}/{ownerId}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{entity}", System.Uri.EscapeDataString(ConvertToString(entity, System.Globalization.CultureInfo.InvariantCulture)));
@@ -491,7 +491,7 @@ namespace Ballware.Storage.Client
                 throw new System.ArgumentNullException("id");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("attachment/dropfortenantentityandownerbyidbehalfofuser/{tenantId}/{userId}/{entity}/{ownerId}/{id}");
+            urlBuilder_.Append("storage/attachment/dropfortenantentityandownerbyidbehalfofuser/{tenantId}/{userId}/{entity}/{ownerId}/{id}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{entity}", System.Uri.EscapeDataString(ConvertToString(entity, System.Globalization.CultureInfo.InvariantCulture)));
@@ -591,7 +591,7 @@ namespace Ballware.Storage.Client
                 throw new System.ArgumentNullException("filename");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("attachment/dropfortenantentityandownerbyfilenamebehalfofuser/{tenantId}/{userId}/{entity}/{ownerId}/{filename}");
+            urlBuilder_.Append("storage/attachment/dropfortenantentityandownerbyfilenamebehalfofuser/{tenantId}/{userId}/{entity}/{ownerId}/{filename}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{entity}", System.Uri.EscapeDataString(ConvertToString(entity, System.Globalization.CultureInfo.InvariantCulture)));
@@ -688,7 +688,7 @@ namespace Ballware.Storage.Client
                 throw new System.ArgumentNullException("ownerId");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("attachment/dropallfortenantentityandownerbehalfofuser/{tenantId}/{userId}/{entity}/{ownerId}");
+            urlBuilder_.Append("storage/attachment/dropallfortenantentityandownerbehalfofuser/{tenantId}/{userId}/{entity}/{ownerId}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{entity}", System.Uri.EscapeDataString(ConvertToString(entity, System.Globalization.CultureInfo.InvariantCulture)));
@@ -781,7 +781,7 @@ namespace Ballware.Storage.Client
                 throw new System.ArgumentNullException("entity");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("attachment/dropallfortenantandentitybehalfofuser/{tenantId}/{userId}/{entity}");
+            urlBuilder_.Append("storage/attachment/dropallfortenantandentitybehalfofuser/{tenantId}/{userId}/{entity}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{entity}", System.Uri.EscapeDataString(ConvertToString(entity, System.Globalization.CultureInfo.InvariantCulture)));
@@ -870,7 +870,7 @@ namespace Ballware.Storage.Client
                 throw new System.ArgumentNullException("userId");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("attachment/dropallfortenantbehalfofuser/{tenantId}/{userId}");
+            urlBuilder_.Append("storage/attachment/dropallfortenantbehalfofuser/{tenantId}/{userId}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -958,7 +958,7 @@ namespace Ballware.Storage.Client
                 throw new System.ArgumentNullException("id");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("temporary/downloadfortenantbyid/{tenantId}/{id}");
+            urlBuilder_.Append("storage/temporary/downloadfortenantbyid/{tenantId}/{id}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
 
@@ -1059,7 +1059,7 @@ namespace Ballware.Storage.Client
                 throw new System.ArgumentNullException("id");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("temporary/uploadfortenantandidbehalfofuser/{tenantId}/{userId}/{id}");
+            urlBuilder_.Append("storage/temporary/uploadfortenantandidbehalfofuser/{tenantId}/{userId}/{id}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
@@ -1169,7 +1169,7 @@ namespace Ballware.Storage.Client
                 throw new System.ArgumentNullException("id");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("temporary/dropfortenantandidbehalfofuser/{tenantId}/{userId}/{id}");
+            urlBuilder_.Append("storage/temporary/dropfortenantandidbehalfofuser/{tenantId}/{userId}/{id}");
             urlBuilder_.Replace("{tenantId}", System.Uri.EscapeDataString(ConvertToString(tenantId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
