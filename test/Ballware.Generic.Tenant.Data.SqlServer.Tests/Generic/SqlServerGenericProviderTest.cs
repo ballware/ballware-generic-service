@@ -217,10 +217,12 @@ public class SqlServerGenericProviderTest : DatabaseBackedBaseTest
         await genericProvider.SaveAsync(Tenant, entity, UserId, "notexistingforcedefault", Claims, byIdEntry);
 
         byIdEntry = await genericProvider.ByIdAsync<dynamic>(Tenant, entity, "primary", Claims, newEntry.Id);
+        var scalarNumberColumnValue = await genericProvider.GetScalarValueAsync<int>(Tenant, entity, "Colnumber", newEntry.Id, 0);
         
         Assert.That(byIdEntry, Is.Not.Null);
         Assert.That(byIdEntry.Coltextline, Is.EqualTo("test textline updated"));
         Assert.That(byIdEntry.Colnumber, Is.EqualTo(7));
+        Assert.That(scalarNumberColumnValue, Is.EqualTo(7));
         
         var countResult = await genericProvider.CountAsync(Tenant, entity, "count", Claims, ImmutableDictionary<string, object>.Empty);
         
@@ -240,9 +242,11 @@ public class SqlServerGenericProviderTest : DatabaseBackedBaseTest
         
         await genericProvider.RemoveAsync(Tenant, entity, UserId, Claims, queryEntry.Id);
         
+        scalarNumberColumnValue = await genericProvider.GetScalarValueAsync<int>(Tenant, entity, "Colnumber", queryEntry.Id, -1);
         countResult = await genericProvider.CountAsync(Tenant, entity, "count", Claims, ImmutableDictionary<string, object>.Empty);
         
-        Assert.That(countResult, Is.EqualTo(1));        
+        Assert.That(countResult, Is.EqualTo(1));     
+        Assert.That(scalarNumberColumnValue, Is.EqualTo(-1));
     }
     
     [Test]
