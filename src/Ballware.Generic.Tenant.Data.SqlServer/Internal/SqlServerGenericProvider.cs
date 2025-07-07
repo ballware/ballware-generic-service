@@ -417,10 +417,10 @@ class SqlServerGenericProvider : ITenantGenericProvider
             return defaultValue;
         }
         
-        var item = (await context.Connection.QueryAsync<Dictionary<string, object>>(
+        var item = (await context.Connection.QuerySingleOrDefaultAsync<dynamic>(
             await StorageProvider.ApplyTenantPlaceholderAsync(context.Tenant.Id, query.Query, TenantPlaceholderOptions.Create()), 
             new { tenantId = context.Tenant.Id, id }, 
-            context.Transaction)).FirstOrDefault();
+            context.Transaction)) as IDictionary<string, object>;
 
         if (item != null && item.TryGetValue(column, out object? value))
         {
