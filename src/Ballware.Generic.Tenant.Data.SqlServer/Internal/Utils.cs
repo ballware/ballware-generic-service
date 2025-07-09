@@ -21,7 +21,7 @@ static class Utils
     public static IDictionary<string, object> DropComplexMember(IDictionary<string, object> input)
     {   
         var filtered = input
-            .Where(kv => kv.Value is not Dictionary<string, object> && kv.Value is not List<object>)
+            .Where(kv => kv.Value is not Dictionary<string, object> && kv.Value is not List<object> && kv.Value is not object[])
             .ToDictionary(kv => kv.Key, kv => kv.Value);
 
         return filtered;
