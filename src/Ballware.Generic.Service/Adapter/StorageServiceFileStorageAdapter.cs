@@ -13,20 +13,20 @@ public class StorageServiceFileStorageAdapter : IGenericFileStorageAdapter, IJob
         StorageClient = storageClient;
     }
     
-    public async Task<Stream> FileByNameForOwnerAsync(string owner, string fileName)
+    public async Task UploadTemporaryFileBehalfOfUserAsync(Guid tenantId, Guid userId, Guid temporaryId, string fileName, string contentType, Stream data)
     {
-        var result = await StorageClient.FileByNameForOwnerAsync(owner, fileName);
+        await StorageClient.TemporaryUploadForTenantAndIdBehalfOfUserAsync(tenantId, userId, temporaryId, [new FileParameter(data, fileName, contentType)]);
+    }
+
+    public async Task<Stream> TemporaryFileByIdAsync(Guid tenantId, Guid temporaryId)
+    {
+        var response = await StorageClient.TemporaryDownloadForTenantByIdAsync(tenantId, temporaryId); 
         
-        return result.Stream;
+        return response.Stream;
     }
 
-    public async Task RemoveFileForOwnerAsync(string owner, string fileName)
+    public async Task RemoveTemporaryFileByIdBehalfOfUserAsync(Guid tenantId, Guid userId, Guid temporaryId)
     {
-        await StorageClient.RemoveFileForOwnerAsync(owner, fileName);
-    }
-
-    public async Task UploadFileForOwnerAsync(string owner, string fileName, string contentType, Stream data)
-    {
-        await StorageClient.UploadFileForOwnerAsync(owner, new []{ new FileParameter(data, fileName, contentType) });
+        await StorageClient.TemporaryDropForTenantAndIdBehalfOfUserAsync(tenantId, userId, temporaryId);
     }
 }

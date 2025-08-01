@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using Ballware.Generic.Api.Endpoints;
+using Ballware.Generic.Api.Public;
 using Ballware.Generic.Api.Tests.Utils;
 using Ballware.Generic.Authorization;
 using Ballware.Generic.Data.Public;
@@ -1954,7 +1955,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
         // Assert
         Assert.That(unauthorizedResponse.StatusCode,Is.EqualTo(HttpStatusCode.Unauthorized));
     }
-    
+
     [Test]
     public async Task HandleExportToUrl_succeeds()
     {
@@ -1990,47 +1991,48 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             Data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(expectedList)),
             MediaType = "application/json"
         };
-        
+
         var fakeTenant = new Metadata.Tenant()
         {
             Id = expectedTenantId,
             Provider = "mssql"
         };
-        
+
         var fakeEntity = new Entity()
         {
             Application = expectedApplication,
             Identifier = expectedEntity
         };
-        
+
         PrincipalUtilsMock
             .Setup(p => p.GetUserTenandId(It.IsAny<ClaimsPrincipal>()))
             .Returns(expectedTenantId);
-        
+
         PrincipalUtilsMock
             .Setup(p => p.GetUserId(It.IsAny<ClaimsPrincipal>()))
             .Returns(expectedUserId);
-        
+
         MetadataAdapterMock
             .Setup(m => m.MetadataForTenantByIdAsync(expectedTenantId))
             .ReturnsAsync(fakeTenant);
-        
+
         MetadataAdapterMock
             .Setup(m => m.MetadataForEntityByTenantAndIdentifierAsync(expectedTenantId, expectedEntity))
             .ReturnsAsync(fakeEntity);
-        
+
         TenantRightsCheckerMock
             .Setup(c => c.HasRightAsync(fakeTenant, expectedApplication, expectedEntity,
                 It.IsAny<Dictionary<string, object>>(), "export"))
             .ReturnsAsync(true);
-        
+
         EntityRightsCheckerMock
-            .Setup(c => c.HasRightAsync(expectedTenantId, It.IsAny<Entity>(), It.IsAny<IDictionary<string, object>>(), 
+            .Setup(c => c.HasRightAsync(expectedTenantId, It.IsAny<Entity>(), It.IsAny<IDictionary<string, object>>(),
                 "export", It.IsAny<object>(), true))
             .ReturnsAsync(true);
-        
+
         MetadataAdapterMock
-            .Setup(r => r.CreateExportForTenantBehalfOfUserAsync(expectedTenantId, expectedUserId, It.IsAny<ExportCreatePayload>()))
+            .Setup(r => r.CreateExportForTenantBehalfOfUserAsync(expectedTenantId, expectedUserId,
+                It.IsAny<ExportCreatePayload>()))
             .ReturnsAsync(expectedExportId)
             .Callback((Guid tenantId, Guid userId, ExportCreatePayload entry) =>
             {
@@ -2044,21 +2046,28 @@ public class GenericEditingApiTest : ApiMappingBaseTest
                     Assert.That(entry.MediaType, Is.EqualTo("application/json"));
                 });
             });
-        
+
         TenantGenericProviderMock
-            .Setup(r => r.ExportAsync(fakeTenant, fakeEntity, "export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.ExportAsync(fakeTenant, fakeEntity, "export", It.IsAny<IDictionary<string, object>>(),
+                It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedResult);
-        
+
         // Act
-        var response = await Client.PostAsync($"generic/{expectedApplication}/{expectedEntity}/exporturl?identifier=export", new FormUrlEncodedContent(
-            expectedList.Select(item => new KeyValuePair<string, string>("Id", item.Id.ToString()))));
-        
+        var response = await Client.PostAsync(
+            $"generic/{expectedApplication}/{expectedEntity}/exporturl?identifier=export", new FormUrlEncodedContent(
+                expectedList.Select(item => new KeyValuePair<string, string>("Id", item.Id.ToString()))));
+
         // Assert
-        Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
-        
-        Assert.That(Guid.TryParse(await response.Content.ReadAsStringAsync(), out Guid result), Is.True);
-        
-        Assert.That(result, Is.EqualTo(expectedExportId));
+        await Assert.MultipleAsync(async () => 
+        {
+            Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
+
+            var result = JsonSerializer.Deserialize<ExportUrlResult>(await response.Content.ReadAsStringAsync());
+            
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result?.TenantId, Is.EqualTo(expectedTenantId));
+            Assert.That(result?.Id, Is.EqualTo(expectedExportId));
+        });
 
         MetadataAdapterMock
             .Verify(r => r.CreateExportForTenantBehalfOfUserAsync(expectedTenantId, expectedUserId, It.IsAny<ExportCreatePayload>()), 
@@ -2264,6 +2273,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
     {
         // Arrange
         var expectedTenantId = Guid.NewGuid();
+        var expectedTemporaryId = Guid.NewGuid();
         var expectedUserId = Guid.NewGuid();
         var expectedApplication = "test";
         var expectedEntity = "fakeentity";
@@ -2322,13 +2332,15 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
 
         StorageAdapterMock
-            .Setup(s => s.UploadFileForOwnerAsync(expectedUserId.ToString(), "import.json", "application/json",
+            .Setup(s => s.UploadTemporaryFileBehalfOfUserAsync(expectedTenantId, expectedUserId, expectedTemporaryId, "import.json", "application/json",
                 It.IsAny<Stream>()))
-            .Callback((string owner, string fileName, string mediaType, Stream stream) =>
+            .Callback((Guid tenantId, Guid userId, Guid temporaryId, string fileName, string mediaType, Stream stream) =>
             {
                 Assert.Multiple(() =>
                 {
-                    Assert.That(owner, Is.EqualTo(expectedUserId.ToString()));
+                    Assert.That(tenantId, Is.EqualTo(expectedTenantId));
+                    Assert.That(userId, Is.EqualTo(expectedUserId));
+                    Assert.That(temporaryId, Is.EqualTo(expectedTemporaryId));
                     Assert.That(fileName, Is.EqualTo("import.json"));
                     Assert.That(mediaType, Is.EqualTo("application/json"));
                     using var reader = new StreamReader(stream);
