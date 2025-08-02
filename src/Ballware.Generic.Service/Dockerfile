@@ -12,7 +12,9 @@ WORKDIR /src
 COPY ./Ballware.Generic.Api ./Ballware.Generic.Api
 COPY ./Ballware.Generic.Caching ./Ballware.Generic.Caching
 COPY ./Ballware.Generic.Data ./Ballware.Generic.Data
+COPY ./Ballware.Generic.Data.Caching ./Ballware.Generic.Data.Caching
 COPY ./Ballware.Generic.Data.Ef ./Ballware.Generic.Data.Ef
+COPY ./Ballware.Generic.Data.Ef.SqlServer ./Ballware.Generic.Data.Ef.SqlServer
 COPY ./Ballware.Generic.Jobs ./Ballware.Generic.Jobs
 COPY ./Ballware.Generic.Metadata ./Ballware.Generic.Metadata
 COPY ./Ballware.Generic.Scripting ./Ballware.Generic.Scripting
