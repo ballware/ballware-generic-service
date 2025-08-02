@@ -46,7 +46,7 @@ jobs:
             --username frankball \
             --password ${{ secrets.GITHUB_TOKEN }} \
             --store-password-in-clear-text
-          dotnet restore ballware-meta-service.sln         
+          dotnet restore ballware-generic-service.sln         
           
       - name: Build solution
         run: dotnet build ballware-generic-service.sln --no-incremental --configuration Release
