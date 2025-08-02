@@ -1,9 +1,7 @@
-using System.Text;
-using System.Text.Json;
 using AutoMapper;
-using Ballware.Generic.Data.Persistables;
 using Ballware.Generic.Data.Public;
 using Ballware.Generic.Data.Repository;
+using Ballware.Shared.Data.Persistables;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Generic.Data.Ef.Internal;
