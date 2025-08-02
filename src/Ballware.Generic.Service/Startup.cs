@@ -1,10 +1,11 @@
 using Ballware.Generic.Api;
 using Ballware.Generic.Api.Endpoints;
-using Ballware.Generic.Authorization;
-using Ballware.Generic.Authorization.Jint;
+using Ballware.Shared.Authorization;
+using Ballware.Shared.Authorization.Jint;
 using Ballware.Generic.Caching;
 using Ballware.Generic.Data.Ef;
 using Ballware.Generic.Data.Ef.Configuration;
+using Ballware.Generic.Data.Ef.SqlServer;
 using Ballware.Generic.Jobs;
 using Ballware.Generic.Metadata;
 using Ballware.Generic.Scripting.Jint;
@@ -289,11 +290,11 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddScoped<IGenericFileStorageAdapter, StorageServiceFileStorageAdapter>();
         Services.AddScoped<IJobsFileStorageAdapter, StorageServiceFileStorageAdapter>();
         
-        Services.AddBallwareGenericAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
-        Services.AddBallwareGenericJintRightsChecker();
+        Services.AddBallwareSharedAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
+        Services.AddBallwareSharedJintRightsChecker();
         Services.AddBallwareJintGenericScripting();
         
-        Services.AddBallwareTenantStorage(storageOptions, tenantMasterConnectionString);
+        Services.AddBallwareTenantStorageForSqlServer(storageOptions, tenantMasterConnectionString);
         
         Services.AddBallwareTenantGenericStorage(builder =>
         {

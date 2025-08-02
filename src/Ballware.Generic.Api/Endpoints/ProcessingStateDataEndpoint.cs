@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using Ballware.Generic.Tenant.Data;
-using Ballware.Generic.Authorization;
+using Ballware.Shared.Authorization;
 using Ballware.Generic.Metadata;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;

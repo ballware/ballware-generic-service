@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using Ballware.Generic.Api.Public;
-using Ballware.Generic.Authorization;
+using Ballware.Shared.Authorization;
 using Ballware.Generic.Metadata;
 using Ballware.Generic.Tenant.Data;
 using Microsoft.AspNetCore.Builder;

@@ -2,10 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Service", "src\Ballware.Generic.Service\Ballware.Generic.Service.csproj", "{3B564D9F-CA37-44D2-B3FA-4DF6F9D8BAB3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Authorization", "src\Ballware.Generic.Authorization\Ballware.Generic.Authorization.csproj", "{1B4E4F6E-1297-4F3A-BB87-728B95F3FD5A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Authorization.Jint", "src\Ballware.Generic.Authorization.Jint\Ballware.Generic.Authorization.Jint.csproj", "{63EDBED5-215A-4D73-8F3A-3D36D486F692}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Meta.Client", "src\Ballware.Meta.Client\Ballware.Meta.Client.csproj", "{1EFB285D-045A-49FD-AFB8-6E68B21682CD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Client", "src\Ballware.Storage.Client\Ballware.Storage.Client.csproj", "{14A6A8ED-4224-4DF7-9958-0A7E96057793}"
@@ -36,11 +32,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Jobs", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Jobs.Tests", "test\Ballware.Generic.Jobs.Tests\Ballware.Generic.Jobs.Tests.csproj", "{8009BD1B-0404-45D3-A02E-A2E108D05D93}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Data.Ef.Tests", "test\Ballware.Generic.Data.Ef.Tests\Ballware.Generic.Data.Ef.Tests.csproj", "{33488C99-9BA7-46F8-BCE4-180EF30D2829}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Data.Ef.SqlServer.Tests", "test\Ballware.Generic.Data.Ef.SqlServer.Tests\Ballware.Generic.Data.Ef.SqlServer.Tests.csproj", "{33488C99-9BA7-46F8-BCE4-180EF30D2829}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Caching", "src\Ballware.Generic.Caching\Ballware.Generic.Caching.csproj", "{B87B60EC-0CD1-4F53-96AB-041265857483}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Caching.Tests", "test\Ballware.Generic.Caching.Tests\Ballware.Generic.Caching.Tests.csproj", "{A159DDFB-C461-4688-8427-E5FB8E2C01AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Data.Ef.SqlServer", "src\Ballware.Generic.Data.Ef.SqlServer\Ballware.Generic.Data.Ef.SqlServer.csproj", "{E60ABAE4-EFE3-4A4F-A23F-BED09D211571}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Data.Caching", "src\Ballware.Generic.Data.Caching\Ballware.Generic.Data.Caching.csproj", "{9BB26B74-9CDF-4A72-98A0-8F8961D885B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,14 +52,6 @@ Global
 		{3B564D9F-CA37-44D2-B3FA-4DF6F9D8BAB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B564D9F-CA37-44D2-B3FA-4DF6F9D8BAB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B564D9F-CA37-44D2-B3FA-4DF6F9D8BAB3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1B4E4F6E-1297-4F3A-BB87-728B95F3FD5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1B4E4F6E-1297-4F3A-BB87-728B95F3FD5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1B4E4F6E-1297-4F3A-BB87-728B95F3FD5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1B4E4F6E-1297-4F3A-BB87-728B95F3FD5A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{63EDBED5-215A-4D73-8F3A-3D36D486F692}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{63EDBED5-215A-4D73-8F3A-3D36D486F692}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{63EDBED5-215A-4D73-8F3A-3D36D486F692}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{63EDBED5-215A-4D73-8F3A-3D36D486F692}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1EFB285D-045A-49FD-AFB8-6E68B21682CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1EFB285D-045A-49FD-AFB8-6E68B21682CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EFB285D-045A-49FD-AFB8-6E68B21682CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -132,5 +124,13 @@ Global
 		{A159DDFB-C461-4688-8427-E5FB8E2C01AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A159DDFB-C461-4688-8427-E5FB8E2C01AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A159DDFB-C461-4688-8427-E5FB8E2C01AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E60ABAE4-EFE3-4A4F-A23F-BED09D211571}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E60ABAE4-EFE3-4A4F-A23F-BED09D211571}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E60ABAE4-EFE3-4A4F-A23F-BED09D211571}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E60ABAE4-EFE3-4A4F-A23F-BED09D211571}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BB26B74-9CDF-4A72-98A0-8F8961D885B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BB26B74-9CDF-4A72-98A0-8F8961D885B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BB26B74-9CDF-4A72-98A0-8F8961D885B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BB26B74-9CDF-4A72-98A0-8F8961D885B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

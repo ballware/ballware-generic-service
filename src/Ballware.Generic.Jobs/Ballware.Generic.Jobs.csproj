@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Ballware.Shared.Authorization" Version="0.0.4" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -15,7 +16,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Ballware.Generic.Authorization\Ballware.Generic.Authorization.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Tenant.Data\Ballware.Generic.Tenant.Data.csproj" />
     </ItemGroup>
 
