@@ -1,5 +1,5 @@
 using System.Dynamic;
-using Ballware.Generic.Authorization;
+using Ballware.Shared.Authorization;
 using Ballware.Generic.Jobs.Internal;
 using Ballware.Generic.Metadata;
 using Ballware.Generic.Tenant.Data;

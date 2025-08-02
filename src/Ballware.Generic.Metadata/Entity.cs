@@ -1,4 +1,5 @@
 using System.Runtime.Serialization;
+using Ballware.Shared.Authorization;
 
 namespace Ballware.Generic.Metadata;
 
@@ -49,7 +50,7 @@ public class CustomFunctionEntry
     public CustomFunctionOptions? Options { get; set; }
 }
 
-public class Entity
+public class Entity : IEntityAuthorizationMetadata
 {
     public IEnumerable<QueryEntry> ListQuery { get; set; }
     public IEnumerable<QueryEntry> NewQuery { get; set; }
@@ -61,7 +62,7 @@ public class Entity
     public string? ScalarValueQuery { get; set; }
     
     public string? RemoveStatement { get; set; }
-    
+
     public required string Application { get; set; }
     public required string Identifier { get; set; }
     
@@ -80,6 +81,14 @@ public class Entity
     public string? ExtendedRightsCheckScript { get; set; }
     
     public string? StateColumn { get; set; }
-    
+
     public string? StateAllowedScript { get; set; }
+
+    string IEntityAuthorizationMetadata.Application => Application;
+
+    string IEntityAuthorizationMetadata.Entity => Identifier;
+
+    string? IEntityAuthorizationMetadata.RightsCheckScript => ExtendedRightsCheckScript;
+
+    string? IEntityAuthorizationMetadata.StateAllowedScript => StateAllowedScript;
 }

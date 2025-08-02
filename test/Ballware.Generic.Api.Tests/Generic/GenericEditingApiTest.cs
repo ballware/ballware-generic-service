@@ -6,7 +6,7 @@ using System.Text.Json;
 using Ballware.Generic.Api.Endpoints;
 using Ballware.Generic.Api.Public;
 using Ballware.Generic.Api.Tests.Utils;
-using Ballware.Generic.Authorization;
+using Ballware.Shared.Authorization;
 using Ballware.Generic.Data.Public;
 using Ballware.Generic.Metadata;
 using Ballware.Generic.Tenant.Data;

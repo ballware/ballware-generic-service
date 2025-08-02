@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Ballware.Shared.Authorization.Jint" Version="0.0.4" />
         <PackageReference Include="Duende.AccessTokenManagement" Version="3.1.1" />
         <PackageReference Include="Duende.AccessTokenManagement.OpenIdConnect" Version="3.1.1" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
@@ -34,8 +35,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Ballware.Generic.Api\Ballware.Generic.Api.csproj" />
-      <ProjectReference Include="..\Ballware.Generic.Authorization.Jint\Ballware.Generic.Authorization.Jint.csproj" />
-      <ProjectReference Include="..\Ballware.Generic.Authorization\Ballware.Generic.Authorization.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Caching\Ballware.Generic.Caching.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Data.Ef\Ballware.Generic.Data.Ef.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Jobs\Ballware.Generic.Jobs.csproj" />

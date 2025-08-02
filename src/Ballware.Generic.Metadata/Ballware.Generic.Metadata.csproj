@@ -9,4 +9,8 @@
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Ballware.Shared.Authorization" Version="0.0.4" />
+    </ItemGroup>
+
 </Project>

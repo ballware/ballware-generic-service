@@ -1,4 +1,4 @@
-using Ballware.Generic.Authorization;
+using Ballware.Shared.Authorization;
 using Ballware.Generic.Tenant.Data;
 using Ballware.Generic.Metadata;
 using Newtonsoft.Json;

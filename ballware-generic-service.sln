@@ -2,10 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Service", "src\Ballware.Generic.Service\Ballware.Generic.Service.csproj", "{3B564D9F-CA37-44D2-B3FA-4DF6F9D8BAB3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Authorization", "src\Ballware.Generic.Authorization\Ballware.Generic.Authorization.csproj", "{1B4E4F6E-1297-4F3A-BB87-728B95F3FD5A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Authorization.Jint", "src\Ballware.Generic.Authorization.Jint\Ballware.Generic.Authorization.Jint.csproj", "{63EDBED5-215A-4D73-8F3A-3D36D486F692}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Meta.Client", "src\Ballware.Meta.Client\Ballware.Meta.Client.csproj", "{1EFB285D-045A-49FD-AFB8-6E68B21682CD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Storage.Client", "src\Ballware.Storage.Client\Ballware.Storage.Client.csproj", "{14A6A8ED-4224-4DF7-9958-0A7E96057793}"
@@ -52,14 +48,6 @@ Global
 		{3B564D9F-CA37-44D2-B3FA-4DF6F9D8BAB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B564D9F-CA37-44D2-B3FA-4DF6F9D8BAB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B564D9F-CA37-44D2-B3FA-4DF6F9D8BAB3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1B4E4F6E-1297-4F3A-BB87-728B95F3FD5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1B4E4F6E-1297-4F3A-BB87-728B95F3FD5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1B4E4F6E-1297-4F3A-BB87-728B95F3FD5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1B4E4F6E-1297-4F3A-BB87-728B95F3FD5A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{63EDBED5-215A-4D73-8F3A-3D36D486F692}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{63EDBED5-215A-4D73-8F3A-3D36D486F692}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{63EDBED5-215A-4D73-8F3A-3D36D486F692}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{63EDBED5-215A-4D73-8F3A-3D36D486F692}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1EFB285D-045A-49FD-AFB8-6E68B21682CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1EFB285D-045A-49FD-AFB8-6E68B21682CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EFB285D-045A-49FD-AFB8-6E68B21682CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
