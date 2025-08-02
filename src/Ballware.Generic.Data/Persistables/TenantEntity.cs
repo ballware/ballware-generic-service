@@ -3,7 +3,7 @@ using Ballware.Shared.Data.Persistables;
 
 namespace Ballware.Generic.Data.Persistables;
 
-public class TenantEntity : IEntity, IAuditable
+public class TenantEntity : IEntity, IAuditable, ITenantable
 {
     public long? Id { get; set; }
     public Guid Uuid { get; set; }

@@ -1,3 +1,5 @@
+using Ballware.Shared.Data.Public;
+
 namespace Ballware.Generic.Data.Public;
 
 public class TenantConnection : IEditable

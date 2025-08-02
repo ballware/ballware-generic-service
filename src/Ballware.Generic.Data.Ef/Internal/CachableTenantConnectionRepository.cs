@@ -1,7 +1,7 @@
 using AutoMapper;
 using Ballware.Generic.Caching;
 using Ballware.Generic.Data.Public;
-using Ballware.Generic.Data.Repository;
+using Ballware.Shared.Data.Repository;
 
 namespace Ballware.Generic.Data.Ef.Internal;
 
@@ -38,7 +38,7 @@ class CachableTenantConnectionRepository : TenantConnectionRepository
         Cache.SetItem(value.Id, value);
     }
 
-    public override async Task<RemoveResult> RemoveAsync(Guid? userId, IDictionary<string, object> claims,
+    public override async Task<RemoveResult<TenantConnection>> RemoveAsync(Guid? userId, IDictionary<string, object> claims,
         IDictionary<string, object> removeParams)
     {
         var result = await base.RemoveAsync(userId, claims, removeParams);

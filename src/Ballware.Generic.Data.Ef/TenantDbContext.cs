@@ -1,9 +1,10 @@
 ﻿using Ballware.Generic.Data.Persistables;
+using Ballware.Shared.Data.Ef;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Generic.Data.Ef;
 
-public class TenantDbContext : DbContext
+public class TenantDbContext : DbContext, IDbContext
 {
     public TenantDbContext(DbContextOptions<TenantDbContext> options) : base(options)
     {

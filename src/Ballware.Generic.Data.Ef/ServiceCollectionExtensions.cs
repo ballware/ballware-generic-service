@@ -2,6 +2,7 @@ using Ballware.Generic.Data.Ef.Configuration;
 using Ballware.Generic.Data.Ef.Internal;
 using Ballware.Generic.Data.Public;
 using Ballware.Generic.Data.Repository;
+using Ballware.Shared.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -32,7 +33,7 @@ public static class ServiceCollectionExtensions
             services.AddScoped<ITenantConnectionRepository, TenantConnectionRepository>();    
         }
         
-        services.AddScoped<IRepository<TenantEntity>, TenantEntityRepository>();
+        services.AddScoped<ITenantableRepository<TenantEntity>, TenantEntityRepository>();
         services.AddScoped<ITenantEntityRepository, TenantEntityRepository>();
 
         services.AddHostedService<InitializationWorker>();
