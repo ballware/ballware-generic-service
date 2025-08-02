@@ -1,5 +1,5 @@
 using AutoMapper;
-using Ballware.Generic.Data.Ef.Internal;
+using Ballware.Generic.Data.Ef.Mapping;
 
 namespace Ballware.Generic.Data.Ef;
 

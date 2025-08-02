@@ -5,6 +5,7 @@ using Ballware.Shared.Authorization.Jint;
 using Ballware.Generic.Caching;
 using Ballware.Generic.Data.Ef;
 using Ballware.Generic.Data.Ef.Configuration;
+using Ballware.Generic.Data.Ef.SqlServer;
 using Ballware.Generic.Jobs;
 using Ballware.Generic.Metadata;
 using Ballware.Generic.Scripting.Jint;
@@ -293,7 +294,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddBallwareSharedJintRightsChecker();
         Services.AddBallwareJintGenericScripting();
         
-        Services.AddBallwareTenantStorage(storageOptions, tenantMasterConnectionString);
+        Services.AddBallwareTenantStorageForSqlServer(storageOptions, tenantMasterConnectionString);
         
         Services.AddBallwareTenantGenericStorage(builder =>
         {

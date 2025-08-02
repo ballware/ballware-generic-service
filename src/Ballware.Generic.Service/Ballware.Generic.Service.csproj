@@ -36,6 +36,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Ballware.Generic.Api\Ballware.Generic.Api.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Caching\Ballware.Generic.Caching.csproj" />
+      <ProjectReference Include="..\Ballware.Generic.Data.Ef.SqlServer\Ballware.Generic.Data.Ef.SqlServer.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Data.Ef\Ballware.Generic.Data.Ef.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Jobs\Ballware.Generic.Jobs.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Scripting.Jint\Ballware.Generic.Scripting.Jint.csproj" />
