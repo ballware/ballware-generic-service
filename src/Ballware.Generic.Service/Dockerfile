@@ -21,6 +21,7 @@ COPY ./Ballware.Generic.Scripting ./Ballware.Generic.Scripting
 COPY ./Ballware.Generic.Scripting.Jint ./Ballware.Generic.Scripting.Jint
 COPY ./Ballware.Generic.Service ./Ballware.Generic.Service
 COPY ./Ballware.Generic.Tenant.Data ./Ballware.Generic.Tenant.Data
+COPY ./Ballware.Generic.Tenant.Data.Commons ./Ballware.Generic.Tenant.Data.Commons
 COPY ./Ballware.Generic.Tenant.Data.SqlServer ./Ballware.Generic.Tenant.Data.SqlServer
 COPY ./Ballware.Meta.Client ./Ballware.Meta.Client
 COPY ./Ballware.Ml.Client ./Ballware.Ml.Client

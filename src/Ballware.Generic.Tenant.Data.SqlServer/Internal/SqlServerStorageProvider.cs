@@ -67,4 +67,19 @@ class SqlServerStorageProvider : ITenantStorageProvider
 
         return source;
     }
+
+    public async Task<T> TransferToVariablesAsync<T>(Guid tenant, T target, IDictionary<string, object>? source, string prefix = "") where T : IDictionary<string, object>
+    {
+        return await Task.FromResult(Utils.TransferToSqlVariables(target, source, prefix));
+    }
+
+    public async Task<IDictionary<string, object>> DropComplexMemberAsync(Guid tenant, IDictionary<string, object> input)
+    {
+        return await Task.FromResult(Utils.DropComplexMember(input));
+    }
+
+    public async Task<IDictionary<string, object>> NormalizeJsonMemberAsync(Guid tenant, IDictionary<string, object> input)
+    {
+        return await Task.FromResult(Utils.NormalizeJsonMember(input));
+    }
 }

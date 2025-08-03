@@ -1,28 +1,13 @@
-using System.Data;
-using Ballware.Generic.Metadata;
-using Dapper;
+using Ballware.Generic.Tenant.Data.Commons.Provider;
 
 namespace Ballware.Generic.Tenant.Data.SqlServer.Internal;
 
-class SqlServerMlModelProvider : ITenantMlModelProvider
+class SqlServerMlModelProvider : CommonMlModelProvider
 {
-    private ITenantStorageProvider StorageProvider { get; }
+    protected override string TenantVariableIdentifier { get; } = "tenantId";
     
     public SqlServerMlModelProvider(ITenantStorageProvider storageProvider)
+        : base(storageProvider)
     {
-        StorageProvider = storageProvider;
-    }
-    
-    public async Task<IEnumerable<T>> TrainDataByModelAsync<T>(Metadata.Tenant tenant, MlModel model)
-    {
-        using var db = await StorageProvider.OpenConnectionAsync(tenant.Id);
-
-        return await ProcessTrainDataByModelAsync<T>(db, null, tenant, model);
-    }
-    
-    public async Task<IEnumerable<T>> ProcessTrainDataByModelAsync<T>(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, MlModel model)
-    {
-        return await db.QueryAsync<T>(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, model.TrainSql,
-            TenantPlaceholderOptions.Create()), transaction);
     }
 }

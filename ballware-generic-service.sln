@@ -42,6 +42,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Data.Ef.Sq
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Data.Caching", "src\Ballware.Generic.Data.Caching\Ballware.Generic.Data.Caching.csproj", "{9BB26B74-9CDF-4A72-98A0-8F8961D885B2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Tenant.Data.Commons", "src\Ballware.Generic.Tenant.Data.Commons\Ballware.Generic.Tenant.Data.Commons.csproj", "{F19E2955-65D2-47C0-B20C-D8BF19B54CDC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -132,5 +134,9 @@ Global
 		{9BB26B74-9CDF-4A72-98A0-8F8961D885B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BB26B74-9CDF-4A72-98A0-8F8961D885B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9BB26B74-9CDF-4A72-98A0-8F8961D885B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F19E2955-65D2-47C0-B20C-D8BF19B54CDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F19E2955-65D2-47C0-B20C-D8BF19B54CDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F19E2955-65D2-47C0-B20C-D8BF19B54CDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F19E2955-65D2-47C0-B20C-D8BF19B54CDC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
