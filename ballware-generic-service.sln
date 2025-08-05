@@ -44,6 +44,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Data.Cachi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Tenant.Data.Commons", "src\Ballware.Generic.Tenant.Data.Commons\Ballware.Generic.Tenant.Data.Commons.csproj", "{F19E2955-65D2-47C0-B20C-D8BF19B54CDC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Tenant.Data.Postgres", "src\Ballware.Generic.Tenant.Data.Postgres\Ballware.Generic.Tenant.Data.Postgres.csproj", "{9765A4D5-B8A1-4ACA-AF72-064F7C321587}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Tenant.Data.Postgres.Tests", "test\Ballware.Generic.Tenant.Data.Postgres.Tests\Ballware.Generic.Tenant.Data.Postgres.Tests.csproj", "{A4969FDD-0334-4744-98C8-F37731EF9F9F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -138,5 +142,13 @@ Global
 		{F19E2955-65D2-47C0-B20C-D8BF19B54CDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F19E2955-65D2-47C0-B20C-D8BF19B54CDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F19E2955-65D2-47C0-B20C-D8BF19B54CDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9765A4D5-B8A1-4ACA-AF72-064F7C321587}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9765A4D5-B8A1-4ACA-AF72-064F7C321587}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9765A4D5-B8A1-4ACA-AF72-064F7C321587}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9765A4D5-B8A1-4ACA-AF72-064F7C321587}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4969FDD-0334-4744-98C8-F37731EF9F9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4969FDD-0334-4744-98C8-F37731EF9F9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4969FDD-0334-4744-98C8-F37731EF9F9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4969FDD-0334-4744-98C8-F37731EF9F9F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

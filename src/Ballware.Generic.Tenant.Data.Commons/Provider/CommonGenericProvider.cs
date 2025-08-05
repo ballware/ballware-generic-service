@@ -28,11 +28,12 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
     protected virtual string DefaultQueryIdentifier { get; } = "primary";
     protected abstract string TenantVariableIdentifier { get; }
     protected virtual string ClaimVariablePrefix { get; } = "claim_";
+    protected abstract string ItemIdIdentifier { get; }
     
     private ITenantStorageProvider StorageProvider { get; }
     private IServiceProvider Services { get; }
     
-    public CommonGenericProvider(ITenantStorageProvider storageProvider, IServiceProvider serviceProvider)
+    protected CommonGenericProvider(ITenantStorageProvider storageProvider, IServiceProvider serviceProvider)
     {
         StorageProvider = storageProvider;
         Services = serviceProvider;
@@ -305,7 +306,7 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
 
         bool insert = false;
 
-        if (value.ContainsKey("Id") && Guid.TryParse(value["Id"].ToString(), out Guid guid))
+        if (value.ContainsKey(ItemIdIdentifier) && Guid.TryParse(value[ItemIdIdentifier].ToString(), out Guid guid))
         {
             var existingValue = await ProcessQuerySingleAsync<dynamic>(
                 context, identifier, claims, new Dictionary<string, object>() { { "id", guid } });
@@ -414,10 +415,15 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
         {
             return defaultValue;
         }
+
+        var queryParams = new Dictionary<string, object>();
+        
+        queryParams.Add(TenantVariableIdentifier, context.Tenant.Id);
+        queryParams.Add("id", id);
         
         var item = (await context.Connection.QuerySingleOrDefaultAsync<dynamic>(
             await StorageProvider.ApplyTenantPlaceholderAsync(context.Tenant.Id, query.Query, TenantPlaceholderOptions.Create()), 
-            new { tenantId = context.Tenant.Id, id }, 
+            queryParams, 
             context.Transaction)) as IDictionary<string, object>;
 
         if (item != null && item.TryGetValue(column, out object? value))

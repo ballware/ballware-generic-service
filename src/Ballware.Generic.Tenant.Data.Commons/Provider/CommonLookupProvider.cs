@@ -10,9 +10,11 @@ public abstract class CommonLookupProvider : ITenantLookupProvider
 
     protected virtual string ClaimVariablePrefix { get; } = "claim_";
     
+    protected virtual string DeprecatedRightVariableName { get; } = "claims";
+    
     private ITenantStorageProvider StorageProvider { get; }
     
-    public CommonLookupProvider(ITenantStorageProvider storageProvider)
+    protected CommonLookupProvider(ITenantStorageProvider storageProvider)
     {
         StorageProvider = storageProvider;
     }
@@ -115,9 +117,14 @@ public abstract class CommonLookupProvider : ITenantLookupProvider
     
     public async Task<IEnumerable<T>> ProcessSelectListForLookupAsync<T>(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Lookup lookup, IEnumerable<string> rights) where T : class
     {
+        var queryParams = new Dictionary<string, object>();
+
+        queryParams[TenantVariableIdentifier] = tenant.Id;
+        queryParams[DeprecatedRightVariableName] = string.Join(",", rights);
+        
         return await db.QueryAsync<T>(
             await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, lookup.ListQuery,
-                TenantPlaceholderOptions.Create()), new { tenantId = tenant.Id, claims = string.Join(",", rights) }, transaction);
+                TenantPlaceholderOptions.Create()), queryParams, transaction);
     }
 
     public async Task<T?> ProcessSelectByIdForLookupAsync<T>(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Lookup lookup, IDictionary<string, object> claims, object id) where T : class
@@ -144,8 +151,14 @@ public abstract class CommonLookupProvider : ITenantLookupProvider
             throw new ArgumentException(nameof(lookup.ByIdQuery));
         }
         
+        var queryParams = new Dictionary<string, object>();
+
+        queryParams[TenantVariableIdentifier] = tenant.Id;
+        queryParams[DeprecatedRightVariableName] = string.Join(",", rights);
+        queryParams["id"] = id;       
+        
         return (await db.QuerySingleOrDefaultAsync<T>(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, lookup.ByIdQuery,
-            TenantPlaceholderOptions.Create()), new { id, tenantId = tenant.Id, claims = string.Join(",", rights) }, transaction));
+            TenantPlaceholderOptions.Create()), queryParams, transaction));
     }
     
     public async Task<IEnumerable<T>> ProcessSelectListForLookupWithParamAsync<T>(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Lookup lookup, IDictionary<string, object> claims, string param) where T : class
@@ -162,8 +175,14 @@ public abstract class CommonLookupProvider : ITenantLookupProvider
     
     public async Task<IEnumerable<T>> ProcessSelectListForLookupWithParamAsync<T>(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Lookup lookup, IEnumerable<string> rights, string param) where T : class
     {
+        var queryParams = new Dictionary<string, object>();
+
+        queryParams[TenantVariableIdentifier] = tenant.Id;
+        queryParams[DeprecatedRightVariableName] = string.Join(",", rights);
+        queryParams["param"] = param;       
+        
         return await db.QueryAsync<T>(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, lookup.ListQuery,
-            TenantPlaceholderOptions.Create()), new { tenantId = tenant.Id, claims = string.Join(",", rights), param }, transaction);  
+            TenantPlaceholderOptions.Create()), queryParams, transaction);  
     }
 
     public async Task<T?> ProcessSelectByIdForLookupWithParamAsync<T>(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Lookup lookup, IDictionary<string, object> claims, object id, string param) where T : class
@@ -193,10 +212,17 @@ public abstract class CommonLookupProvider : ITenantLookupProvider
             throw new ArgumentException(nameof(lookup.ByIdQuery));
         }
         
+        var queryParams = new Dictionary<string, object>();
+
+        queryParams[TenantVariableIdentifier] = tenant.Id;
+        queryParams["param"] = param;
+        queryParams["id"] = id;
+        queryParams[DeprecatedRightVariableName] = string.Join(",", rights);
+        
         return (await db.QuerySingleOrDefaultAsync<T>(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id,
                 lookup.ByIdQuery,
                 TenantPlaceholderOptions.Create()),
-            new { id, tenantId = tenant.Id, claims = string.Join(",", rights), param }, transaction));
+            queryParams, transaction));
     }
 
     public async Task<IEnumerable<string>> ProcessAutocompleteForLookupAsync(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Lookup lookup, IDictionary<string, object> claims)
@@ -212,8 +238,13 @@ public abstract class CommonLookupProvider : ITenantLookupProvider
     
     public async Task<IEnumerable<string>> ProcessAutocompleteForLookupAsync(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Lookup lookup, IEnumerable<string> rights)
     {
+        var queryParams = new Dictionary<string, object>();
+
+        queryParams[TenantVariableIdentifier] = tenant.Id;
+        queryParams[DeprecatedRightVariableName] = string.Join(",", rights);
+        
         return await db.QueryAsync<string>(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, lookup.ListQuery,
-            TenantPlaceholderOptions.Create()), new { tenantId = tenant.Id, claims = string.Join(",", rights) }, transaction); 
+            TenantPlaceholderOptions.Create()), queryParams, transaction); 
     }
 
     public async Task<IEnumerable<string>> ProcessAutocompleteForLookupWithParamAsync(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Lookup lookup, IDictionary<string, object> claims, string param)
@@ -230,7 +261,13 @@ public abstract class CommonLookupProvider : ITenantLookupProvider
     
     public async Task<IEnumerable<string>> ProcessAutocompleteForLookupWithParamAsync(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Lookup lookup, IEnumerable<string> rights, string param)
     {
+        var queryParams = new Dictionary<string, object>();
+
+        queryParams[TenantVariableIdentifier] = tenant.Id;
+        queryParams[DeprecatedRightVariableName] = string.Join(",", rights);
+        queryParams["param"] = param;
+        
         return await db.QueryAsync<string>(await StorageProvider.ApplyTenantPlaceholderAsync(tenant.Id, lookup.ListQuery,
-            TenantPlaceholderOptions.Create()), new { tenantId = tenant.Id, claims = string.Join(",", rights), param }, transaction); 
+            TenantPlaceholderOptions.Create()), queryParams, transaction); 
     }
 }
