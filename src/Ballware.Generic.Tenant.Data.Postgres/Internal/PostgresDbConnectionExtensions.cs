@@ -1,5 +1,6 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using Dapper;
 using Npgsql;
 
@@ -7,7 +8,6 @@ namespace Ballware.Generic.Tenant.Data.Postgres.Internal;
 
 static class PostgresDbConnectionExtensions
 {
-    // Queries anpassen
     private static readonly string TableExistsQuery = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=@schema AND TABLE_NAME=@table";
     private static readonly string TableQuery = "SELECT TABLE_NAME AS TableName FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=@schema AND TABLE_TYPE='BASE TABLE'";
     private static readonly string CustomTypeQuery = "SELECT t.typname AS name FROM pg_catalog.pg_type t INNER JOIN pg_catalog.pg_namespace n ON t.typnamespace = n.oid WHERE n.nspname = @schema AND t.typtype = 'd'";
@@ -17,7 +17,16 @@ static class PostgresDbConnectionExtensions
     private static readonly string ColumnQuery = "SELECT column_name AS ColumnName, data_type AS ColumnType, character_maximum_length AS MaxLength, CASE WHEN is_nullable='YES' THEN 1 ELSE 0 END AS Nullable FROM information_schema.columns WHERE table_schema=@schema AND table_name=@table";
     private static readonly IEnumerable<string> EntityMandatoryColumns = ["id", "uuid", "tenant_id", "creator_id", "create_stamp", "last_changer_id", "last_change_stamp"];
 
-    // Datentypen anpassen
+    private static readonly Regex ValidIdentifierRegex = new(@"^[a-zA-Z_][a-zA-Z0-9_]*$", RegexOptions.Compiled);
+
+    public static void ValidateIdentifier(string identifier, string paramName)
+    {
+        if (string.IsNullOrEmpty(identifier) || !ValidIdentifierRegex.IsMatch(identifier))
+        {
+            throw new ArgumentException($"PostgreSQL identifier contains invalid characters or is empty: {identifier}", paramName);
+        }
+    }
+    
     private static string CreateColumnTypeDefinition(PostgresColumnModel column)
     {
         if (column.ColumnType == PostgresColumnType.String)
@@ -71,6 +80,9 @@ static class PostgresDbConnectionExtensions
     
     private static void CreateTable(this IDbConnection db, string schema, PostgresTableModel table)
     {
+        ValidateIdentifier(schema, nameof(schema));
+        ValidateIdentifier(table.TableName, nameof(table.TableName));
+        
         var columns = CreateMandatoryColumns(table.NoIdentity);
         
         db.Execute($"CREATE TABLE \"{schema}\".\"{table.TableName}\" ({columns})");
@@ -88,6 +100,9 @@ static class PostgresDbConnectionExtensions
     // DDL Anpassungen
     private static void AddColumn(this IDbConnection db, string table, PostgresColumnModel add)
     {
+        ValidateIdentifier(table, nameof(table));
+        ValidateIdentifier(add.ColumnName, nameof(add.ColumnName));
+        
         db.Execute($"ALTER TABLE \"{table}\" ADD COLUMN \"{add.ColumnName}\" {CreateColumnTypeDefinition(add)}");
         
         if (!add.Nullable)
@@ -98,6 +113,10 @@ static class PostgresDbConnectionExtensions
     
     private static void AlterColumn(this IDbConnection db, string table, PostgresColumnModel existing, PostgresColumnModel changed)
     {
+        ValidateIdentifier(table, nameof(table));
+        ValidateIdentifier(existing.ColumnName, nameof(existing.ColumnName));
+        ValidateIdentifier(changed.ColumnName, nameof(changed.ColumnName));
+        
         if (existing.ColumnType != changed.ColumnType || existing.Nullable != changed.Nullable ||
             existing.MaxLength != changed.MaxLength)
         {
@@ -115,6 +134,9 @@ static class PostgresDbConnectionExtensions
 
     private static void DropColumn(this IDbConnection db, string table, PostgresColumnModel drop)
     {
+        ValidateIdentifier(table, nameof(table));
+        ValidateIdentifier(drop.ColumnName, nameof(drop.ColumnName));
+        
         db.Execute($"ALTER TABLE \"{table}\" DROP COLUMN \"{drop.ColumnName}\"");
     }
     
