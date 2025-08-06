@@ -85,6 +85,7 @@ static class PostgresDbConnectionExtensions
         
         var columns = CreateMandatoryColumns(table.NoIdentity);
         
+        // @SuppressWarnings("squid:S2077")
         db.Execute($"CREATE TABLE \"{schema}\".\"{table.TableName}\" ({columns})");
 
         if (!table.NoIdentity)
@@ -103,10 +104,12 @@ static class PostgresDbConnectionExtensions
         ValidateIdentifier(table, nameof(table));
         ValidateIdentifier(add.ColumnName, nameof(add.ColumnName));
         
+        // @SuppressWarnings("squid:S2077")
         db.Execute($"ALTER TABLE \"{table}\" ADD COLUMN \"{add.ColumnName}\" {CreateColumnTypeDefinition(add)}");
         
         if (!add.Nullable)
         {
+            // @SuppressWarnings("squid:S2077")
             db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{add.ColumnName}\" SET NOT NULL");
         }
     }
@@ -120,13 +123,17 @@ static class PostgresDbConnectionExtensions
         if (existing.ColumnType != changed.ColumnType || existing.Nullable != changed.Nullable ||
             existing.MaxLength != changed.MaxLength)
         {
+            // @SuppressWarnings("squid:S2077")
             db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{changed.ColumnName}\" TYPE {CreateColumnTypeDefinition(changed)}");
+            
             if (!changed.Nullable)
             {
+                // @SuppressWarnings("squid:S2077")
                 db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{changed.ColumnName}\" SET NOT NULL");
             }
             else 
             {
+                // @SuppressWarnings("squid:S2077")
                 db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{changed.ColumnName}\" DROP NOT NULL");
             }
         }
@@ -137,6 +144,7 @@ static class PostgresDbConnectionExtensions
         ValidateIdentifier(table, nameof(table));
         ValidateIdentifier(drop.ColumnName, nameof(drop.ColumnName));
         
+        // @SuppressWarnings("squid:S2077")
         db.Execute($"ALTER TABLE \"{table}\" DROP COLUMN \"{drop.ColumnName}\"");
     }
     
