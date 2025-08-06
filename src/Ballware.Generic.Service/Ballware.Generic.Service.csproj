@@ -36,10 +36,12 @@
     <ItemGroup>
       <ProjectReference Include="..\Ballware.Generic.Api\Ballware.Generic.Api.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Caching\Ballware.Generic.Caching.csproj" />
+      <ProjectReference Include="..\Ballware.Generic.Data.Ef.Postgres\Ballware.Generic.Data.Ef.Postgres.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Data.Ef.SqlServer\Ballware.Generic.Data.Ef.SqlServer.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Data.Ef\Ballware.Generic.Data.Ef.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Jobs\Ballware.Generic.Jobs.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Scripting.Jint\Ballware.Generic.Scripting.Jint.csproj" />
+      <ProjectReference Include="..\Ballware.Generic.Tenant.Data.Postgres\Ballware.Generic.Tenant.Data.Postgres.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Tenant.Data.SqlServer\Ballware.Generic.Tenant.Data.SqlServer.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Tenant.Data\Ballware.Generic.Tenant.Data.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Client\Ballware.Meta.Client.csproj" />

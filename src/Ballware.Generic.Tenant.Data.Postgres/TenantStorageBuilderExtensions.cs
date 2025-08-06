@@ -1,5 +1,4 @@
 using Ballware.Generic.Scripting;
-using Ballware.Generic.Tenant.Data.Postgres.Configuration;
 using Ballware.Generic.Tenant.Data.Postgres.Internal;
 using Dapper;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,13 +9,10 @@ public static class TenantStorageBuilderExtensions
 {
     private static readonly string ProviderPostgres = "postgres";
     
-    public static TenantStorageBuilder AddPostgresTenantDataStorage(this TenantStorageBuilder builder, string tenantMasterConnectionString, PostgresTenantStorageOptions options)
+    public static TenantStorageBuilder AddPostgresTenantDataStorage(this TenantStorageBuilder builder, string tenantMasterConnectionString)
     {
         if (string.IsNullOrWhiteSpace(tenantMasterConnectionString))
             throw new ArgumentNullException(nameof(tenantMasterConnectionString));
-        
-        if (options == null)
-            throw new ArgumentNullException(nameof(options));
         
         builder.Services.AddSingleton<PostgresTenantConfiguration>(new PostgresTenantConfiguration()
         {
