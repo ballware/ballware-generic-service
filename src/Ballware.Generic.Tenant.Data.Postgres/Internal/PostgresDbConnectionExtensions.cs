@@ -73,7 +73,7 @@ static class PostgresDbConnectionExtensions
     {
         var columns = CreateMandatoryColumns(table.NoIdentity);
         
-        db.Execute($"CREATE TABLE {schema}.{table.TableName} ({columns})");
+        db.Execute($"CREATE TABLE \"{schema}\".\"{table.TableName}\" ({columns})");
 
         if (!table.NoIdentity)
         {
@@ -88,11 +88,11 @@ static class PostgresDbConnectionExtensions
     // DDL Anpassungen
     private static void AddColumn(this IDbConnection db, string table, PostgresColumnModel add)
     {
-        db.Execute($"ALTER TABLE {table} ADD COLUMN {add.ColumnName} {CreateColumnTypeDefinition(add)}");
+        db.Execute($"ALTER TABLE \"{table}\" ADD COLUMN \"{add.ColumnName}\" {CreateColumnTypeDefinition(add)}");
         
         if (!add.Nullable)
         {
-            db.Execute($"ALTER TABLE {table} ALTER COLUMN {add.ColumnName} SET NOT NULL");
+            db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{add.ColumnName}\" SET NOT NULL");
         }
     }
     
@@ -101,21 +101,21 @@ static class PostgresDbConnectionExtensions
         if (existing.ColumnType != changed.ColumnType || existing.Nullable != changed.Nullable ||
             existing.MaxLength != changed.MaxLength)
         {
-            db.Execute($"ALTER TABLE {table} ALTER COLUMN {changed.ColumnName} TYPE {CreateColumnTypeDefinition(changed)}");
+            db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{changed.ColumnName}\" TYPE {CreateColumnTypeDefinition(changed)}");
             if (!changed.Nullable)
             {
-                db.Execute($"ALTER TABLE {table} ALTER COLUMN {changed.ColumnName} SET NOT NULL");
+                db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{changed.ColumnName}\" SET NOT NULL");
             }
             else 
             {
-                db.Execute($"ALTER TABLE {table} ALTER COLUMN {changed.ColumnName} DROP NOT NULL");
+                db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{changed.ColumnName}\" DROP NOT NULL");
             }
         }
     }
 
     private static void DropColumn(this IDbConnection db, string table, PostgresColumnModel drop)
     {
-        db.Execute($"ALTER TABLE {table} DROP COLUMN {drop.ColumnName}");
+        db.Execute($"ALTER TABLE \"{table}\" DROP COLUMN \"{drop.ColumnName}\"");
     }
     
     // Schema/User-Verwaltung anpassen
