@@ -19,7 +19,7 @@ static class PostgresDbConnectionExtensions
 
     private static readonly Regex ValidIdentifierRegex = new(@"^[a-zA-Z_][a-zA-Z0-9_]*$", RegexOptions.Compiled);
 
-    public static void ValidateIdentifier(string identifier, string paramName)
+    private static void ValidateTableAndColumnIdentifier(string identifier, string paramName)
     {
         if (string.IsNullOrEmpty(identifier) || !ValidIdentifierRegex.IsMatch(identifier))
         {
@@ -52,7 +52,6 @@ static class PostgresDbConnectionExtensions
         return $"{(index.Unique ? "uidx" : "idx")}_{tableName}_{string.Join("_", index.ColumnNames).ToLowerInvariant()}";
     }
 
-    // Identity Spalten anpassen
     private static string CreateMandatoryColumns(bool noIdentity)
     {
         var columnList = new List<string>();
@@ -80,13 +79,12 @@ static class PostgresDbConnectionExtensions
     
     private static void CreateTable(this IDbConnection db, string schema, PostgresTableModel table)
     {
-        ValidateIdentifier(schema, nameof(schema));
-        ValidateIdentifier(table.TableName, nameof(table.TableName));
+        ValidateTableAndColumnIdentifier(schema, nameof(schema));
+        ValidateTableAndColumnIdentifier(table.TableName, nameof(table.TableName));
         
         var columns = CreateMandatoryColumns(table.NoIdentity);
         
-        // @SuppressWarnings("squid:S2077")
-        db.Execute($"CREATE TABLE \"{schema}\".\"{table.TableName}\" ({columns})");
+        db.Execute($"CREATE TABLE \"{schema}\".\"{table.TableName}\" ({columns})"); // NOSONAR - S2077 Validation existing
 
         if (!table.NoIdentity)
         {
@@ -101,54 +99,47 @@ static class PostgresDbConnectionExtensions
     // DDL Anpassungen
     private static void AddColumn(this IDbConnection db, string table, PostgresColumnModel add)
     {
-        ValidateIdentifier(table, nameof(table));
-        ValidateIdentifier(add.ColumnName, nameof(add.ColumnName));
+        ValidateTableAndColumnIdentifier(table, nameof(table));
+        ValidateTableAndColumnIdentifier(add.ColumnName, nameof(add.ColumnName));
         
-        // @SuppressWarnings("squid:S2077")
-        db.Execute($"ALTER TABLE \"{table}\" ADD COLUMN \"{add.ColumnName}\" {CreateColumnTypeDefinition(add)}");
+        db.Execute($"ALTER TABLE \"{table}\" ADD COLUMN \"{add.ColumnName}\" {CreateColumnTypeDefinition(add)}");  // NOSONAR - S2077 Validation existing
         
         if (!add.Nullable)
         {
-            // @SuppressWarnings("squid:S2077")
-            db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{add.ColumnName}\" SET NOT NULL");
+            db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{add.ColumnName}\" SET NOT NULL");  // NOSONAR - S2077 Validation existing
         }
     }
     
     private static void AlterColumn(this IDbConnection db, string table, PostgresColumnModel existing, PostgresColumnModel changed)
     {
-        ValidateIdentifier(table, nameof(table));
-        ValidateIdentifier(existing.ColumnName, nameof(existing.ColumnName));
-        ValidateIdentifier(changed.ColumnName, nameof(changed.ColumnName));
+        ValidateTableAndColumnIdentifier(table, nameof(table));
+        ValidateTableAndColumnIdentifier(existing.ColumnName, nameof(existing.ColumnName));
+        ValidateTableAndColumnIdentifier(changed.ColumnName, nameof(changed.ColumnName));
         
         if (existing.ColumnType != changed.ColumnType || existing.Nullable != changed.Nullable ||
             existing.MaxLength != changed.MaxLength)
         {
-            // @SuppressWarnings("squid:S2077")
-            db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{changed.ColumnName}\" TYPE {CreateColumnTypeDefinition(changed)}");
+            db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{changed.ColumnName}\" TYPE {CreateColumnTypeDefinition(changed)}");  // NOSONAR - S2077 Validation existing
             
             if (!changed.Nullable)
             {
-                // @SuppressWarnings("squid:S2077")
-                db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{changed.ColumnName}\" SET NOT NULL");
+                db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{changed.ColumnName}\" SET NOT NULL");  // NOSONAR - S2077 Validation existing
             }
             else 
             {
-                // @SuppressWarnings("squid:S2077")
-                db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{changed.ColumnName}\" DROP NOT NULL");
+                db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{changed.ColumnName}\" DROP NOT NULL");  // NOSONAR - S2077 Validation existing
             }
         }
     }
 
     private static void DropColumn(this IDbConnection db, string table, PostgresColumnModel drop)
     {
-        ValidateIdentifier(table, nameof(table));
-        ValidateIdentifier(drop.ColumnName, nameof(drop.ColumnName));
+        ValidateTableAndColumnIdentifier(table, nameof(table));
+        ValidateTableAndColumnIdentifier(drop.ColumnName, nameof(drop.ColumnName));
         
-        // @SuppressWarnings("squid:S2077")
-        db.Execute($"ALTER TABLE \"{table}\" DROP COLUMN \"{drop.ColumnName}\"");
+        db.Execute($"ALTER TABLE \"{table}\" DROP COLUMN \"{drop.ColumnName}\"");  // NOSONAR - S2077 Validation existing
     }
     
-    // Schema/User-Verwaltung anpassen
     public static async Task CreateSchemaForUserAsync(this IDbConnection db, string catalog, string schema, string username, string password)
     {
         await db.ExecuteAsync($"CREATE USER \"{username}\" WITH PASSWORD '{password}'");
