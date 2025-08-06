@@ -16,16 +16,38 @@ static class PostgresDbConnectionExtensions
     private static readonly string IndexQuery = "SELECT i.relname AS IndexName, idx.indisunique AS \"Unique\", string_agg(a.attname, ',') AS IndexColumns FROM pg_class t, pg_class i, pg_index idx, pg_attribute a, pg_namespace s WHERE t.oid = idx.indrelid AND i.oid = idx.indexrelid AND a.attrelid = t.oid AND a.attnum = ANY(idx.indkey) AND t.relnamespace = s.oid AND s.nspname = @schema AND t.relname = @table AND (i.relname LIKE 'idx_%' OR i.relname LIKE 'uidx_%') GROUP BY i.relname, idx.indisunique";
     private static readonly string ColumnQuery = "SELECT column_name AS ColumnName, data_type AS ColumnType, character_maximum_length AS MaxLength, CASE WHEN is_nullable='YES' THEN 1 ELSE 0 END AS Nullable FROM information_schema.columns WHERE table_schema=@schema AND table_name=@table";
     private static readonly IEnumerable<string> EntityMandatoryColumns = ["id", "uuid", "tenant_id", "creator_id", "create_stamp", "last_changer_id", "last_change_stamp"];
-
+    
+    private const int MaxIdentifierLength = 63;
     private static readonly Regex ValidIdentifierRegex = new(@"^[a-zA-Z_][a-zA-Z0-9_]*$", RegexOptions.Compiled);
 
-    private static void ValidateTableAndColumnIdentifier(string identifier, string paramName)
+    private static void ValidatePgIdentifier(string identifier, string paramName, string context)
     {
-        if (string.IsNullOrEmpty(identifier) || !ValidIdentifierRegex.IsMatch(identifier))
+        if (string.IsNullOrWhiteSpace(identifier) || !ValidIdentifierRegex.IsMatch(identifier) || identifier.Length > MaxIdentifierLength)
         {
-            throw new ArgumentException($"PostgreSQL identifier contains invalid characters or is empty: {identifier}", paramName);
+            throw new ArgumentException($"Invalid PostgreSQL {context}: '{identifier}'", paramName);
         }
     }
+    
+    private static void ValidateTableAndColumnIdentifier(string identifier, string paramName)
+        => ValidatePgIdentifier(identifier, paramName, "identifier");
+    
+    private static void ValidateSchemaName(string schemaName, string paramName)
+        => ValidatePgIdentifier(schemaName, paramName, "schema name");
+
+    private static void ValidateUserName(string userName, string paramName)
+        => ValidatePgIdentifier(userName, paramName, "user name");
+    
+    private static void ValidateFunctionName(string functionName, string paramName) =>
+        ValidatePgIdentifier(functionName, paramName, "function name");
+
+    private static void ValidateIndexName(string indexName, string paramName) =>
+        ValidatePgIdentifier(indexName, paramName, "index name");
+    
+    private static void ValidateViewName(string viewName, string paramName) =>
+        ValidatePgIdentifier(viewName, paramName, "view name");
+    
+    public static void ValidateDomainName(string domainName, string paramName) =>
+        ValidatePgIdentifier(domainName, paramName, "domain name");
     
     private static string CreateColumnTypeDefinition(PostgresColumnModel column)
     {
@@ -137,24 +159,30 @@ static class PostgresDbConnectionExtensions
         ValidateTableAndColumnIdentifier(table, nameof(table));
         ValidateTableAndColumnIdentifier(drop.ColumnName, nameof(drop.ColumnName));
         
-        db.Execute($"ALTER TABLE \"{table}\" DROP COLUMN \"{drop.ColumnName}\"");  // NOSONAR - S2077 Validation existing
+        db.Execute($"ALTER TABLE \"{table}\" DROP COLUMN \"{drop.ColumnName}\""); // NOSONAR - S2077 Validation existing
     }
     
     public static async Task CreateSchemaForUserAsync(this IDbConnection db, string catalog, string schema, string username, string password)
     {
-        await db.ExecuteAsync($"CREATE USER \"{username}\" WITH PASSWORD '{password}'");
+        ValidateSchemaName(schema, nameof(schema));
+        ValidateUserName(username, nameof(username));
+        
+        await db.ExecuteAsync($"CREATE USER \"{username}\" WITH PASSWORD '{password}'"); // NOSONAR - S2077 Validation existing
     
         if (!"public".Equals(schema, StringComparison.OrdinalIgnoreCase))
         {
-            await db.ExecuteAsync($"CREATE SCHEMA {schema} AUTHORIZATION \"{username}\"");
+            await db.ExecuteAsync($"CREATE SCHEMA {schema} AUTHORIZATION \"{username}\""); // NOSONAR - S2077 Validation existing 
         }
     
-        await db.ExecuteAsync($"GRANT ALL PRIVILEGES ON SCHEMA {schema} TO \"{username}\"");
-        await db.ExecuteAsync($"ALTER USER \"{username}\" SET search_path TO {schema}");
+        await db.ExecuteAsync($"GRANT ALL PRIVILEGES ON SCHEMA {schema} TO \"{username}\""); // NOSONAR - S2077 Validation existing
+        await db.ExecuteAsync($"ALTER USER \"{username}\" SET search_path TO {schema}"); // NOSONAR - S2077 Validation existing
     }
 
     public static async Task DropSchemaForUserAsync(this IDbConnection db, string catalog, string schema, string username)
     {
+        ValidateSchemaName(schema, nameof(schema));
+        ValidateUserName(username, nameof(username));
+        
         if (!"public".Equals(schema, StringComparison.OrdinalIgnoreCase))
         {   
             var existingViews = db.GetCustomViewNames(schema);
@@ -185,10 +213,10 @@ static class PostgresDbConnectionExtensions
                 db.DropType(schema, existingType);
             }
             
-            await db.ExecuteAsync($"DROP SCHEMA IF EXISTS {schema}");
+            await db.ExecuteAsync($"DROP SCHEMA IF EXISTS {schema}"); // NOSONAR - S2077 Validation existing
         }
 
-        await db.ExecuteAsync($"DROP USER IF EXISTS \"{username}\"");
+        await db.ExecuteAsync($"DROP USER IF EXISTS \"{username}\""); // NOSONAR - S2077 Validation existing
     }
     
     private static IEnumerable<string> GetTableNames(this IDbConnection db, string schema)
@@ -239,15 +267,20 @@ static class PostgresDbConnectionExtensions
         string tableName, 
         string indexName)
     {
-        db.Execute($"DROP INDEX IF EXISTS {indexName}");
+        ValidateIndexName(indexName, nameof(indexName));
+        
+        db.Execute($"DROP INDEX IF EXISTS {indexName}"); // NOSONAR - S2077 Validation existing
     }
 
     private static void CreateIndex(this IDbConnection db, string tableName, PostgresIndexModel index)
     {
         var indexName = CreateIndexName(tableName, index);
 
+        ValidateTableAndColumnIdentifier(tableName, nameof(tableName));
+        ValidateIndexName(indexName, nameof(indexName));
+        
         db.Execute(
-            $"CREATE{(index.Unique ? " UNIQUE" : "")} INDEX {indexName} ON {tableName} ({string.Join(", ", index.ColumnNames)})");
+            $"CREATE{(index.Unique ? " UNIQUE" : "")} INDEX {indexName} ON {tableName} ({string.Join(", ", index.ColumnNames)})"); // NOSONAR - S2077 Validation existing
     }
     
     public static void CreateOrUpdateTable(this IDbConnection db, string schema, PostgresTableModel model)
@@ -313,11 +346,17 @@ static class PostgresDbConnectionExtensions
 
     public static void DropFunction(this IDbConnection db, string schema, string name)
     {
-        db.Execute($"DROP FUNCTION IF EXISTS {schema}.{name}");
+        ValidateSchemaName(schema, nameof(schema));
+        ValidateFunctionName(name, nameof(name));
+        
+        db.Execute($"DROP FUNCTION IF EXISTS {schema}.{name}"); // NOSONAR - S2077 Validation existing
     }
 
     public static void CreateView(this IDbConnection db, string schema, string name, string sql, bool overwrite = true)
     {
+        ValidateSchemaName(schema, nameof(schema));
+        ValidateViewName(name, nameof(name));
+        
         if (overwrite)
         {
             db.DropView(schema, name);
@@ -328,11 +367,17 @@ static class PostgresDbConnectionExtensions
 
     public static void DropView(this IDbConnection db, string schema, string name)
     {
-        db.Execute($"DROP VIEW IF EXISTS {schema}.{name}");
+        ValidateSchemaName(schema, nameof(schema));
+        ValidateViewName(name, nameof(name));
+        
+        db.Execute($"DROP VIEW IF EXISTS {schema}.{name}"); // NOSONAR - S2077 Validation existing
     }
 
     public static void CreateType(this IDbConnection db, string schema, string name, string sql, bool overwrite = true)
     {
+        ValidateSchemaName(schema, nameof(schema));
+        ValidateDomainName(name, nameof(name));
+        
         if (overwrite)
         {
             db.DropType(schema, name);
@@ -343,11 +388,17 @@ static class PostgresDbConnectionExtensions
 
     public static void DropType(this IDbConnection db, string schema, string name)
     {
-        db.Execute($"DROP TYPE IF EXISTS {schema}.{name}");
+        ValidateSchemaName(schema, nameof(schema));
+        ValidateDomainName(name, nameof(name));
+        
+        db.Execute($"DROP TYPE IF EXISTS {schema}.{name}"); // NOSONAR - S2077 Validation existing
     }
 
     public static void CreateTable(this IDbConnection db, string schema, string name, string sql, bool overwrite = true)
     {
+        ValidateSchemaName(schema, nameof(schema));
+        ValidateTableAndColumnIdentifier(name, nameof(name));
+        
         if (overwrite)
         {
             db.DropTable(schema, name);
@@ -358,6 +409,9 @@ static class PostgresDbConnectionExtensions
 
     public static void DropTable(this IDbConnection db, string schema, string name)
     {
-        db.Execute($"DROP TABLE IF EXISTS {schema}.{name}");
+        ValidateSchemaName(schema, nameof(schema));
+        ValidateTableAndColumnIdentifier(name, nameof(name));
+        
+        db.Execute($"DROP TABLE IF EXISTS {schema}.{name}"); // NOSONAR - S2077 Validation existing
     }
 }

@@ -8,8 +8,6 @@ using Ballware.Generic.Scripting;
 using Ballware.Generic.Tenant.Data.Postgres.Internal;
 using Ballware.Generic.Tenant.Data.Postgres.Tests.Utils;
 using Dapper;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Npgsql;
@@ -54,7 +52,7 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
         var testConnectionAttribute = testMethodInfo?.GetCustomAttributes<TenantConnectionAttribute>(false).FirstOrDefault();
 
         Schema = testConnectionAttribute?.Schema ?? "public";
-        User = testConnectionAttribute?.User ?? $"tenant_{TenantId.ToString().ToLower()}";
+        User = testConnectionAttribute?.User ?? $"tenant_{TenantId.ToString("N").ToLower()}";
         
         SqlMapper.AddTypeHandler(new PostgresColumnTypeHandler());
         

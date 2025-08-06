@@ -81,8 +81,8 @@ public class PostgresStatisticProviderTest : DatabaseBackedBaseTest
 
         var testConnectionAttribute = testMethodInfo?.GetCustomAttributes<TenantConnectionAttribute>(false).FirstOrDefault();
 
-        Schema = testConnectionAttribute?.Schema ?? "dbo";
-        User = testConnectionAttribute?.User ?? $"tenant_{TenantId.ToString().ToLower()}";
+        Schema = testConnectionAttribute?.Schema ?? "public";
+        User = testConnectionAttribute?.User ?? $"tenant_{TenantId.ToString("N").ToLower()}";
         
         SqlMapper.AddTypeHandler(new PostgresColumnTypeHandler());
         

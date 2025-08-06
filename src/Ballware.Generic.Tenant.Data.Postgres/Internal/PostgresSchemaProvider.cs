@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using System.Text.Json;
 using Ballware.Generic.Data.Public;
 using Ballware.Generic.Data.Repository;
+using Ballware.Generic.Tenant.Data.Commons.Utils;
 using Dapper;
 using Npgsql;
 
@@ -220,8 +221,8 @@ class PostgresSchemaProvider : ITenantSchemaProvider
         var masterConnectionStringBuilder =
             new NpgsqlConnectionStringBuilder(Configuration.TenantMasterConnectionString);
         
-        var user = $"tenant_{tenant.ToString().ToLower()}";
-        var password = Guid.NewGuid().ToString();
+        var user = $"tenant_{tenant.ToString("N").ToLower()}";
+        var password = CommonPasswordGenerator.GenerateTenantPassword();
         
         tenantModel.Server ??= masterConnectionStringBuilder.Host;
         tenantModel.Catalog ??= masterConnectionStringBuilder.Database;

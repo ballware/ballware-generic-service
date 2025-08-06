@@ -71,7 +71,7 @@ public class PostgresSchemaProviderTest : DatabaseBackedBaseTest
 
         {
             await using var tenantDb = new NpgsqlConnection(Configuration.TenantMasterConnectionString);
-            await tenantDb.DropSchemaForUserAsync("tenant", "faketenant1", $"tenant_{tenantId.ToString().ToLower()}");
+            await tenantDb.DropSchemaForUserAsync("tenant", "faketenant1", $"tenant_{tenantId.ToString("N").ToLower()}");
             await tenantDb.CloseAsync();
         }
         
@@ -91,7 +91,7 @@ public class PostgresSchemaProviderTest : DatabaseBackedBaseTest
         finally
         {
             await using var tenantDb = new NpgsqlConnection(Configuration.TenantMasterConnectionString);
-            await tenantDb.DropSchemaForUserAsync("tenant", "faketenant1", $"tenant_{tenantId.ToString().ToLower()}");
+            await tenantDb.DropSchemaForUserAsync("tenant", "faketenant1", $"tenant_{tenantId.ToString("N").ToLower()}");
             await tenantDb.CloseAsync();
         }
     }
@@ -174,7 +174,7 @@ public class PostgresSchemaProviderTest : DatabaseBackedBaseTest
 
         {
             await using var tenantDb = new NpgsqlConnection(Configuration.TenantMasterConnectionString);
-            await tenantDb.DropSchemaForUserAsync("tenant", "faketenant2", $"tenant_{tenantId.ToString().ToLower()}");
+            await tenantDb.DropSchemaForUserAsync("tenant", "faketenant2", $"tenant_{tenantId.ToString("N").ToLower()}");
             await tenantDb.CloseAsync();
         }
         
@@ -194,7 +194,7 @@ public class PostgresSchemaProviderTest : DatabaseBackedBaseTest
         finally
         {
             await using var tenantDb = new NpgsqlConnection(Configuration.TenantMasterConnectionString);
-            await tenantDb.DropSchemaForUserAsync("tenant", "faketenant2", $"tenant_{tenantId.ToString().ToLower()}");
+            await tenantDb.DropSchemaForUserAsync("tenant", "faketenant2", $"tenant_{tenantId.ToString("N").ToLower()}");
             await tenantDb.CloseAsync();
         }
     }
@@ -272,7 +272,7 @@ public class PostgresSchemaProviderTest : DatabaseBackedBaseTest
         
         {
             await using var tenantDb = new NpgsqlConnection(Configuration.TenantMasterConnectionString);
-            await tenantDb.DropSchemaForUserAsync("tenant", "faketenant3", $"tenant_{tenantId.ToString().ToLower()}");
+            await tenantDb.DropSchemaForUserAsync("tenant", "faketenant3", $"tenant_{tenantId.ToString("N").ToLower()}");
             await tenantDb.CloseAsync();
         }
         
@@ -326,7 +326,7 @@ public class PostgresSchemaProviderTest : DatabaseBackedBaseTest
         finally
         {
             await using var tenantDb = new NpgsqlConnection(Configuration.TenantMasterConnectionString);
-            await tenantDb.DropSchemaForUserAsync("tenant", "faketenant3", $"tenant_{tenantId.ToString().ToLower()}");
+            await tenantDb.DropSchemaForUserAsync("tenant", "faketenant3", $"tenant_{tenantId.ToString("N").ToLower()}");
             await tenantDb.CloseAsync();
         }
     }
@@ -372,7 +372,7 @@ public class PostgresSchemaProviderTest : DatabaseBackedBaseTest
 
         {
             await using var tenantDb = new NpgsqlConnection(Configuration.TenantMasterConnectionString);
-            await tenantDb.DropSchemaForUserAsync("tenant", "faketenant4", $"tenant_{tenantId.ToString().ToLower()}");
+            await tenantDb.DropSchemaForUserAsync("tenant", "faketenant4", $"tenant_{tenantId.ToString("N").ToLower()}");
             await tenantDb.CloseAsync();
         }
         
@@ -408,7 +408,7 @@ public class PostgresSchemaProviderTest : DatabaseBackedBaseTest
         finally
         {
             await using var tenantDb = new NpgsqlConnection(Configuration.TenantMasterConnectionString);
-            await tenantDb.DropSchemaForUserAsync("tenant", "faketenant4", $"tenant_{tenantId.ToString().ToLower()}");
+            await tenantDb.DropSchemaForUserAsync("tenant", "faketenant4", $"tenant_{tenantId.ToString("N").ToLower()}");
             await tenantDb.CloseAsync();
         }
     }
