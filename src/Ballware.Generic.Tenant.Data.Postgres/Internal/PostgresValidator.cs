@@ -5,7 +5,7 @@ namespace Ballware.Generic.Tenant.Data.Postgres.Internal;
 static class PostgresValidator
 {
     private const int MaxIdentifierLength = 63;
-    private static readonly Regex ValidIdentifierRegex = new(@"^[a-zA-Z_][a-zA-Z0-9_]*$", RegexOptions.Compiled);
+    private static readonly Regex ValidIdentifierRegex = new(@"^[a-zA-Z_][a-zA-Z0-9_]*$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
 
     private static void ValidatePgIdentifier(string identifier, string paramName, string context)
     {
