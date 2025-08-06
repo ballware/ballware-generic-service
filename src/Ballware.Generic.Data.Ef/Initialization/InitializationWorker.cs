@@ -1,16 +1,10 @@
-using Ballware.Generic.Data.Ef.Configuration;
-
-namespace Ballware.Generic.Data.Ef.SqlServer.Internal;
-
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Ballware.Generic.Data.Ef.Configuration;
 
-using Microsoft.EntityFrameworkCore;
+namespace Ballware.Generic.Data.Ef.Initialization;
 
-class InitializationWorker : IHostedService
+public class InitializationWorker : IHostedService
 {
     private IServiceProvider ServiceProvider { get; }
 
@@ -27,9 +21,9 @@ class InitializationWorker : IHostedService
 
         if (options.AutoMigrations)
         {
-            var context = scope.ServiceProvider.GetRequiredService<TenantDbContext>();
+            var context = scope.ServiceProvider.GetRequiredService<ITenantDbContext>();
 
-            await context.Database.MigrateAsync(cancellationToken);
+            await context.MigrateDatabaseAsync(cancellationToken);
         }
     }
 

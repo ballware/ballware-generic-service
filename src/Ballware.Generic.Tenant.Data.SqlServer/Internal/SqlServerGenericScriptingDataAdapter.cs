@@ -1,6 +1,7 @@
 using System.Data;
 using Ballware.Generic.Scripting;
 using Ballware.Generic.Metadata;
+using Ballware.Generic.Tenant.Data.Commons.Provider;
 using Dapper;
 
 namespace Ballware.Generic.Tenant.Data.SqlServer.Internal;
@@ -55,37 +56,37 @@ class SqlServerGenericScriptingDataAdapter : ITenantDataAdapter
     public long Count(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Entity entity, IDictionary<string, object> claims, string queryIdentifier,
         IDictionary<string, object> p)
     {
-        return GenericProvider.ProcessCountAsync(new SqlServerGenericProcessingContext(db, transaction, tenant, entity), queryIdentifier, claims, p).GetAwaiter().GetResult();
+        return GenericProvider.ProcessCountAsync(new GenericProcessingContext(db, transaction, tenant, entity), queryIdentifier, claims, p).GetAwaiter().GetResult();
     }
 
     public IEnumerable<dynamic> QueryList(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Entity entity, IDictionary<string, object> claims, 
         string queryIdentifier, IDictionary<string, object> p)
     {
-        return GenericProvider.ProcessQueryListAsync<dynamic>(new SqlServerGenericProcessingContext(db, transaction, tenant, entity), queryIdentifier, claims, p).GetAwaiter().GetResult();
+        return GenericProvider.ProcessQueryListAsync<dynamic>(new GenericProcessingContext(db, transaction, tenant, entity), queryIdentifier, claims, p).GetAwaiter().GetResult();
     }
 
     public dynamic? QuerySingle(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Entity entity, IDictionary<string, object> claims,
         string queryIdentifier, IDictionary<string, object> p)
     {
-        return GenericProvider.ProcessQuerySingleAsync<dynamic>(new SqlServerGenericProcessingContext(db, transaction, tenant, entity), queryIdentifier, claims, p).GetAwaiter().GetResult();
+        return GenericProvider.ProcessQuerySingleAsync<dynamic>(new GenericProcessingContext(db, transaction, tenant, entity), queryIdentifier, claims, p).GetAwaiter().GetResult();
     }
 
     public dynamic? QueryNew(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Entity entity, IDictionary<string, object> claims,
         string queryIdentifier, IDictionary<string, object> p)
     {
-        return GenericProvider.ProcessNewAsync<dynamic>(new SqlServerGenericProcessingContext(db, transaction, tenant, entity), queryIdentifier, claims, p).GetAwaiter().GetResult();
+        return GenericProvider.ProcessNewAsync<dynamic>(new GenericProcessingContext(db, transaction, tenant, entity), queryIdentifier, claims, p).GetAwaiter().GetResult();
     }
 
     public void Save(IDbConnection db, IDbTransaction transaction, Metadata.Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> claims,
         string statementIdentifier, IDictionary<string, object> p)
     {
-        GenericProvider.ProcessSaveAsync(new SqlServerGenericProcessingContext(db, transaction, tenant, entity), userId, statementIdentifier, claims, p).GetAwaiter().GetResult();
+        GenericProvider.ProcessSaveAsync(new GenericProcessingContext(db, transaction, tenant, entity), userId, statementIdentifier, claims, p).GetAwaiter().GetResult();
     }
 
     public (bool Result, IEnumerable<string> Messages) Remove(IDbConnection db, IDbTransaction transaction, Metadata.Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> claims,
         IDictionary<string, object> p)
     {
-        var result = GenericProvider.ProcessRemoveAsync(new SqlServerGenericProcessingContext(db, transaction, tenant, entity), userId, claims, p).GetAwaiter().GetResult(); 
+        var result = GenericProvider.ProcessRemoveAsync(new GenericProcessingContext(db, transaction, tenant, entity), userId, claims, p).GetAwaiter().GetResult(); 
         
         return (result.Result, result.Messages); 
     }

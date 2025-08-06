@@ -13,8 +13,8 @@ class JintStatisticScriptingExecutor : IStatisticScriptingExecutor
         MlAdapter = mlAdapter;
     }
     
-    public IEnumerable<dynamic> FetchScript(IDbConnection db, IDbTransaction? transaction, Tenant tenant, Statistic statistic, Guid userId, IDictionary<string, object> claims,
-        IEnumerable<dynamic> results)
+    public IEnumerable<T> FetchScript<T>(IDbConnection db, IDbTransaction? transaction, Tenant tenant, Statistic statistic, Guid userId, IDictionary<string, object> claims,
+        IEnumerable<T> results)
     {
         if (!string.IsNullOrEmpty(statistic.FetchScript))
         {

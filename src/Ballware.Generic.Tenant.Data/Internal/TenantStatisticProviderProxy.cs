@@ -11,10 +11,10 @@ class TenantStatisticProviderProxy : ITenantStatisticProvider
         ProviderRegistry = providerRegistry;
     }
 
-    public async Task<IEnumerable<dynamic>> FetchDataAsync(Metadata.Tenant tenant, Statistic statistic, Guid userId, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
+    public async Task<IEnumerable<T>> FetchDataAsync<T>(Metadata.Tenant tenant, Statistic statistic, Guid userId, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
     {
         var provider = ProviderRegistry.GetStatisticProvider(tenant.Provider);
         
-        return await provider.FetchDataAsync(tenant, statistic, userId, claims, queryParams);
+        return await provider.FetchDataAsync<T>(tenant, statistic, userId, claims, queryParams);
     }
 }

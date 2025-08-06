@@ -5,6 +5,7 @@ using Ballware.Shared.Authorization.Jint;
 using Ballware.Generic.Caching;
 using Ballware.Generic.Data.Ef;
 using Ballware.Generic.Data.Ef.Configuration;
+using Ballware.Generic.Data.Ef.Postgres;
 using Ballware.Generic.Data.Ef.SqlServer;
 using Ballware.Generic.Jobs;
 using Ballware.Generic.Metadata;
@@ -13,6 +14,7 @@ using Ballware.Generic.Service.Adapter;
 using Ballware.Generic.Service.Configuration;
 using Ballware.Generic.Service.Mappings;
 using Ballware.Generic.Tenant.Data;
+using Ballware.Generic.Tenant.Data.Postgres;
 using Ballware.Generic.Tenant.Data.SqlServer;
 using Ballware.Generic.Tenant.Data.SqlServer.Configuration;
 using Ballware.Meta.Client;
@@ -52,6 +54,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         AuthorizationOptions? authorizationOptions =
             Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
         StorageOptions? storageOptions = Configuration.GetSection("Storage").Get<StorageOptions>();
+        TenantStorageOptions? tenantStorageOptions = Configuration.GetSection("TenantStorage").Get<TenantStorageOptions>();       
         SqlServerTenantStorageOptions? sqlServerTenantStorageOptions = Configuration.GetSection("SqlServerTenantStorage").Get<SqlServerTenantStorageOptions>();
         CacheOptions? cacheOptions = Configuration.GetSection("Cache").Get<CacheOptions>();
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
@@ -67,6 +70,10 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         
         Services.AddOptionsWithValidateOnStart<StorageOptions>()
             .Bind(Configuration.GetSection("Storage"))
+            .ValidateDataAnnotations();        
+        
+        Services.AddOptionsWithValidateOnStart<TenantStorageOptions>()
+            .Bind(Configuration.GetSection("TenantStorage"))
             .ValidateDataAnnotations();        
         
         Services.AddOptionsWithValidateOnStart<Ballware.Generic.Caching.Configuration.CacheOptions>()
@@ -93,9 +100,14 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             .Bind(Configuration.GetSection("MlClient"))
             .ValidateDataAnnotations();
 
-        if (authorizationOptions == null || storageOptions == null || sqlServerTenantStorageOptions == null || string.IsNullOrEmpty(tenantMasterConnectionString))
+        if (authorizationOptions == null || storageOptions == null || tenantStorageOptions == null || string.IsNullOrEmpty(tenantMasterConnectionString))
         {
             throw new ConfigurationException("Required configuration for authorization and storage is missing");
+        }
+
+        if ("mssql".Equals(tenantStorageOptions.Provider) && sqlServerTenantStorageOptions == null)
+        {
+            throw new ConfigurationException("Required configuration for SqlServerTenantStorage is missing");
         }
         
         if (cacheOptions == null)
@@ -293,12 +305,26 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddBallwareSharedAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
         Services.AddBallwareSharedJintRightsChecker();
         Services.AddBallwareJintGenericScripting();
-        
-        Services.AddBallwareTenantStorageForSqlServer(storageOptions, tenantMasterConnectionString);
+
+        if ("mssql".Equals(tenantStorageOptions.Provider, StringComparison.InvariantCultureIgnoreCase))
+        {
+            Services.AddBallwareTenantStorageForSqlServer(storageOptions, tenantMasterConnectionString);    
+        } 
+        else if ("postgres".Equals(tenantStorageOptions.Provider, StringComparison.InvariantCultureIgnoreCase))
+        {
+            Services.AddBallwareTenantStorageForPostgres(storageOptions, tenantMasterConnectionString);
+        }
         
         Services.AddBallwareTenantGenericStorage(builder =>
         {
-            builder.AddSqlServerTenantDataStorage(tenantMasterConnectionString, sqlServerTenantStorageOptions);
+            if ("mssql".Equals(tenantStorageOptions.Provider, StringComparison.InvariantCultureIgnoreCase))
+            {
+                builder.AddSqlServerTenantDataStorage(tenantMasterConnectionString, sqlServerTenantStorageOptions);
+            } 
+            else if ("postgres".Equals(tenantStorageOptions.Provider, StringComparison.InvariantCultureIgnoreCase))
+            {
+                builder.AddPostgresTenantDataStorage(tenantMasterConnectionString);
+            }
         });
 
         Services.AddEndpointsApiExplorer();

@@ -61,6 +61,6 @@ public static class StatisticDataEndpoint
             return Results.NotFound($"Statistic with identifier {identifier} not found for tenant {tenantId}.");
         }        
         
-        return Results.Ok(await statisticProvider.FetchDataAsync(tenant, statistic, currentUserId, claims, queryParams));
+        return Results.Ok(await statisticProvider.FetchDataAsync<dynamic>(tenant, statistic, currentUserId, claims, queryParams));
     }
 }
