@@ -1,31 +1,18 @@
 using System.Data;
 using Ballware.Generic.Data.Repository;
+using Ballware.Generic.Tenant.Data.Commons.Provider;
 using Npgsql;
 
 namespace Ballware.Generic.Tenant.Data.Postgres.Internal;
 
-class PostgresStorageProvider : ITenantStorageProvider
+class PostgresStorageProvider : CommonStorageProvider
 {
-    private ITenantConnectionRepository ConnectionRepository { get; }
-    
     public PostgresStorageProvider(ITenantConnectionRepository connectionRepository)
+        : base(connectionRepository)
     {
-        ConnectionRepository = connectionRepository;
     }
 
-    public async Task<string> GetConnectionStringAsync(Guid tenant)
-    {
-        var tenantConnection = await ConnectionRepository.ByIdAsync(tenant);
-
-        if (tenantConnection == null || tenantConnection.ConnectionString == null)
-        {
-            throw new ArgumentException($"Tenant {tenant} does not exist");
-        }
-        
-        return tenantConnection.ConnectionString;
-    }
-
-    public async Task<IDbConnection> OpenConnectionAsync(Guid tenant)
+    public override async Task<IDbConnection> OpenConnectionAsync(Guid tenant)
     {
         var tenantConnection = await ConnectionRepository.ByIdAsync(tenant);
 
@@ -41,7 +28,7 @@ class PostgresStorageProvider : ITenantStorageProvider
         return connection;
     }
 
-    public async Task<string> ApplyTenantPlaceholderAsync(Guid tenant, string source, TenantPlaceholderOptions options)
+    public override async Task<string> ApplyTenantPlaceholderAsync(Guid tenant, string source, TenantPlaceholderOptions options)
     {
         var tenantConnection = await ConnectionRepository.ByIdAsync(tenant);
 
@@ -52,7 +39,7 @@ class PostgresStorageProvider : ITenantStorageProvider
         
         if (!string.IsNullOrEmpty(source))
         {
-            source = source.Replace("[ballwareschema]", tenantConnection.Schema ?? "dbo");
+            source = source.Replace("[ballwareschema]", tenantConnection.Schema ?? "public");
         }
 
         if (!string.IsNullOrEmpty(source) && options.ReplaceTenantId)
@@ -68,18 +55,8 @@ class PostgresStorageProvider : ITenantStorageProvider
         return source;
     }
 
-    public async Task<T> TransferToVariablesAsync<T>(Guid tenant, T target, IDictionary<string, object>? source, string prefix = "") where T : IDictionary<string, object>
+    public override async Task<T> TransferToVariablesAsync<T>(Guid tenant, T target, IDictionary<string, object>? source, string prefix = "")
     {
         return await Task.FromResult(Utils.TransferToSqlVariables(target, source, prefix));
-    }
-
-    public async Task<IDictionary<string, object>> DropComplexMemberAsync(Guid tenant, IDictionary<string, object> input)
-    {
-        return await Task.FromResult(Utils.DropComplexMember(input));
-    }
-
-    public async Task<IDictionary<string, object>> NormalizeJsonMemberAsync(Guid tenant, IDictionary<string, object> input)
-    {
-        return await Task.FromResult(Utils.NormalizeJsonMember(input));
     }
 }
