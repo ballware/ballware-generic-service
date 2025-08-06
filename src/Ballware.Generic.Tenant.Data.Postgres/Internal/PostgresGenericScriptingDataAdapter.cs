@@ -2,13 +2,15 @@ using System.Data;
 using Ballware.Generic.Scripting;
 using Ballware.Generic.Metadata;
 using Ballware.Generic.Tenant.Data.Commons.Provider;
-using Dapper;
 
 namespace Ballware.Generic.Tenant.Data.Postgres.Internal;
 
 class PostgresGenericScriptingDataAdapter : ITenantDataAdapter
 {
     private PostgresGenericProvider GenericProvider { get; }
+
+    private const string OperationNotSupportedExceptionText =
+        "Operation deprecated and not supported on PosgreSQL storage layer";
     
     public PostgresGenericScriptingDataAdapter(PostgresGenericProvider genericProvider)
     {
@@ -17,27 +19,27 @@ class PostgresGenericScriptingDataAdapter : ITenantDataAdapter
     
     public IEnumerable<dynamic> RawQuery(IDbConnection db, IDbTransaction? transaction, string table, string columns, string where, object p)
     {
-        return db.Query<dynamic>($"SELECT {columns} FROM {table} WHERE {where}", p, transaction);
+        throw new NotSupportedException(OperationNotSupportedExceptionText);
     }
 
     public int RawCount(IDbConnection db, IDbTransaction? transaction, string table, string where, object p)
     {
-        return db.ExecuteScalar<int>($"SELECT COUNT(*) FROM {table} WHERE {where}", p, transaction);
+        throw new NotSupportedException(OperationNotSupportedExceptionText);
     }
 
     public void RawDelete(IDbConnection db, IDbTransaction transaction, string table, string where, object p)
     {
-        db.Execute($"DELETE FROM {table} WHERE {where}", p, transaction);
+        throw new NotSupportedException(OperationNotSupportedExceptionText);
     }
 
     public void RawInsert(IDbConnection db, IDbTransaction transaction, string table, string columns, string values, object p)
     {
-        db.Execute($"INSERT INTO {table} ({columns}) VALUES ({values})", p, transaction);
+        throw new NotSupportedException(OperationNotSupportedExceptionText);
     }
 
     public void RawUpdate(IDbConnection db, IDbTransaction transaction, string table, string columns, string where, object p)
     {
-        db.Execute($"UPDATE {table} SET {columns} WHERE {where}", p, transaction);
+        throw new NotSupportedException(OperationNotSupportedExceptionText);
     }
 
     public object? QueryScalarValue(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Entity entity, IDictionary<string, object> claims,

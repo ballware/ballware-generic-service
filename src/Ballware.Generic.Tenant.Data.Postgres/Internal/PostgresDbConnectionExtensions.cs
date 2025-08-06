@@ -1,6 +1,5 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
 using Dapper;
 using Npgsql;
 
@@ -16,38 +15,6 @@ static class PostgresDbConnectionExtensions
     private static readonly string IndexQuery = "SELECT i.relname AS IndexName, idx.indisunique AS \"Unique\", string_agg(a.attname, ',') AS IndexColumns FROM pg_class t, pg_class i, pg_index idx, pg_attribute a, pg_namespace s WHERE t.oid = idx.indrelid AND i.oid = idx.indexrelid AND a.attrelid = t.oid AND a.attnum = ANY(idx.indkey) AND t.relnamespace = s.oid AND s.nspname = @schema AND t.relname = @table AND (i.relname LIKE 'idx_%' OR i.relname LIKE 'uidx_%') GROUP BY i.relname, idx.indisunique";
     private static readonly string ColumnQuery = "SELECT column_name AS ColumnName, data_type AS ColumnType, character_maximum_length AS MaxLength, CASE WHEN is_nullable='YES' THEN 1 ELSE 0 END AS Nullable FROM information_schema.columns WHERE table_schema=@schema AND table_name=@table";
     private static readonly IEnumerable<string> EntityMandatoryColumns = ["id", "uuid", "tenant_id", "creator_id", "create_stamp", "last_changer_id", "last_change_stamp"];
-    
-    private const int MaxIdentifierLength = 63;
-    private static readonly Regex ValidIdentifierRegex = new(@"^[a-zA-Z_][a-zA-Z0-9_]*$", RegexOptions.Compiled);
-
-    private static void ValidatePgIdentifier(string identifier, string paramName, string context)
-    {
-        if (string.IsNullOrWhiteSpace(identifier) || !ValidIdentifierRegex.IsMatch(identifier) || identifier.Length > MaxIdentifierLength)
-        {
-            throw new ArgumentException($"Invalid PostgreSQL {context}: '{identifier}'", paramName);
-        }
-    }
-    
-    private static void ValidateTableAndColumnIdentifier(string identifier, string paramName)
-        => ValidatePgIdentifier(identifier, paramName, "identifier");
-    
-    private static void ValidateSchemaName(string schemaName, string paramName)
-        => ValidatePgIdentifier(schemaName, paramName, "schema name");
-
-    private static void ValidateUserName(string userName, string paramName)
-        => ValidatePgIdentifier(userName, paramName, "user name");
-    
-    private static void ValidateFunctionName(string functionName, string paramName) =>
-        ValidatePgIdentifier(functionName, paramName, "function name");
-
-    private static void ValidateIndexName(string indexName, string paramName) =>
-        ValidatePgIdentifier(indexName, paramName, "index name");
-    
-    private static void ValidateViewName(string viewName, string paramName) =>
-        ValidatePgIdentifier(viewName, paramName, "view name");
-    
-    public static void ValidateDomainName(string domainName, string paramName) =>
-        ValidatePgIdentifier(domainName, paramName, "domain name");
     
     private static string CreateColumnTypeDefinition(PostgresColumnModel column)
     {
@@ -96,13 +63,13 @@ static class PostgresDbConnectionExtensions
 
     private static bool TableExists(this IDbConnection db, string schema, string table)
     {
-        return db.ExecuteScalar<long>(TableExistsQuery, new { schema = schema, table = table }) > 0;
+        return db.ExecuteScalar<long>(TableExistsQuery, new { schema, table }) > 0;
     }
     
     private static void CreateTable(this IDbConnection db, string schema, PostgresTableModel table)
     {
-        ValidateTableAndColumnIdentifier(schema, nameof(schema));
-        ValidateTableAndColumnIdentifier(table.TableName, nameof(table.TableName));
+        PostgresValidator.ValidateTableAndColumnIdentifier(schema, nameof(schema));
+        PostgresValidator.ValidateTableAndColumnIdentifier(table.TableName, nameof(table.TableName));
         
         var columns = CreateMandatoryColumns(table.NoIdentity);
         
@@ -121,8 +88,8 @@ static class PostgresDbConnectionExtensions
     // DDL Anpassungen
     private static void AddColumn(this IDbConnection db, string table, PostgresColumnModel add)
     {
-        ValidateTableAndColumnIdentifier(table, nameof(table));
-        ValidateTableAndColumnIdentifier(add.ColumnName, nameof(add.ColumnName));
+        PostgresValidator.ValidateTableAndColumnIdentifier(table, nameof(table));
+        PostgresValidator.ValidateTableAndColumnIdentifier(add.ColumnName, nameof(add.ColumnName));
         
         db.Execute($"ALTER TABLE \"{table}\" ADD COLUMN \"{add.ColumnName}\" {CreateColumnTypeDefinition(add)}");  // NOSONAR - S2077 Validation existing
         
@@ -134,9 +101,9 @@ static class PostgresDbConnectionExtensions
     
     private static void AlterColumn(this IDbConnection db, string table, PostgresColumnModel existing, PostgresColumnModel changed)
     {
-        ValidateTableAndColumnIdentifier(table, nameof(table));
-        ValidateTableAndColumnIdentifier(existing.ColumnName, nameof(existing.ColumnName));
-        ValidateTableAndColumnIdentifier(changed.ColumnName, nameof(changed.ColumnName));
+        PostgresValidator.ValidateTableAndColumnIdentifier(table, nameof(table));
+        PostgresValidator.ValidateTableAndColumnIdentifier(existing.ColumnName, nameof(existing.ColumnName));
+        PostgresValidator.ValidateTableAndColumnIdentifier(changed.ColumnName, nameof(changed.ColumnName));
         
         if (existing.ColumnType != changed.ColumnType || existing.Nullable != changed.Nullable ||
             existing.MaxLength != changed.MaxLength)
@@ -156,16 +123,16 @@ static class PostgresDbConnectionExtensions
 
     private static void DropColumn(this IDbConnection db, string table, PostgresColumnModel drop)
     {
-        ValidateTableAndColumnIdentifier(table, nameof(table));
-        ValidateTableAndColumnIdentifier(drop.ColumnName, nameof(drop.ColumnName));
+        PostgresValidator.ValidateTableAndColumnIdentifier(table, nameof(table));
+        PostgresValidator.ValidateTableAndColumnIdentifier(drop.ColumnName, nameof(drop.ColumnName));
         
         db.Execute($"ALTER TABLE \"{table}\" DROP COLUMN \"{drop.ColumnName}\""); // NOSONAR - S2077 Validation existing
     }
     
     public static async Task CreateSchemaForUserAsync(this IDbConnection db, string catalog, string schema, string username, string password)
     {
-        ValidateSchemaName(schema, nameof(schema));
-        ValidateUserName(username, nameof(username));
+        PostgresValidator.ValidateSchemaName(schema, nameof(schema));
+        PostgresValidator.ValidateUserName(username, nameof(username));
         
         await db.ExecuteAsync($"CREATE USER \"{username}\" WITH PASSWORD '{password}'"); // NOSONAR - S2077 Validation existing
     
@@ -180,8 +147,8 @@ static class PostgresDbConnectionExtensions
 
     public static async Task DropSchemaForUserAsync(this IDbConnection db, string catalog, string schema, string username)
     {
-        ValidateSchemaName(schema, nameof(schema));
-        ValidateUserName(username, nameof(username));
+        PostgresValidator.ValidateSchemaName(schema, nameof(schema));
+        PostgresValidator.ValidateUserName(username, nameof(username));
         
         if (!"public".Equals(schema, StringComparison.OrdinalIgnoreCase))
         {   
@@ -223,28 +190,28 @@ static class PostgresDbConnectionExtensions
     {
         return db.Query<string>(
             TableQuery, 
-            new { schema = schema });
+            new { schema });
     }
 
     private static IEnumerable<string> GetCustomTypeNames(this IDbConnection db, string schema)
     {
         return db.Query<string>(
             CustomTypeQuery, 
-            new { schema = schema });
+            new { schema });
     }
     
     private static IEnumerable<string> GetCustomFunctionNames(this IDbConnection db, string schema)
     {
         return db.Query<string>(
             CustomFunctionQuery, 
-            new { schema = schema });
+            new { schema });
     }
     
     private static IEnumerable<string> GetCustomViewNames(this IDbConnection db, string schema)
     {
         return db.Query<string>(
             CustomViewQuery, 
-            new { schema = schema });
+            new { schema });
     }
     
     private static IEnumerable<PostgresColumnModel> GetTableColumns(this IDbConnection db, string schema,
@@ -252,14 +219,14 @@ static class PostgresDbConnectionExtensions
     {
         return db.Query<PostgresColumnModel>(
             ColumnQuery, 
-            new { schema = schema, table = tableName });
+            new { schema, table = tableName });
     }
     
     private static IEnumerable<PostgresIndexModel> GetCustomTableIndices(this IDbConnection db, string schema, string tableName)
     {
         return db.Query<PostgresIndexModel>(
             IndexQuery,
-            new { schema = schema, table = tableName });
+            new { schema, table = tableName });
     }
 
     private static void DropIndex(this IDbConnection db, 
@@ -267,7 +234,7 @@ static class PostgresDbConnectionExtensions
         string tableName, 
         string indexName)
     {
-        ValidateIndexName(indexName, nameof(indexName));
+        PostgresValidator.ValidateIndexName(indexName, nameof(indexName));
         
         db.Execute($"DROP INDEX IF EXISTS {indexName}"); // NOSONAR - S2077 Validation existing
     }
@@ -276,11 +243,10 @@ static class PostgresDbConnectionExtensions
     {
         var indexName = CreateIndexName(tableName, index);
 
-        ValidateTableAndColumnIdentifier(tableName, nameof(tableName));
-        ValidateIndexName(indexName, nameof(indexName));
+        PostgresValidator.ValidateTableAndColumnIdentifier(tableName, nameof(tableName));
+        PostgresValidator.ValidateIndexName(indexName, nameof(indexName));
         
-        db.Execute(
-            $"CREATE{(index.Unique ? " UNIQUE" : "")} INDEX {indexName} ON {tableName} ({string.Join(", ", index.ColumnNames)})"); // NOSONAR - S2077 Validation existing
+        db.Execute($"CREATE{(index.Unique ? " UNIQUE" : "")} INDEX {indexName} ON {tableName} ({string.Join(", ", index.ColumnNames)})"); // NOSONAR - S2077 Validation existing
     }
     
     public static void CreateOrUpdateTable(this IDbConnection db, string schema, PostgresTableModel model)
@@ -346,16 +312,16 @@ static class PostgresDbConnectionExtensions
 
     public static void DropFunction(this IDbConnection db, string schema, string name)
     {
-        ValidateSchemaName(schema, nameof(schema));
-        ValidateFunctionName(name, nameof(name));
+        PostgresValidator.ValidateSchemaName(schema, nameof(schema));
+        PostgresValidator.ValidateFunctionName(name, nameof(name));
         
         db.Execute($"DROP FUNCTION IF EXISTS {schema}.{name}"); // NOSONAR - S2077 Validation existing
     }
 
     public static void CreateView(this IDbConnection db, string schema, string name, string sql, bool overwrite = true)
     {
-        ValidateSchemaName(schema, nameof(schema));
-        ValidateViewName(name, nameof(name));
+        PostgresValidator.ValidateSchemaName(schema, nameof(schema));
+        PostgresValidator.ValidateViewName(name, nameof(name));
         
         if (overwrite)
         {
@@ -367,16 +333,16 @@ static class PostgresDbConnectionExtensions
 
     public static void DropView(this IDbConnection db, string schema, string name)
     {
-        ValidateSchemaName(schema, nameof(schema));
-        ValidateViewName(name, nameof(name));
+        PostgresValidator.ValidateSchemaName(schema, nameof(schema));
+        PostgresValidator.ValidateViewName(name, nameof(name));
         
         db.Execute($"DROP VIEW IF EXISTS {schema}.{name}"); // NOSONAR - S2077 Validation existing
     }
 
     public static void CreateType(this IDbConnection db, string schema, string name, string sql, bool overwrite = true)
     {
-        ValidateSchemaName(schema, nameof(schema));
-        ValidateDomainName(name, nameof(name));
+        PostgresValidator.ValidateSchemaName(schema, nameof(schema));
+        PostgresValidator.ValidateDomainName(name, nameof(name));
         
         if (overwrite)
         {
@@ -388,16 +354,16 @@ static class PostgresDbConnectionExtensions
 
     public static void DropType(this IDbConnection db, string schema, string name)
     {
-        ValidateSchemaName(schema, nameof(schema));
-        ValidateDomainName(name, nameof(name));
+        PostgresValidator.ValidateSchemaName(schema, nameof(schema));
+        PostgresValidator.ValidateDomainName(name, nameof(name));
         
         db.Execute($"DROP TYPE IF EXISTS {schema}.{name}"); // NOSONAR - S2077 Validation existing
     }
 
     public static void CreateTable(this IDbConnection db, string schema, string name, string sql, bool overwrite = true)
     {
-        ValidateSchemaName(schema, nameof(schema));
-        ValidateTableAndColumnIdentifier(name, nameof(name));
+        PostgresValidator.ValidateSchemaName(schema, nameof(schema));
+        PostgresValidator.ValidateTableAndColumnIdentifier(name, nameof(name));
         
         if (overwrite)
         {
@@ -409,8 +375,8 @@ static class PostgresDbConnectionExtensions
 
     public static void DropTable(this IDbConnection db, string schema, string name)
     {
-        ValidateSchemaName(schema, nameof(schema));
-        ValidateTableAndColumnIdentifier(name, nameof(name));
+        PostgresValidator.ValidateSchemaName(schema, nameof(schema));
+        PostgresValidator.ValidateTableAndColumnIdentifier(name, nameof(name));
         
         db.Execute($"DROP TABLE IF EXISTS {schema}.{name}"); // NOSONAR - S2077 Validation existing
     }
