@@ -1,11 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Ballware.Generic.Data.Ef.Configuration;
 
-namespace Ballware.Generic.Data.Ef.Postgres.Internal;
+namespace Ballware.Generic.Data.Ef.Initialization;
 
-class InitializationWorker : IHostedService
+public class InitializationWorker : IHostedService
 {
     private IServiceProvider ServiceProvider { get; }
 
@@ -22,9 +21,9 @@ class InitializationWorker : IHostedService
 
         if (options.AutoMigrations)
         {
-            var context = scope.ServiceProvider.GetRequiredService<TenantDbContext>();
+            var context = scope.ServiceProvider.GetRequiredService<ITenantDbContext>();
 
-            await context.Database.MigrateAsync(cancellationToken);
+            await context.MigrateDatabaseAsync(cancellationToken);
         }
     }
 

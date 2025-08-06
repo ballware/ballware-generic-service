@@ -14,6 +14,11 @@ public class TenantDbContext : DbContext, ITenantDbContext
         LoggerFactory = loggerFactory;
     }
 
+    public async Task MigrateDatabaseAsync(CancellationToken cancellationToken)
+    {
+        await Database.MigrateAsync(cancellationToken);
+    }
+
     public DbSet<TenantConnection> TenantConnections { get; set; }
     public DbSet<TenantEntity> TenantEntities { get; set; }
     

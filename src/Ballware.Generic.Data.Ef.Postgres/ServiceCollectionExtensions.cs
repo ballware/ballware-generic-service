@@ -1,8 +1,7 @@
 using Ballware.Generic.Data.Caching;
 using Ballware.Generic.Data.Ef.Configuration;
-using Ballware.Generic.Data.Ef.Model;
+using Ballware.Generic.Data.Ef.Initialization;
 using Ballware.Generic.Data.Ef.Repository;
-using Ballware.Generic.Data.Ef.Postgres.Internal;
 using Ballware.Generic.Data.Ef.Postgres.Model;
 using Ballware.Generic.Data.Public;
 using Ballware.Generic.Data.Repository;
