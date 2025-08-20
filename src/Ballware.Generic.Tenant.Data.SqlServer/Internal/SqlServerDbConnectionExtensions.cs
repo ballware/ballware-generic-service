@@ -6,6 +6,7 @@ namespace Ballware.Generic.Tenant.Data.SqlServer.Internal;
 
 static class SqlServerDbConnectionExtensions
 {
+    private static readonly string TenantIdColumnName = "TenantId";
     private static readonly string TableExistsQuery = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=@schema AND TABLE_NAME=@table";
     private static readonly string TableQuery = "SELECT TABLE_NAME AS TableName FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=@schema AND TABLE_TYPE='BASE TABLE'";
     private static readonly string CustomTypeQuery = "SELECT NAME FROM SYS.TYPES WHERE SCHEMA_ID = SCHEMA_ID(@schema) AND IS_USER_DEFINED=1";
@@ -13,8 +14,8 @@ static class SqlServerDbConnectionExtensions
     private static readonly string CustomViewQuery = "SELECT NAME FROM SYS.VIEWS WHERE SCHEMA_ID = SCHEMA_ID(@schema)";
     private static readonly string IndexQuery = "select IDX.name as IndexName, IDX.is_unique AS [Unique], IndexColumns = (select STRING_AGG(COL.Name, ',') from sys.index_columns IC inner join sys.columns COL on IC.object_id = COL.object_id and IC.column_id = COL.column_id where IDX.object_id = IC.object_id and IDX.index_id = IC.index_id) FROM sys.tables AS TBL\nINNER JOIN sys.schemas AS SCH ON TBL.schema_id = SCH.schema_id INNER JOIN sys.indexes AS IDX ON TBL.object_id = IDX.object_id WHERE (IDX.name like 'idx[_]%' or IDX.name like 'uidx[_]%') and SCH.name = @schema and TBL.name = @table";
     private static readonly string ColumnQuery = "select COLUMN_NAME as ColumnName, DATA_TYPE as ColumnType, CHARACTER_MAXIMUM_LENGTH as MaxLength, case when IS_NULLABLE='YES' then 1 else 0 end as Nullable from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA=@schema and TABLE_NAME=@table";
-    private static readonly IEnumerable<string> EntityMandatoryColumns = ["Id", "Uuid", "TenantId", "CreatorId", "CreateStamp", "LastChangerId", "LastChangeStamp"];
-
+    private static readonly IEnumerable<string> EntityMandatoryColumns = ["Id", "Uuid", TenantIdColumnName, "CreatorId", "CreateStamp", "LastChangerId", "LastChangeStamp"];
+    
     private static string CreateColumnTypeDefinition(SqlServerColumnModel column)
     {
         if (column.ColumnType == SqlServerColumnType.String)
@@ -182,13 +183,16 @@ static class SqlServerDbConnectionExtensions
         }
 
         await db.ExecuteAsync($"DROP USER IF EXISTS [{username}]");
-        
+
         try
         {
             await db.ExecuteAsync($"use master");
             await db.ExecuteAsync($"DROP LOGIN [{username}]");
         }
-        catch (SqlException) { }
+        catch (SqlException)
+        {
+            // Ignore if the login does not exist
+        }
     }
     
     private static IEnumerable<string> GetTableNames(this IDbConnection db, string schema)
@@ -241,10 +245,22 @@ static class SqlServerDbConnectionExtensions
 
     private static void CreateIndex(this IDbConnection db, string tableName, SqlServerIndexModel index)
     {
+        var columnNames = index.ColumnNames.ToList();
+        
+        if (columnNames.Count == 0)
+        {
+            throw new ArgumentException("Index must have at least one column.");
+        }
+
+        if (!columnNames.Contains(TenantIdColumnName))
+        {
+            columnNames.Insert(0, TenantIdColumnName);
+        }
+        
         var indexName = CreateIndexName(index);
 
         db.Execute(
-            $"CREATE{(index.Unique ? " UNIQUE" : "")} INDEX {indexName} ON {tableName} ({string.Join(", ", index.ColumnNames)})");
+            $"CREATE{(index.Unique ? " UNIQUE" : "")} INDEX {indexName} ON {tableName} ({string.Join(", ", columnNames)})");
     }
     
     public static void CreateOrUpdateTable(this IDbConnection db, string schema, SqlServerTableModel model)
@@ -271,9 +287,9 @@ static class SqlServerDbConnectionExtensions
             .Where(c => existingColumns.FirstOrDefault(x => x.ColumnName.Equals(c.ColumnName, StringComparison.OrdinalIgnoreCase)) != null
                         && !EntityMandatoryColumns.Contains(c.ColumnName)).ToList();
 
-        addedColumns?.ForEach(field => db.AddColumn(model.TableName, field));
-        removedColumns?.ForEach(field => db.DropColumn(model.TableName, field));
-        existingNonMandatoryColumns?.ForEach(field => db.AlterColumn(model.TableName, existingColumns.First(x => x.ColumnName.Equals(field.ColumnName, StringComparison.OrdinalIgnoreCase)), field));
+        addedColumns.ForEach(field => db.AddColumn(model.TableName, field));
+        removedColumns.ForEach(field => db.DropColumn(model.TableName, field));
+        existingNonMandatoryColumns.ForEach(field => db.AlterColumn(model.TableName, existingColumns.First(x => x.ColumnName.Equals(field.ColumnName, StringComparison.OrdinalIgnoreCase)), field));
 
         if (!model.NoIdentity)
         {
