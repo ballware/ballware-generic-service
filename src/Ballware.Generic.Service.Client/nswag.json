@@ -1,0 +1,52 @@
+{
+  "runtime": "Net80",
+  "documentGenerator": {
+    "fromDocument": {
+      "url": "swagger.json",
+      "output": null,
+      "newLineBehavior": "Auto"
+    }
+  },
+  "codeGenerators": {
+    "openApiToCSharpClient": {
+      "className": "GenericServiceClient",
+      "namespace": "Ballware.Generic.Service.Client",
+      "output": "GenericServiceClient.cs",
+
+      "injectHttpClient": true,
+      "disposeHttpClient": true,
+      "useBaseUrl": false,
+      "generateClientClasses": true,
+      "generateClientInterfaces": false,
+      "generateResponseClasses": true,
+      "responseClass": "SwaggerResponse",
+      "exceptionClass": "SwaggerException",
+      "wrapDtoExceptions": true,
+      "generateSyncMethods": true,
+
+      "jsonLibrary": "NewtonsoftJson",
+      "dateType": "System.DateTimeOffset",
+      "dateTimeType": "System.DateTimeOffset",
+      "timeType": "System.TimeSpan",
+      "timeSpanType": "System.TimeSpan",
+
+      "arrayType": "System.Collections.Generic.ICollection",
+      "arrayInstanceType": "System.Collections.ObjectModel.Collection",
+      "dictionaryType": "System.Collections.Generic.IDictionary",
+      "dictionaryInstanceType": "System.Collections.Generic.Dictionary",
+
+      "parameterDateTimeFormat": "s",
+      "parameterDateFormat": "yyyy-MM-dd",
+      "generateUpdateJsonSerializerSettingsMethod": true,
+      "generateJsonMethods": true,
+      "generateDtoTypes": true,
+      "generateDefaultValues": true,
+      "generateDataAnnotations": true,
+      "requiredPropertiesMustBeDefined": true,
+      "classStyle": "Poco",
+      "clientClassAccessModifier": "public",
+      "typeAccessModifier": "public",
+      "newLineBehavior": "Auto"
+    }
+  }
+}

@@ -19,26 +19,50 @@ jobs:
           dotnet-version:
             8.0   
       - name: Install GitVersion
-        run: dotnet tool install --global GitVersion.Tool
-      - name: Fetch GitVersion
-        uses: gittools/actions/gitversion/execute@v0
+        uses: gittools/actions/gitversion/setup@v4.1.0
         with:
-          useConfigFile: true
+          versionSpec: '6.3.x'
+      - name: Install swashbuckle CLI
+        run: dotnet tool install --global Swashbuckle.AspNetCore.Cli --version 7.2.0
+      - name: Install nswag CLI
+        run: dotnet tool install --global Nswag.ConsoleCore
+      - name: Fetch GitVersion
+        uses: gittools/actions/gitversion/execute@v4.1.0
       - name: Restore dependencies
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        
         run: |
           dotnet nuget add source "https://nuget.pkg.github.com/ballware/index.json" \
             --name github \
             --username frankball \
-            --password ${{ secrets.GITHUB_TOKEN }} \
+            --password "$GITHUB_TOKEN" \
             --store-password-in-clear-text
           dotnet restore ballware-generic-service.sln
+      - name: Build solution
+        run: |
+          dotnet build ballware-generic-service.sln -p:Version=${{ env.GitVersion_SemVer }} --configuration Release  
+      - name: Generate Swagger specification
+        working-directory: src/Ballware.Generic.Service
+        env:
+          ASPNETCORE_ENVIRONMENT: Swagger
+        run: |
+          swagger tofile \
+            --output ../Ballware.Generic.Service.Client/swagger.json \
+            ./bin/Release/net8.0/Ballware.Generic.Service.dll \
+            service
+      - name: Generate service client code
+        working-directory: src/Ballware.Generic.Service.Client
+        run: |
+          nswag run nswag.json               
       - name: Pack NuGet packages
         run: |
           dotnet restore ballware-generic-service.sln
           dotnet pack ballware-generic-service.sln -p:Version=${{ env.GitVersion_SemVer }} --configuration Release --output ./nupkgs
       - name: Publish NuGet packages to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          dotnet nuget push ./nupkgs/*.nupkg --source https://nuget.pkg.github.com/ballware/index.json --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+          dotnet nuget push ./nupkgs/*.nupkg --source https://nuget.pkg.github.com/ballware/index.json --api-key "$GITHUB_TOKEN" --skip-duplicate
       - name: Create version tag on release
         if: github.ref == 'refs/heads/main'
         run: |

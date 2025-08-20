@@ -52,6 +52,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Data.Ef.Po
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Data.Ef.Postgres.Tests", "test\Ballware.Generic.Data.Ef.Postgres.Tests\Ballware.Generic.Data.Ef.Postgres.Tests.csproj", "{5ED5870C-E03B-48E1-8173-FDF3CD200847}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Service.Client", "src\Ballware.Generic.Service.Client\Ballware.Generic.Service.Client.csproj", "{B36BFC12-EBF4-4555-9506-0293BB62C81B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -162,5 +164,9 @@ Global
 		{5ED5870C-E03B-48E1-8173-FDF3CD200847}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5ED5870C-E03B-48E1-8173-FDF3CD200847}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5ED5870C-E03B-48E1-8173-FDF3CD200847}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B36BFC12-EBF4-4555-9506-0293BB62C81B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B36BFC12-EBF4-4555-9506-0293BB62C81B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B36BFC12-EBF4-4555-9506-0293BB62C81B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B36BFC12-EBF4-4555-9506-0293BB62C81B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
