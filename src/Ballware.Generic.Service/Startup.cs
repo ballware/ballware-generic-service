@@ -20,7 +20,7 @@ using Ballware.Generic.Tenant.Data.SqlServer;
 using Ballware.Generic.Tenant.Data.SqlServer.Configuration;
 using Ballware.Meta.Client;
 using Ballware.Ml.Client;
-using Ballware.Storage.Client;
+using Ballware.Storage.Service.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -269,7 +269,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 #endif                  
             .AddClientCredentialsTokenHandler("meta");
 
-        Services.AddHttpClient<BallwareStorageClient>(client =>
+        Services.AddHttpClient<StorageServiceClient>(client =>
             {
                 client.BaseAddress = new Uri(storageClientOptions.ServiceUrl);
             })

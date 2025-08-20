@@ -10,6 +10,7 @@
 
     <ItemGroup>
         <PackageReference Include="Ballware.Shared.Authorization.Jint" Version="0.0.5" />
+        <PackageReference Include="ballware.storage.service.client" Version="9.3.0" />
         <PackageReference Include="Duende.AccessTokenManagement" Version="3.1.1" />
         <PackageReference Include="Duende.AccessTokenManagement.OpenIdConnect" Version="3.1.1" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
@@ -46,7 +47,6 @@
       <ProjectReference Include="..\Ballware.Generic.Tenant.Data\Ballware.Generic.Tenant.Data.csproj" />
       <ProjectReference Include="..\Ballware.Meta.Client\Ballware.Meta.Client.csproj" />
       <ProjectReference Include="..\Ballware.Ml.Client\Ballware.Ml.Client.csproj" />
-      <ProjectReference Include="..\Ballware.Storage.Client\Ballware.Storage.Client.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -58,9 +58,5 @@
       <Content Include="appsettings.Development.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Jobs\" />
     </ItemGroup>
 </Project>

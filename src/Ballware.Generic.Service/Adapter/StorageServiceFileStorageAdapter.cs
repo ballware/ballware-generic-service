@@ -1,14 +1,14 @@
 using Ballware.Generic.Api;
 using Ballware.Generic.Jobs;
-using Ballware.Storage.Client;
+using Ballware.Storage.Service.Client;
 
 namespace Ballware.Generic.Service.Adapter;
 
 public class StorageServiceFileStorageAdapter : IGenericFileStorageAdapter, IJobsFileStorageAdapter
 {
-    private BallwareStorageClient StorageClient { get; }
+    private StorageServiceClient StorageClient { get; }
     
-    public StorageServiceFileStorageAdapter(BallwareStorageClient storageClient)
+    public StorageServiceFileStorageAdapter(StorageServiceClient storageClient)
     {
         StorageClient = storageClient;
     }
