@@ -6,4 +6,7 @@ public class TenantStorageOptions
 {
     [Required]
     public required string Provider { get; set; }
+    
+    [Required]
+    public required string ConnectionString { get; set; }
 }
