@@ -7,6 +7,7 @@ namespace Ballware.Generic.Tenant.Data.Postgres.Internal;
 
 static class PostgresDbConnectionExtensions
 {
+    private static readonly string TenantIdColumnName = "tenant_id";
     private static readonly string TableExistsQuery = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=@schema AND TABLE_NAME=@table";
     private static readonly string TableQuery = "SELECT TABLE_NAME AS TableName FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=@schema AND TABLE_TYPE='BASE TABLE'";
     private static readonly string CustomTypeQuery = "SELECT t.typname AS name FROM pg_catalog.pg_type t INNER JOIN pg_catalog.pg_namespace n ON t.typnamespace = n.oid WHERE n.nspname = @schema AND t.typtype = 'd'";
@@ -14,7 +15,7 @@ static class PostgresDbConnectionExtensions
     private static readonly string CustomViewQuery = "SELECT viewname AS name FROM pg_catalog.pg_views WHERE schemaname = @schema";
     private static readonly string IndexQuery = "SELECT i.relname AS IndexName, idx.indisunique AS \"Unique\", string_agg(a.attname, ',') AS IndexColumns FROM pg_class t, pg_class i, pg_index idx, pg_attribute a, pg_namespace s WHERE t.oid = idx.indrelid AND i.oid = idx.indexrelid AND a.attrelid = t.oid AND a.attnum = ANY(idx.indkey) AND t.relnamespace = s.oid AND s.nspname = @schema AND t.relname = @table AND (i.relname LIKE 'idx_%' OR i.relname LIKE 'uidx_%') GROUP BY i.relname, idx.indisunique";
     private static readonly string ColumnQuery = "SELECT column_name AS ColumnName, data_type AS ColumnType, character_maximum_length AS MaxLength, CASE WHEN is_nullable='YES' THEN 1 ELSE 0 END AS Nullable FROM information_schema.columns WHERE table_schema=@schema AND table_name=@table";
-    private static readonly IEnumerable<string> EntityMandatoryColumns = ["id", "uuid", "tenant_id", "creator_id", "create_stamp", "last_changer_id", "last_change_stamp"];
+    private static readonly IEnumerable<string> EntityMandatoryColumns = ["id", "uuid", TenantIdColumnName, "creator_id", "create_stamp", "last_changer_id", "last_change_stamp"];
     
     private static string CreateColumnTypeDefinition(PostgresColumnModel column)
     {
@@ -241,12 +242,24 @@ static class PostgresDbConnectionExtensions
 
     private static void CreateIndex(this IDbConnection db, string tableName, PostgresIndexModel index)
     {
+        var columnNames = index.ColumnNames.ToList();
+        
+        if (columnNames.Count == 0)
+        {
+            throw new ArgumentException("Index must have at least one column.");
+        }
+
+        if (!columnNames.Contains(TenantIdColumnName))
+        {
+            columnNames.Insert(0, TenantIdColumnName);
+        }
+        
         var indexName = CreateIndexName(tableName, index);
 
         PostgresValidator.ValidateTableAndColumnIdentifier(tableName, nameof(tableName));
         PostgresValidator.ValidateIndexName(indexName, nameof(indexName));
         
-        db.Execute($"CREATE{(index.Unique ? " UNIQUE" : "")} INDEX {indexName} ON {tableName} ({string.Join(", ", index.ColumnNames)})"); // NOSONAR - S2077 Validation existing
+        db.Execute($"CREATE{(index.Unique ? " UNIQUE" : "")} INDEX {indexName} ON {tableName} ({string.Join(", ", columnNames)})"); // NOSONAR - S2077 Validation existing
     }
     
     public static void CreateOrUpdateTable(this IDbConnection db, string schema, PostgresTableModel model)
