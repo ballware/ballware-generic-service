@@ -9,20 +9,25 @@ namespace Ballware.Generic.Tenant.Data.SqlServer.Internal;
 
 class SqlServerSchemaProvider : ITenantSchemaProvider
 {
+    private string DefaultSchema { get; } = "dbo";   
+    private string DefaultQueryIdentifier { get; } = "primary";
+    
     private SqlServerTenantConfiguration Configuration { get; }
-    private ITenantConnectionRepository Repository { get; }
+    private ITenantConnectionRepository TenantConnectionRepository { get; }
+    private ITenantEntityRepository TenantEntityRepository { get; }
     private ITenantStorageProvider StorageProvider { get; }
     
-    public SqlServerSchemaProvider(SqlServerTenantConfiguration configuration, ITenantConnectionRepository tenantConnectionRepository, ITenantStorageProvider tenantStorageProvider)
+    public SqlServerSchemaProvider(SqlServerTenantConfiguration configuration, ITenantConnectionRepository tenantConnectionRepository, ITenantEntityRepository tenantEntityRepository, ITenantStorageProvider tenantStorageProvider)
     {
         Configuration = configuration;  
-        Repository = tenantConnectionRepository;
+        TenantConnectionRepository = tenantConnectionRepository;
+        TenantEntityRepository = tenantEntityRepository;
         StorageProvider = tenantStorageProvider;
     }
     
     public async Task CreateOrUpdateEntityAsync(Guid tenant, string serializedEntityModel, Guid? userId)
     {
-        var connection = await Repository.ByIdAsync(tenant);
+        var connection = await TenantConnectionRepository.ByIdAsync(tenant);
 
         if (connection != null)
         {
@@ -33,19 +38,41 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             }) ?? SqlServerTableModel.Empty;
             
-            tenantDb.CreateOrUpdateTable(connection.Schema ?? "dbo", tableModel);
+            var entityModel = await TenantEntityRepository.ByEntityAsync(tenant, tableModel.TableName);
+
+            if (entityModel == null)
+            {
+                entityModel = await TenantEntityRepository.NewAsync(tenant, DefaultQueryIdentifier, ImmutableDictionary<string, object>.Empty);
+                entityModel.Entity = tableModel.TableName;
+            }
+            
+            tenantDb.CreateOrUpdateTable(connection.Schema ?? DefaultSchema, tableModel);
+            
+            entityModel.Model = serializedEntityModel;
+            
+            await TenantEntityRepository.SaveAsync(tenant, userId, DefaultQueryIdentifier, ImmutableDictionary<string, object>.Empty, entityModel);
         }
     }
 
     public async Task DropEntityAsync(Guid tenant, string identifier, Guid? userId)
     {
-        var connection = await Repository.ByIdAsync(tenant);
+        var connection = await TenantConnectionRepository.ByIdAsync(tenant);
 
         if (connection != null)
         {
+            var entityModel = await TenantEntityRepository.ByEntityAsync(tenant, identifier);
+            
             using var tenantDb = await StorageProvider.OpenConnectionAsync(tenant);
             
-            tenantDb.DropTable(connection.Schema ?? "dbo", identifier);
+            tenantDb.DropTable(connection.Schema ?? DefaultSchema, identifier);
+            
+            if (entityModel != null)
+            {
+                await TenantEntityRepository.RemoveAsync(tenant, userId, ImmutableDictionary<string, object>.Empty,
+                    new Dictionary<string, object>([
+                        new KeyValuePair<string, object>("Id", entityModel.Id)
+                    ]));
+            }
         }
     }
 
@@ -56,7 +83,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         }) ?? SqlServerTenantModel.Empty;
         
-        var tenantConnection = await Repository.ByIdAsync(tenant);
+        var tenantConnection = await TenantConnectionRepository.ByIdAsync(tenant);
         
         if (tenantConnection is null)
         {
@@ -76,12 +103,12 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         
         foreach (var dropped in droppedTypes)
         {
-            tenantDb.DropType(tenantConnection.Schema ?? "dbo", dropped);
+            tenantDb.DropType(tenantConnection.Schema ?? DefaultSchema, dropped);
         }
         
         foreach (var changed in changedTypes)
         {
-            tenantDb.CreateType(tenantConnection.Schema ?? "dbo", changed.Name, changed.Sql);
+            tenantDb.CreateType(tenantConnection.Schema ?? DefaultSchema, changed.Name, changed.Sql);
         }
         
         var droppedFunctions = GetDroppedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [], SqlServerDatabaseObjectTypes.Function);
@@ -90,12 +117,12 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         
         foreach (var dropped in droppedFunctions)
         {
-            tenantDb.DropFunction(tenantConnection.Schema ?? "dbo", dropped);
+            tenantDb.DropFunction(tenantConnection.Schema ?? DefaultSchema, dropped);
         }
         
         foreach (var changed in changedFunctions)
         {
-            tenantDb.CreateFunction(tenantConnection.Schema ?? "dbo", changed.Name, changed.Sql);
+            tenantDb.CreateFunction(tenantConnection.Schema ?? DefaultSchema, changed.Name, changed.Sql);
         }
         
         var droppedTables = GetDroppedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [], SqlServerDatabaseObjectTypes.Table);
@@ -104,12 +131,12 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         
         foreach (var dropped in droppedTables)
         {
-            tenantDb.DropTable(tenantConnection.Schema ?? "dbo", dropped);
+            tenantDb.DropTable(tenantConnection.Schema ?? DefaultSchema, dropped);
         }
         
         foreach (var changed in changedTables)
         {
-            tenantDb.CreateTable(tenantConnection.Schema ?? "dbo", changed.Name, changed.Sql);
+            tenantDb.CreateTable(tenantConnection.Schema ?? DefaultSchema, changed.Name, changed.Sql);
         }
         
         var droppedViews = GetDroppedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [], SqlServerDatabaseObjectTypes.View);
@@ -118,12 +145,12 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         
         foreach (var dropped in droppedViews)
         {
-            tenantDb.DropView(tenantConnection.Schema ?? "dbo", dropped);
+            tenantDb.DropView(tenantConnection.Schema ?? DefaultSchema, dropped);
         }
         
         foreach (var changed in changedViews)
         {
-            tenantDb.CreateView(tenantConnection.Schema ?? "dbo", changed.Name, changed.Sql);
+            tenantDb.CreateView(tenantConnection.Schema ?? DefaultSchema, changed.Name, changed.Sql);
         }
         
         var changedStatements = nextTenantModel.DatabaseObjects?
@@ -139,7 +166,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         });
         
-        await Repository.SaveAsync(userId, "primary", ImmutableDictionary<string, object>.Empty, tenantConnection);
+        await TenantConnectionRepository.SaveAsync(userId, DefaultQueryIdentifier, ImmutableDictionary<string, object>.Empty, tenantConnection);
     }
 
     private static IEnumerable<string> GetDroppedItems(IEnumerable<SqlServerDatabaseObjectModel> previous,
@@ -183,7 +210,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
 
     public async Task DropTenantAsync(Guid tenant, Guid? userId)
     {
-        var tenantConnection = await Repository.ByIdAsync(tenant);
+        var tenantConnection = await TenantConnectionRepository.ByIdAsync(tenant);
 
         if (tenantConnection != null)
         {
@@ -200,9 +227,9 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
             
             await using var tenantDb = new SqlConnection(tenantCreationConnectionStringBuilder.ToString());
 
-            await tenantDb.DropSchemaForUserAsync(tenantCreationConnectionStringBuilder.InitialCatalog, tenantConnection.Schema ?? "dbo", tenantAccessConnectionStringBuilder.UserID);
+            await tenantDb.DropSchemaForUserAsync(tenantCreationConnectionStringBuilder.InitialCatalog, tenantConnection.Schema ?? DefaultSchema, tenantAccessConnectionStringBuilder.UserID);
 
-            await Repository.RemoveAsync(userId, ImmutableDictionary<string, object>.Empty,
+            await TenantConnectionRepository.RemoveAsync(userId, ImmutableDictionary<string, object>.Empty,
                 new Dictionary<string, object>([
                     new KeyValuePair<string, object>("Id", tenant)
                 ]));
@@ -211,7 +238,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
 
     private async Task<TenantConnection> CreateTenantAsync(Guid tenant, SqlServerTenantModel tenantModel, Guid? userId)
     {
-        var tenantConnection = await Repository.NewAsync("primary", ImmutableDictionary<string, object>.Empty);
+        var tenantConnection = await TenantConnectionRepository.NewAsync(DefaultQueryIdentifier, ImmutableDictionary<string, object>.Empty);
 
         tenantConnection.Id = tenant;
         
@@ -223,7 +250,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         
         tenantModel.Server ??= masterConnectionStringBuilder.DataSource;
         tenantModel.Catalog ??= masterConnectionStringBuilder.InitialCatalog;
-        tenantModel.Schema ??= "dbo";
+        tenantModel.Schema ??= DefaultSchema;
         
         var tenantCreationConnectionStringBuilder =
             new SqlConnectionStringBuilder(Configuration.TenantMasterConnectionString)
@@ -252,7 +279,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         tenantConnection.Schema = tenantModel.Schema;
         tenantConnection.ConnectionString = tenantCreationConnectionStringBuilder.ToString();
         
-        await Repository.SaveAsync(userId, "primary", ImmutableDictionary<string, object>.Empty, tenantConnection);
+        await TenantConnectionRepository.SaveAsync(userId, DefaultQueryIdentifier, ImmutableDictionary<string, object>.Empty, tenantConnection);
         
         return tenantConnection;
     }
