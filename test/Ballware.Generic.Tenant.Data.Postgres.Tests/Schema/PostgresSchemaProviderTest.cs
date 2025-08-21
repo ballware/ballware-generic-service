@@ -14,6 +14,7 @@ public class PostgresSchemaProviderTest : DatabaseBackedBaseTest
 {
     private PostgresTenantConfiguration Configuration { get; set; } = null!;
     private Mock<ITenantConnectionRepository> ConnectionRepositoryMock { get; set; } = null!;
+    private Mock<ITenantEntityRepository> EntityRepositoryMock { get; set; } = null!;
     private ITenantConnectionRepository ConnectionRepository => ConnectionRepositoryMock.Object;
     private ITenantStorageProvider TenantStorageProvider { get; set; } = null!;
     
@@ -28,6 +29,13 @@ public class PostgresSchemaProviderTest : DatabaseBackedBaseTest
         };
 
         ConnectionRepositoryMock = new Mock<ITenantConnectionRepository>();
+        EntityRepositoryMock = new Mock<ITenantEntityRepository>();
+        
+        EntityRepositoryMock.Setup(m => m.NewAsync(It.IsAny<Guid>(), "primary", It.IsAny<IDictionary<string, object>>()))
+            .ReturnsAsync((Guid _, string _, IDictionary<string, object> _) => new TenantEntity()
+            {
+                Id = Guid.NewGuid()
+            });     
     }
     
     [Test]
@@ -77,14 +85,14 @@ public class PostgresSchemaProviderTest : DatabaseBackedBaseTest
         
         try
         {
-            var provider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
+            var provider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, EntityRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
             
             await provider.CreateOrUpdateTenantAsync(tenantId, "postgres", serializedTenantModel, userId);
             
             ConnectionRepositoryMock.Setup(m => m.ByIdAsync(tenantId))
                 .ReturnsAsync((Guid _) => createdConnection);
             
-            provider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
+            provider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, EntityRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
             
             await provider.DropTenantAsync(tenantId, userId);
         }
@@ -180,14 +188,14 @@ public class PostgresSchemaProviderTest : DatabaseBackedBaseTest
         
         try
         {
-            var provider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
+            var provider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, EntityRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
 
             await provider.CreateOrUpdateTenantAsync(tenantId, "postgres", serializedTenantModel, userId);
             
             ConnectionRepositoryMock.Setup(m => m.ByIdAsync(tenantId))
                 .ReturnsAsync((Guid _) => createdConnection);
             
-            provider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
+            provider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, EntityRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
 
             await provider.DropTenantAsync(tenantId, userId);
         }
@@ -278,7 +286,7 @@ public class PostgresSchemaProviderTest : DatabaseBackedBaseTest
         
         try
         {
-            var provider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
+            var provider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, EntityRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
             var serializedTenantModel = JsonSerializer.Serialize(tenantModel, new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -292,7 +300,7 @@ public class PostgresSchemaProviderTest : DatabaseBackedBaseTest
             ConnectionRepositoryMock.Setup(m => m.SaveAsync(It.IsAny<Guid?>(), "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<TenantConnection>()))
                 .Callback((Guid? _, string _, IDictionary<string, object> _, TenantConnection tenantConnection) => createdConnection = tenantConnection);
             
-            provider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
+            provider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, EntityRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
 
             foreach (var PostgresDatabaseObjectModel in tenantModel.DatabaseObjects)
             {
@@ -337,6 +345,7 @@ public class PostgresSchemaProviderTest : DatabaseBackedBaseTest
         var tenantId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         TenantConnection createdConnection = null;
+        TenantEntity createdEntity = null;
         
         ConnectionRepositoryMock.Setup(m => m.NewAsync("primary", It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync((string _, IDictionary<string, object> _) => new TenantConnection()
@@ -359,6 +368,28 @@ public class PostgresSchemaProviderTest : DatabaseBackedBaseTest
                 });    
             });
         
+        EntityRepositoryMock.Setup(m => m.NewAsync(tenantId, "primary", It.IsAny<IDictionary<string, object>>()))
+            .ReturnsAsync((Guid _, string _, IDictionary<string, object> _) => new TenantEntity()
+            {
+                Id = Guid.NewGuid()
+            });  
+        
+        EntityRepositoryMock.Setup(m =>
+                m.SaveAsync(tenantId, userId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<TenantEntity>()))
+            .Callback((Guid _, Guid? _, string _, IDictionary<string, object> _, TenantEntity tenantEntity) =>
+            {
+                Assert.Multiple(() =>
+                {
+                    Assert.That(tenantEntity, Is.Not.Null);
+                    Assert.That(tenantEntity.Entity, Is.EqualTo("fakeentity"));
+
+                    createdEntity = tenantEntity;
+                });    
+            });
+        
+        EntityRepositoryMock.Setup(m => m.ByEntityAsync(tenantId, It.IsAny<string>()))
+            .ReturnsAsync((Guid _, string _) => createdEntity);
+        
         var tenantModel = new PostgresTenantModel()
         {
             Schema = "faketenant4",
@@ -378,14 +409,14 @@ public class PostgresSchemaProviderTest : DatabaseBackedBaseTest
         
         try
         {
-            var provider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
+            var provider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, EntityRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
             
             await provider.CreateOrUpdateTenantAsync(tenantId, "postgres", serializedTenantModel, userId);
             
             ConnectionRepositoryMock.Setup(m => m.ByIdAsync(tenantId))
                 .ReturnsAsync((Guid _) => createdConnection);
             
-            provider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
+            provider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, EntityRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
 
             var entityModel = new PostgresTableModel()
             {
