@@ -25,6 +25,7 @@ public class SqlServerStatisticProviderTest : DatabaseBackedBaseTest
 {
     private SqlServerTenantConfiguration Configuration { get; set; } = null!;
     private Mock<ITenantConnectionRepository> ConnectionRepositoryMock { get; set; } = null!;
+    private Mock<ITenantEntityRepository> EntityRepositoryMock { get; set; } = null!;
     private Mock<IGenericEntityScriptingExecutor> EntityScriptingExecutorMock { get; set; } = null!;
     private Mock<IStatisticScriptingExecutor> StatisticScriptingExecutorMock { get; set; } = null!;
 
@@ -94,6 +95,7 @@ public class SqlServerStatisticProviderTest : DatabaseBackedBaseTest
 
         ConnectionRepositoryMock = new Mock<ITenantConnectionRepository>();
         EntityScriptingExecutorMock = new Mock<IGenericEntityScriptingExecutor>();
+        EntityRepositoryMock = new Mock<ITenantEntityRepository>();
         StatisticScriptingExecutorMock = new Mock<IStatisticScriptingExecutor>();
         
         ConnectionRepositoryMock.Setup(m => m.NewAsync("primary", It.IsAny<IDictionary<string, object>>()))
@@ -117,6 +119,12 @@ public class SqlServerStatisticProviderTest : DatabaseBackedBaseTest
                 });    
             });
         
+        EntityRepositoryMock.Setup(m => m.NewAsync(TenantId, "primary", It.IsAny<IDictionary<string, object>>()))
+            .ReturnsAsync((Guid _, string _, IDictionary<string, object> _) => new TenantEntity()
+            {
+                Id = Guid.NewGuid()
+            });  
+        
         var tenantModel = new SqlServerTenantModel()
         {
             Schema = Schema,
@@ -134,7 +142,7 @@ public class SqlServerStatisticProviderTest : DatabaseBackedBaseTest
             await tenantDb.CloseAsync();
         }
         
-        SchemaProvider = new SqlServerSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
+        SchemaProvider = new SqlServerSchemaProvider(Configuration, ConnectionRepositoryMock.Object, EntityRepositoryMock.Object, new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
             
         await SchemaProvider.CreateOrUpdateTenantAsync(TenantId, "mssql", serializedTenantModel, UserId);
         
@@ -160,7 +168,7 @@ public class SqlServerStatisticProviderTest : DatabaseBackedBaseTest
     [TearDown]
     public async Task TearDown()
     {
-        SchemaProvider = new SqlServerSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
+        SchemaProvider = new SqlServerSchemaProvider(Configuration, ConnectionRepositoryMock.Object, EntityRepositoryMock.Object, new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
 
         await SchemaProvider.DropTenantAsync(TenantId, UserId);
     }

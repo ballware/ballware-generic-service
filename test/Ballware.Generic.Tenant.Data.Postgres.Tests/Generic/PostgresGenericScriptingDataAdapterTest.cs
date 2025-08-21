@@ -19,6 +19,7 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
 {
     private PostgresTenantConfiguration Configuration { get; set; } = null!;
     private Mock<ITenantConnectionRepository> ConnectionRepositoryMock { get; set; } = null!;
+    private Mock<ITenantEntityRepository> EntityRepositoryMock { get; set; } = null!;
     private Mock<IGenericEntityScriptingExecutor> ScriptingExecutorMock { get; set; } = null!;
     
     private Guid TenantId { get; set; } = Guid.NewGuid();
@@ -63,6 +64,7 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
         
         ScriptingExecutorMock = new Mock<IGenericEntityScriptingExecutor>();
         ConnectionRepositoryMock = new Mock<ITenantConnectionRepository>();
+        EntityRepositoryMock = new Mock<ITenantEntityRepository>();
         
         ConnectionRepositoryMock.Setup(m => m.NewAsync("primary", It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync((string _, IDictionary<string, object> _) => new TenantConnection()
@@ -85,6 +87,12 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
                 });    
             });
         
+        EntityRepositoryMock.Setup(m => m.NewAsync(TenantId, "primary", It.IsAny<IDictionary<string, object>>()))
+            .ReturnsAsync((Guid _, string _, IDictionary<string, object> _) => new TenantEntity()
+            {
+                Id = Guid.NewGuid()
+            });        
+        
         var tenantModel = new PostgresTenantModel()
         {
             Schema = Schema,
@@ -102,7 +110,7 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
             await tenantDb.CloseAsync();
         }
         
-        SchemaProvider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
+        SchemaProvider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, EntityRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
             
         await SchemaProvider.CreateOrUpdateTenantAsync(TenantId, "postgres", serializedTenantModel, UserId);
     }

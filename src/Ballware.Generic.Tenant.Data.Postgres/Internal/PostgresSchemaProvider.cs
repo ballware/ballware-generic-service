@@ -11,24 +11,27 @@ namespace Ballware.Generic.Tenant.Data.Postgres.Internal;
 class PostgresSchemaProvider : ITenantSchemaProvider
 {
     private string DefaultSchema { get; } = "public";
+    private string DefaultQueryIdentifier { get; } = "primary";
     
     private PostgresTenantConfiguration Configuration { get; }
-    private ITenantConnectionRepository Repository { get; }
+    private ITenantConnectionRepository TenantConnectionRepository { get; }
+    private ITenantEntityRepository TenantEntityRepository { get; }
     private ITenantStorageProvider StorageProvider { get; }
     
-    public PostgresSchemaProvider(PostgresTenantConfiguration configuration, ITenantConnectionRepository tenantConnectionRepository, ITenantStorageProvider tenantStorageProvider)
+    public PostgresSchemaProvider(PostgresTenantConfiguration configuration, ITenantConnectionRepository tenantConnectionRepository, ITenantEntityRepository tenantEntityRepository, ITenantStorageProvider tenantStorageProvider)
     {
         Configuration = configuration;  
-        Repository = tenantConnectionRepository;
+        TenantConnectionRepository = tenantConnectionRepository;
+        TenantEntityRepository = tenantEntityRepository; 
         StorageProvider = tenantStorageProvider;
     }
     
     public async Task CreateOrUpdateEntityAsync(Guid tenant, string serializedEntityModel, Guid? userId)
     {
-        var connection = await Repository.ByIdAsync(tenant);
+        var connection = await TenantConnectionRepository.ByIdAsync(tenant);
 
         if (connection != null)
-        {
+        {   
             using var tenantDb = await StorageProvider.OpenConnectionAsync(tenant);
             
             var tableModel = JsonSerializer.Deserialize<PostgresTableModel>(serializedEntityModel, new JsonSerializerOptions
@@ -36,19 +39,41 @@ class PostgresSchemaProvider : ITenantSchemaProvider
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             }) ?? PostgresTableModel.Empty;
             
+            var entityModel = await TenantEntityRepository.ByEntityAsync(tenant, tableModel.TableName);
+
+            if (entityModel == null)
+            {
+                entityModel = await TenantEntityRepository.NewAsync(tenant, DefaultQueryIdentifier, ImmutableDictionary<string, object>.Empty);
+                entityModel.Entity = tableModel.TableName;
+            }
+            
             tenantDb.CreateOrUpdateTable(connection.Schema ?? DefaultSchema, tableModel);
+
+            entityModel.Model = serializedEntityModel;
+            
+            await TenantEntityRepository.SaveAsync(tenant, userId, DefaultQueryIdentifier, ImmutableDictionary<string, object>.Empty, entityModel);
         }
     }
 
     public async Task DropEntityAsync(Guid tenant, string identifier, Guid? userId)
     {
-        var connection = await Repository.ByIdAsync(tenant);
+        var connection = await TenantConnectionRepository.ByIdAsync(tenant);
 
         if (connection != null)
         {
+            var entityModel = await TenantEntityRepository.ByEntityAsync(tenant, identifier);
+            
             using var tenantDb = await StorageProvider.OpenConnectionAsync(tenant);
             
             tenantDb.DropTable(connection.Schema ?? DefaultSchema, identifier);
+            
+            if (entityModel != null)
+            {
+                await TenantEntityRepository.RemoveAsync(tenant, userId, ImmutableDictionary<string, object>.Empty,
+                    new Dictionary<string, object>([
+                        new KeyValuePair<string, object>("Id", entityModel.Id)
+                    ]));
+            }
         }
     }
 
@@ -59,7 +84,7 @@ class PostgresSchemaProvider : ITenantSchemaProvider
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         }) ?? PostgresTenantModel.Empty;
         
-        var tenantConnection = await Repository.ByIdAsync(tenant);
+        var tenantConnection = await TenantConnectionRepository.ByIdAsync(tenant);
         
         if (tenantConnection is null)
         {
@@ -142,7 +167,7 @@ class PostgresSchemaProvider : ITenantSchemaProvider
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         });
         
-        await Repository.SaveAsync(userId, "primary", ImmutableDictionary<string, object>.Empty, tenantConnection);
+        await TenantConnectionRepository.SaveAsync(userId, DefaultQueryIdentifier, ImmutableDictionary<string, object>.Empty, tenantConnection);
     }
 
     private static IEnumerable<string> GetDroppedItems(IEnumerable<PostgresDatabaseObjectModel> previous,
@@ -186,7 +211,7 @@ class PostgresSchemaProvider : ITenantSchemaProvider
 
     public async Task DropTenantAsync(Guid tenant, Guid? userId)
     {
-        var tenantConnection = await Repository.ByIdAsync(tenant);
+        var tenantConnection = await TenantConnectionRepository.ByIdAsync(tenant);
 
         if (tenantConnection != null)
         {
@@ -205,7 +230,7 @@ class PostgresSchemaProvider : ITenantSchemaProvider
 
             await tenantDb.DropSchemaForUserAsync(tenantCreationConnectionStringBuilder.Database, tenantConnection.Schema ?? DefaultSchema, tenantAccessConnectionStringBuilder.Username);
 
-            await Repository.RemoveAsync(userId, ImmutableDictionary<string, object>.Empty,
+            await TenantConnectionRepository.RemoveAsync(userId, ImmutableDictionary<string, object>.Empty,
                 new Dictionary<string, object>([
                     new KeyValuePair<string, object>("Id", tenant)
                 ]));
@@ -214,7 +239,7 @@ class PostgresSchemaProvider : ITenantSchemaProvider
 
     private async Task<TenantConnection> CreateTenantAsync(Guid tenant, PostgresTenantModel tenantModel, Guid? userId)
     {
-        var tenantConnection = await Repository.NewAsync("primary", ImmutableDictionary<string, object>.Empty);
+        var tenantConnection = await TenantConnectionRepository.NewAsync(DefaultQueryIdentifier, ImmutableDictionary<string, object>.Empty);
 
         tenantConnection.Id = tenant;
         
@@ -248,7 +273,7 @@ class PostgresSchemaProvider : ITenantSchemaProvider
         tenantConnection.Schema = tenantModel.Schema;
         tenantConnection.ConnectionString = tenantCreationConnectionStringBuilder.ToString();
         
-        await Repository.SaveAsync(userId, "primary", ImmutableDictionary<string, object>.Empty, tenantConnection);
+        await TenantConnectionRepository.SaveAsync(userId, DefaultQueryIdentifier, ImmutableDictionary<string, object>.Empty, tenantConnection);
         
         return tenantConnection;
     }

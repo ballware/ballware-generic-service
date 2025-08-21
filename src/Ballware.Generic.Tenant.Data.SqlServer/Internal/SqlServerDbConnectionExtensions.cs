@@ -71,15 +71,6 @@ static class SqlServerDbConnectionExtensions
         var columns = CreateMandatoryColumns(table.NoIdentity);
         
         db.Execute($"CREATE TABLE {schema}.{table.TableName} ({columns})");
-
-        if (!table.NoIdentity)
-        {
-            db.CreateIndex(table.TableName, new SqlServerIndexModel()
-            {
-                Unique = true,
-                ColumnNames = ["Uuid", "TenantId"],
-            });
-        }
     }
     
     private static void AddColumn(this IDbConnection db, string table, SqlServerColumnModel add)
@@ -291,12 +282,18 @@ static class SqlServerDbConnectionExtensions
         removedColumns.ForEach(field => db.DropColumn(model.TableName, field));
         existingNonMandatoryColumns.ForEach(field => db.AlterColumn(model.TableName, existingColumns.First(x => x.ColumnName.Equals(field.ColumnName, StringComparison.OrdinalIgnoreCase)), field));
 
+        db.CreateIndex(model.TableName, new SqlServerIndexModel()
+        {
+            Unique = false,
+            ColumnNames = [TenantIdColumnName]
+        });
+        
         if (!model.NoIdentity)
         {
             db.CreateIndex(model.TableName, new SqlServerIndexModel()
             {
                 Unique = true,
-                ColumnNames = ["Uuid", "TenantId"]
+                ColumnNames = ["Uuid", TenantIdColumnName]
             });
         }
         
