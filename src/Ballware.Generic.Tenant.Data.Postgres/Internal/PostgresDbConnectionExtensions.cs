@@ -75,15 +75,6 @@ static class PostgresDbConnectionExtensions
         var columns = CreateMandatoryColumns(table.NoIdentity);
         
         db.Execute($"CREATE TABLE \"{schema}\".\"{table.TableName}\" ({columns})"); // NOSONAR - S2077 Validation existing
-
-        if (!table.NoIdentity)
-        {
-            db.CreateIndex(table.TableName, new PostgresIndexModel()
-            {
-                Unique = true,
-                ColumnNames = ["uuid", "tenant_id"],
-            });
-        }
     }
     
     // DDL Anpassungen
@@ -290,12 +281,18 @@ static class PostgresDbConnectionExtensions
         removedColumns.ForEach(field => db.DropColumn(model.TableName, field));
         existingNonMandatoryColumns.ForEach(field => db.AlterColumn(model.TableName, existingColumns.First(x => x.ColumnName.Equals(field.ColumnName, StringComparison.OrdinalIgnoreCase)), field));
 
+        db.CreateIndex(model.TableName, new PostgresIndexModel()
+        {
+            Unique = false,
+            ColumnNames = [TenantIdColumnName]
+        });
+        
         if (!model.NoIdentity)
         {
             db.CreateIndex(model.TableName, new PostgresIndexModel()
             {
                 Unique = true,
-                ColumnNames = ["uuid", "tenant_id"]
+                ColumnNames = ["uuid", TenantIdColumnName]
             });
         }
         
