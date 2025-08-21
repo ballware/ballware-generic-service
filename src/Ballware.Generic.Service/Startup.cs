@@ -1,10 +1,12 @@
 using Ballware.Generic.Api;
 using Ballware.Generic.Api.Endpoints;
-using Ballware.Generic.Authorization;
-using Ballware.Generic.Authorization.Jint;
+using Ballware.Shared.Authorization;
+using Ballware.Shared.Authorization.Jint;
 using Ballware.Generic.Caching;
 using Ballware.Generic.Data.Ef;
 using Ballware.Generic.Data.Ef.Configuration;
+using Ballware.Generic.Data.Ef.Postgres;
+using Ballware.Generic.Data.Ef.SqlServer;
 using Ballware.Generic.Jobs;
 using Ballware.Generic.Metadata;
 using Ballware.Generic.Scripting.Jint;
@@ -12,11 +14,13 @@ using Ballware.Generic.Service.Adapter;
 using Ballware.Generic.Service.Configuration;
 using Ballware.Generic.Service.Mappings;
 using Ballware.Generic.Tenant.Data;
+using Ballware.Generic.Tenant.Data.Postgres;
+using Ballware.Generic.Tenant.Data.Postgres.Configuration;
 using Ballware.Generic.Tenant.Data.SqlServer;
 using Ballware.Generic.Tenant.Data.SqlServer.Configuration;
 using Ballware.Meta.Client;
 using Ballware.Ml.Client;
-using Ballware.Storage.Client;
+using Ballware.Storage.Service.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -51,6 +55,8 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         AuthorizationOptions? authorizationOptions =
             Configuration.GetSection("Authorization").Get<AuthorizationOptions>();
         StorageOptions? storageOptions = Configuration.GetSection("Storage").Get<StorageOptions>();
+        TenantStorageOptions? tenantStorageOptions = Configuration.GetSection("TenantStorage").Get<TenantStorageOptions>();
+        PostgresTenantStorageOptions? postgresTenantStorageOptions = Configuration.GetSection("PostgresTenantStorage").Get<PostgresTenantStorageOptions>();
         SqlServerTenantStorageOptions? sqlServerTenantStorageOptions = Configuration.GetSection("SqlServerTenantStorage").Get<SqlServerTenantStorageOptions>();
         CacheOptions? cacheOptions = Configuration.GetSection("Cache").Get<CacheOptions>();
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
@@ -58,14 +64,16 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         ServiceClientOptions? storageClientOptions = Configuration.GetSection("StorageClient").Get<ServiceClientOptions>();
         ServiceClientOptions? mlClientOptions = Configuration.GetSection("MlClient").Get<ServiceClientOptions>();
         
-        var tenantMasterConnectionString = Configuration.GetConnectionString("TenantMasterConnection");
-
         Services.AddOptionsWithValidateOnStart<AuthorizationOptions>()
             .Bind(Configuration.GetSection("Authorization"))
             .ValidateDataAnnotations();
         
         Services.AddOptionsWithValidateOnStart<StorageOptions>()
             .Bind(Configuration.GetSection("Storage"))
+            .ValidateDataAnnotations();        
+        
+        Services.AddOptionsWithValidateOnStart<TenantStorageOptions>()
+            .Bind(Configuration.GetSection("TenantStorage"))
             .ValidateDataAnnotations();        
         
         Services.AddOptionsWithValidateOnStart<Ballware.Generic.Caching.Configuration.CacheOptions>()
@@ -92,9 +100,16 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             .Bind(Configuration.GetSection("MlClient"))
             .ValidateDataAnnotations();
 
-        if (authorizationOptions == null || storageOptions == null || sqlServerTenantStorageOptions == null || string.IsNullOrEmpty(tenantMasterConnectionString))
+        if (authorizationOptions == null || storageOptions == null || tenantStorageOptions == null)
         {
             throw new ConfigurationException("Required configuration for authorization and storage is missing");
+        }
+
+        var validProviders = new[] { "mssql", "postgres" };
+        
+        if (!validProviders.Contains(tenantStorageOptions.Provider))
+        {
+            throw new ConfigurationException("Invalid tenant storage provider specified. Valid providers are: " + string.Join(", ", validProviders));
         }
         
         if (cacheOptions == null)
@@ -254,7 +269,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 #endif                  
             .AddClientCredentialsTokenHandler("meta");
 
-        Services.AddHttpClient<BallwareStorageClient>(client =>
+        Services.AddHttpClient<StorageServiceClient>(client =>
             {
                 client.BaseAddress = new Uri(storageClientOptions.ServiceUrl);
             })
@@ -289,15 +304,72 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddScoped<IGenericFileStorageAdapter, StorageServiceFileStorageAdapter>();
         Services.AddScoped<IJobsFileStorageAdapter, StorageServiceFileStorageAdapter>();
         
-        Services.AddBallwareGenericAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
-        Services.AddBallwareGenericJintRightsChecker();
+        Services.AddBallwareSharedAuthorizationUtils(authorizationOptions.TenantClaim, authorizationOptions.UserIdClaim, authorizationOptions.RightClaim);
+        Services.AddBallwareSharedJintRightsChecker();
         Services.AddBallwareJintGenericScripting();
+
+        var tenantMasterConnectionStringIdentifier = tenantStorageOptions.ConnectionString;
+            
+        if (string.IsNullOrWhiteSpace(tenantMasterConnectionStringIdentifier))
+        {
+            throw new ConfigurationException("Tenant master connection string is not configured");
+        }
+            
+        var tenantMasterConnectionString = Configuration.GetConnectionString(tenantMasterConnectionStringIdentifier);
+            
+        if (string.IsNullOrWhiteSpace(tenantMasterConnectionString))
+        {
+            throw new ConfigurationException("Tenant master connection string is not found in configuration");
+        }
         
-        Services.AddBallwareTenantStorage(storageOptions, tenantMasterConnectionString);
+        if ("mssql".Equals(tenantStorageOptions.Provider, StringComparison.InvariantCultureIgnoreCase))
+        {
+            Services.AddBallwareTenantStorageForSqlServer(storageOptions, tenantMasterConnectionString);    
+        } 
+        else if ("postgres".Equals(tenantStorageOptions.Provider, StringComparison.InvariantCultureIgnoreCase))
+        {
+            Services.AddBallwareTenantStorageForPostgres(storageOptions, tenantMasterConnectionString);
+        }
         
         Services.AddBallwareTenantGenericStorage(builder =>
         {
-            builder.AddSqlServerTenantDataStorage(tenantMasterConnectionString, sqlServerTenantStorageOptions);
+            if (sqlServerTenantStorageOptions != null && sqlServerTenantStorageOptions.Enabled)
+            {
+                var sqlServerTenantConnectionStringIdentifier = sqlServerTenantStorageOptions.ConnectionString;
+            
+                if (string.IsNullOrWhiteSpace(sqlServerTenantConnectionStringIdentifier))
+                {
+                    throw new ConfigurationException("SQL Server tenant connection string is not configured");
+                }
+            
+                var sqlServerTenantConnectionString = Configuration.GetConnectionString(sqlServerTenantConnectionStringIdentifier);
+            
+                if (string.IsNullOrWhiteSpace(sqlServerTenantConnectionString))
+                {
+                    throw new ConfigurationException("SQL Server tenant connection string is not found in configuration");
+                }
+                
+                builder.AddSqlServerTenantDataStorage(sqlServerTenantConnectionString, sqlServerTenantStorageOptions);
+            }
+            
+            if (postgresTenantStorageOptions != null && postgresTenantStorageOptions.Enabled)
+            {
+                var postgresTenantConnectionStringIdentifier = postgresTenantStorageOptions.ConnectionString;
+            
+                if (string.IsNullOrWhiteSpace(postgresTenantConnectionStringIdentifier))
+                {
+                    throw new ConfigurationException("Postgres tenant connection string is not configured");
+                }
+            
+                var postgresTenantConnectionString = Configuration.GetConnectionString(postgresTenantConnectionStringIdentifier);
+            
+                if (string.IsNullOrWhiteSpace(postgresTenantConnectionString))
+                {
+                    throw new ConfigurationException("Postgres tenant connection string is not found in configuration");
+                }
+                
+                builder.AddPostgresTenantDataStorage(postgresTenantConnectionString, postgresTenantStorageOptions);
+            }
         });
 
         Services.AddEndpointsApiExplorer();

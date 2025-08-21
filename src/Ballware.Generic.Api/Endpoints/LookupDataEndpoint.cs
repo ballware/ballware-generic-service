@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 using System.Security.Claims;
-using Ballware.Generic.Authorization;
+using Ballware.Shared.Authorization;
 using Ballware.Generic.Metadata;
 using Ballware.Generic.Tenant.Data;
 using Microsoft.AspNetCore.Builder;

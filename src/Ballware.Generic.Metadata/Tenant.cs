@@ -1,6 +1,8 @@
+using Ballware.Shared.Authorization;
+
 namespace Ballware.Generic.Metadata;
 
-public class Tenant
+public class Tenant : ITenantAuthorizationMetadata
 {
     public Guid Id { get; set; }
     public required string Provider { get; set; }

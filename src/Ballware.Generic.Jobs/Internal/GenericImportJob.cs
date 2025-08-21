@@ -1,4 +1,4 @@
-using Ballware.Generic.Authorization;
+using Ballware.Shared.Authorization;
 using Ballware.Generic.Tenant.Data;
 using Ballware.Generic.Metadata;
 using Newtonsoft.Json;
@@ -35,7 +35,7 @@ public class GenericImportJob : IJob
         context.MergedJobDataMap.TryGetString("identifier", out var identifier);
         var claims = Utils.DropNullMember(Utils.NormalizeJsonMember(JsonConvert.DeserializeObject<Dictionary<string, object?>>(context.MergedJobDataMap.GetString("claims") ?? "{}")
                      ?? new Dictionary<string, object?>()));
-        context.MergedJobDataMap.TryGetString("filename", out var filename);
+        context.MergedJobDataMap.TryGetGuidValue("file", out var temporaryId);
         
         var jobPayload = new JobUpdatePayload()
         {
@@ -46,7 +46,7 @@ public class GenericImportJob : IJob
         
         try
         {
-            if (identifier == null || application == null || entity == null || filename == null) 
+            if (identifier == null || application == null || entity == null || temporaryId == Guid.Empty) 
             {
                 throw new ArgumentException($"Mandatory parameter missing");
             }
@@ -60,7 +60,7 @@ public class GenericImportJob : IJob
                 throw new ArgumentException($"Tenant {tenantId} or entity {entity} unknown");
             }
 
-            var file = await StorageAdapter.FileByNameForOwnerAsync(userId.ToString(), filename);
+            var file = await StorageAdapter.TemporaryFileByIdAsync(tenantId, temporaryId);
 
             await GenericProvider.ImportAsync(tenant, metadata, userId, identifier, claims, file, async (item) =>
             {
@@ -70,7 +70,7 @@ public class GenericImportJob : IJob
                 return authorized;
             });
 
-            await StorageAdapter.RemoveFileForOwnerAsync(userId.ToString(), filename);
+            await StorageAdapter.RemoveTemporaryFileByIdBehalfOfUserAsync(tenantId, userId, temporaryId);
 
             jobPayload.State = JobStates.Finished;
             

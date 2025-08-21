@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using Ballware.Generic.Tenant.Data;
-using Ballware.Generic.Authorization;
+using Ballware.Shared.Authorization;
 using Ballware.Generic.Metadata;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -61,6 +61,6 @@ public static class StatisticDataEndpoint
             return Results.NotFound($"Statistic with identifier {identifier} not found for tenant {tenantId}.");
         }        
         
-        return Results.Ok(await statisticProvider.FetchDataAsync(tenant, statistic, currentUserId, claims, queryParams));
+        return Results.Ok(await statisticProvider.FetchDataAsync<dynamic>(tenant, statistic, currentUserId, claims, queryParams));
     }
 }

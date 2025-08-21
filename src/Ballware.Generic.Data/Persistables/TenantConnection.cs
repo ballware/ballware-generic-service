@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Ballware.Shared.Data.Persistables;
 
 namespace Ballware.Generic.Data.Persistables;
 
