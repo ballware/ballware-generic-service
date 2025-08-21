@@ -52,6 +52,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Data.Ef.Po
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Service.Client", "src\Ballware.Generic.Service.Client\Ballware.Generic.Service.Client.csproj", "{B36BFC12-EBF4-4555-9506-0293BB62C81B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Schema.Client", "src\Ballware.Generic.Schema.Client\Ballware.Generic.Schema.Client.csproj", "{1684EECB-0748-4F7C-9CF4-B7C6B52C2F63}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -162,5 +164,9 @@ Global
 		{B36BFC12-EBF4-4555-9506-0293BB62C81B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B36BFC12-EBF4-4555-9506-0293BB62C81B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B36BFC12-EBF4-4555-9506-0293BB62C81B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1684EECB-0748-4F7C-9CF4-B7C6B52C2F63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1684EECB-0748-4F7C-9CF4-B7C6B52C2F63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1684EECB-0748-4F7C-9CF4-B7C6B52C2F63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1684EECB-0748-4F7C-9CF4-B7C6B52C2F63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

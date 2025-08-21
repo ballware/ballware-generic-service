@@ -50,10 +50,18 @@ jobs:
             --output ../Ballware.Generic.Service.Client/swagger.json \
             ./bin/Release/net8.0/Ballware.Generic.Service.dll \
             service
+          swagger tofile \
+            --output ../Ballware.Generic.Schema.Client/swagger.json \
+            ./bin/Release/net8.0/Ballware.Generic.Service.dll \
+            schema
       - name: Generate service client code
         working-directory: src/Ballware.Generic.Service.Client
         run: |
-          nswag run nswag.json               
+          nswag run nswag.json
+      - name: Generate schema client code
+        working-directory: src/Ballware.Generic.Schema.Client
+        run: |
+          nswag run nswag.json          
       - name: Pack NuGet packages
         run: |
           dotnet restore ballware-generic-service.sln
