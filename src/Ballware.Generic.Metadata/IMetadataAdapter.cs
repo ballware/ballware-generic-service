@@ -26,7 +26,7 @@ public interface IMetadataAdapter
 
     Task<Guid?> CreateJobForTenantBehalfOfUserAsync(Guid tenant, Guid userId, JobCreatePayload payload);
     Task<Guid> CreateExportForTenantBehalfOfUserAsync(Guid tenant, Guid userId, ExportCreatePayload payload);
-    Task<Export> FetchExportByIdAsync(Guid id);
+    Task<Export> FetchExportForTenantByIdAsync(Guid tenant, Guid id);
     
     Task UpdateJobForTenantBehalfOfUserAsync(Guid tenant, Guid userId, JobUpdatePayload payload);
 }

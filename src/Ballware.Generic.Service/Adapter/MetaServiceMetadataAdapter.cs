@@ -10,9 +10,9 @@ namespace Ballware.Generic.Service.Adapter;
 public class MetaServiceMetadataAdapter : IMetadataAdapter
 {
     private IMapper Mapper { get; }
-    private Ballware.Meta.Client.BallwareMetaClient MetaClient { get; }
+    private Ballware.Meta.Service.Client.MetaServiceClient MetaClient { get; }
     
-    public MetaServiceMetadataAdapter(IMapper mapper, Ballware.Meta.Client.BallwareMetaClient metaClient)
+    public MetaServiceMetadataAdapter(IMapper mapper, Ballware.Meta.Service.Client.MetaServiceClient metaClient)
     {
         Mapper = mapper;
         MetaClient = metaClient;
@@ -75,30 +75,30 @@ public class MetaServiceMetadataAdapter : IMetadataAdapter
 
     public void CreateNotificationTriggerForTenantBehalfOfUser(Guid tenant, Guid userId, NotificationTriggerCreatePayload payload)
     {
-        MetaClient.NotificationTriggerCreateForTenantBehalfOfUser(tenant, userId, Mapper.Map<Ballware.Meta.Client.NotificationTriggerCreatePayload>(payload));
+        MetaClient.NotificationTriggerCreateForTenantBehalfOfUser(tenant, userId, Mapper.Map<Ballware.Meta.Service.Client.NotificationTriggerCreatePayload>(payload));
     }
 
     public async Task<Guid?> CreateJobForTenantBehalfOfUserAsync(Guid tenant, Guid userId, JobCreatePayload payload)
     {
-        var metaJob = await MetaClient.JobCreateForTenantBehalfOfUserAsync(tenant, userId, Mapper.Map<Ballware.Meta.Client.JobCreatePayload>(payload));
+        var metaJob = await MetaClient.JobCreateForTenantBehalfOfUserAsync(tenant, userId, Mapper.Map<Ballware.Meta.Service.Client.JobCreatePayload>(payload));
         
         return metaJob.Id;
     }
 
     public async Task<Guid> CreateExportForTenantBehalfOfUserAsync(Guid tenant, Guid userId, ExportCreatePayload payload)
     {
-        var exportId = await MetaClient.ExportCreateForTenantBehalfOfUserAsync(tenant, userId, Mapper.Map<Ballware.Meta.Client.ExportCreatePayload>(payload));
+        var exportId = await MetaClient.ExportCreateForTenantBehalfOfUserAsync(tenant, userId, Mapper.Map<Ballware.Meta.Service.Client.ExportCreatePayload>(payload));
         
         return exportId;
     }
 
-    public async Task<Export> FetchExportByIdAsync(Guid id)
+    public async Task<Export> FetchExportForTenantByIdAsync(Guid tenant, Guid id)
     {
-        return Mapper.Map<Export>(await MetaClient.ExportFetchByIdAsync(id));
+        return Mapper.Map<Export>(await MetaClient.ExportFetchForTenantByIdAsync(tenant, id));
     }
 
     public async Task UpdateJobForTenantBehalfOfUserAsync(Guid tenant, Guid userId, JobUpdatePayload payload)
     {
-        await MetaClient.JobUpdateForTenantBehalfOfUserAsync(tenant, userId, Mapper.Map<Ballware.Meta.Client.JobUpdatePayload>(payload));
+        await MetaClient.JobUpdateForTenantBehalfOfUserAsync(tenant, userId, Mapper.Map<Ballware.Meta.Service.Client.JobUpdatePayload>(payload));
     }
 }

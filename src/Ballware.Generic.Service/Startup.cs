@@ -18,8 +18,8 @@ using Ballware.Generic.Tenant.Data.Postgres;
 using Ballware.Generic.Tenant.Data.Postgres.Configuration;
 using Ballware.Generic.Tenant.Data.SqlServer;
 using Ballware.Generic.Tenant.Data.SqlServer.Configuration;
-using Ballware.Meta.Client;
-using Ballware.Ml.Client;
+using Ballware.Meta.Service.Client;
+using Ballware.Ml.Service.Client;
 using Ballware.Storage.Service.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -257,7 +257,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 client.Scope = mlClientOptions.Scopes;
             });
         
-        Services.AddHttpClient<BallwareMetaClient>(client =>
+        Services.AddHttpClient<MetaServiceClient>(client =>
             {
                 client.BaseAddress = new Uri(metaClientOptions.ServiceUrl);
             })
@@ -281,7 +281,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 #endif            
             .AddClientCredentialsTokenHandler("storage");
         
-        Services.AddHttpClient<BallwareMlClient>(client =>
+        Services.AddHttpClient<MlServiceClient>(client =>
             {
                 client.BaseAddress = new Uri(mlClientOptions.ServiceUrl);
             })

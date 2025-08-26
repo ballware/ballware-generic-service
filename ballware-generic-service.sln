@@ -2,8 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Service", "src\Ballware.Generic.Service\Ballware.Generic.Service.csproj", "{3B564D9F-CA37-44D2-B3FA-4DF6F9D8BAB3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Meta.Client", "src\Ballware.Meta.Client\Ballware.Meta.Client.csproj", "{1EFB285D-045A-49FD-AFB8-6E68B21682CD}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Tenant.Data", "src\Ballware.Generic.Tenant.Data\Ballware.Generic.Tenant.Data.csproj", "{A56D1C18-758E-49AF-9328-F3FF955837C5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Tenant.Data.SqlServer", "src\Ballware.Generic.Tenant.Data.SqlServer\Ballware.Generic.Tenant.Data.SqlServer.csproj", "{331CCB81-E442-4B68-8301-A51CC2607005}"
@@ -19,8 +17,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Tenant.Data.SqlServer.Tests", "test\Ballware.Generic.Tenant.Data.SqlServer.Tests\Ballware.Generic.Tenant.Data.SqlServer.Tests.csproj", "{1541855A-AAE9-419B-80FF-473AE2BA3A2C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Metadata", "src\Ballware.Generic.Metadata\Ballware.Generic.Metadata.csproj", "{11C7DACA-70ED-4FEF-96B4-4BF04DC01805}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Ml.Client", "src\Ballware.Ml.Client\Ballware.Ml.Client.csproj", "{59937DE4-29C0-4E66-B2C7-2E633DF9A711}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Api", "src\Ballware.Generic.Api\Ballware.Generic.Api.csproj", "{742F4519-B7C5-4E23-9E99-81588094B997}"
 EndProject
@@ -64,10 +60,6 @@ Global
 		{3B564D9F-CA37-44D2-B3FA-4DF6F9D8BAB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B564D9F-CA37-44D2-B3FA-4DF6F9D8BAB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B564D9F-CA37-44D2-B3FA-4DF6F9D8BAB3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1EFB285D-045A-49FD-AFB8-6E68B21682CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1EFB285D-045A-49FD-AFB8-6E68B21682CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1EFB285D-045A-49FD-AFB8-6E68B21682CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1EFB285D-045A-49FD-AFB8-6E68B21682CD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A56D1C18-758E-49AF-9328-F3FF955837C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A56D1C18-758E-49AF-9328-F3FF955837C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A56D1C18-758E-49AF-9328-F3FF955837C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -100,10 +92,6 @@ Global
 		{11C7DACA-70ED-4FEF-96B4-4BF04DC01805}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11C7DACA-70ED-4FEF-96B4-4BF04DC01805}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{11C7DACA-70ED-4FEF-96B4-4BF04DC01805}.Release|Any CPU.Build.0 = Release|Any CPU
-		{59937DE4-29C0-4E66-B2C7-2E633DF9A711}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{59937DE4-29C0-4E66-B2C7-2E633DF9A711}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{59937DE4-29C0-4E66-B2C7-2E633DF9A711}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{59937DE4-29C0-4E66-B2C7-2E633DF9A711}.Release|Any CPU.Build.0 = Release|Any CPU
 		{742F4519-B7C5-4E23-9E99-81588094B997}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{742F4519-B7C5-4E23-9E99-81588094B997}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{742F4519-B7C5-4E23-9E99-81588094B997}.Release|Any CPU.ActiveCfg = Release|Any CPU

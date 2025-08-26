@@ -9,6 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="ballware.meta.service.client" Version="1.2.0" />
+        <PackageReference Include="Ballware.Ml.Service.Client" Version="1.2.0-alpha.12" />
         <PackageReference Include="Ballware.Shared.Authorization.Jint" Version="0.0.5" />
         <PackageReference Include="ballware.storage.service.client" Version="9.3.0" />
         <PackageReference Include="Duende.AccessTokenManagement" Version="3.1.1" />
@@ -45,8 +47,6 @@
       <ProjectReference Include="..\Ballware.Generic.Tenant.Data.Postgres\Ballware.Generic.Tenant.Data.Postgres.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Tenant.Data.SqlServer\Ballware.Generic.Tenant.Data.SqlServer.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Tenant.Data\Ballware.Generic.Tenant.Data.csproj" />
-      <ProjectReference Include="..\Ballware.Meta.Client\Ballware.Meta.Client.csproj" />
-      <ProjectReference Include="..\Ballware.Ml.Client\Ballware.Ml.Client.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -632,7 +632,7 @@ public static class GenericDataEndpoint
         Guid tenantId,
         Guid id)
     {
-        var export = await metadataAdapter.FetchExportByIdAsync(id);
+        var export = await metadataAdapter.FetchExportForTenantByIdAsync(tenantId, id);
 
         if (export == null || export.ExpirationStamp <= DateTime.Now)
         {
