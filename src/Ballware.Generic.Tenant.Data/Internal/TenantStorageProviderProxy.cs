@@ -5,6 +5,8 @@ namespace Ballware.Generic.Tenant.Data.Internal;
 
 class TenantStorageProviderProxy : ITenantStorageProvider
 {
+    private string DefaultProvider { get; } = "mssql";
+
     private IProviderRegistry ProviderRegistry { get; }
     private ITenantConnectionRepository ConnectionRepository { get; }
 
@@ -14,6 +16,18 @@ class TenantStorageProviderProxy : ITenantStorageProvider
         ConnectionRepository = connectionRepository;
     }
 
+    public async Task<string> GetProviderAsync(Guid tenant)
+    {
+        var connection = await ConnectionRepository.ByIdAsync(tenant);
+
+        if (connection == null)
+        {
+            throw new ArgumentException($"Tenant {tenant} does not exist");
+        }
+        
+        return connection.Provider ?? DefaultProvider;
+    }
+    
     public async Task<string> GetConnectionStringAsync(Guid tenant)
     {
         var connection = await ConnectionRepository.ByIdAsync(tenant);
@@ -37,7 +51,7 @@ class TenantStorageProviderProxy : ITenantStorageProvider
             throw new ArgumentException($"Tenant {tenant} does not exist");
         }
         
-        var provider = ProviderRegistry.GetStorageProvider(connection.Provider ?? "mssql");
+        var provider = ProviderRegistry.GetStorageProvider(connection.Provider ?? DefaultProvider);
 
         return await provider.OpenConnectionAsync(tenant);
     }
@@ -51,7 +65,7 @@ class TenantStorageProviderProxy : ITenantStorageProvider
             throw new ArgumentException($"Tenant {tenant} does not exist");
         }
         
-        var provider = ProviderRegistry.GetStorageProvider(connection.Provider ?? "mssql");
+        var provider = ProviderRegistry.GetStorageProvider(connection.Provider ?? DefaultProvider);
 
         return await provider.ApplyTenantPlaceholderAsync(tenant, source, options);
     }
@@ -65,7 +79,7 @@ class TenantStorageProviderProxy : ITenantStorageProvider
             throw new ArgumentException($"Tenant {tenant} does not exist");
         }
         
-        var provider = ProviderRegistry.GetStorageProvider(connection.Provider ?? "mssql");
+        var provider = ProviderRegistry.GetStorageProvider(connection.Provider ?? DefaultProvider);
         
         return await provider.TransferToVariablesAsync(tenant, target, source, prefix);
     }
@@ -79,7 +93,7 @@ class TenantStorageProviderProxy : ITenantStorageProvider
             throw new ArgumentException($"Tenant {tenant} does not exist");
         }
         
-        var provider = ProviderRegistry.GetStorageProvider(connection.Provider ?? "mssql");
+        var provider = ProviderRegistry.GetStorageProvider(connection.Provider ?? DefaultProvider);
         
         return await provider.DropComplexMemberAsync(tenant, input);
     }
@@ -93,7 +107,7 @@ class TenantStorageProviderProxy : ITenantStorageProvider
             throw new ArgumentException($"Tenant {tenant} does not exist");
         }
         
-        var provider = ProviderRegistry.GetStorageProvider(connection.Provider ?? "mssql");
+        var provider = ProviderRegistry.GetStorageProvider(connection.Provider ?? DefaultProvider);
         
         return await provider.NormalizeJsonMemberAsync(tenant, input);
     }
