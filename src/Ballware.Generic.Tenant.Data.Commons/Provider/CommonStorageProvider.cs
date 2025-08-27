@@ -8,11 +8,23 @@ public abstract class CommonStorageProvider : ITenantStorageProvider
 {
     protected ITenantConnectionRepository ConnectionRepository { get; }
     
-    public CommonStorageProvider(ITenantConnectionRepository connectionRepository)
+    protected CommonStorageProvider(ITenantConnectionRepository connectionRepository)
     {
         ConnectionRepository = connectionRepository;
     }
 
+    public async Task<string> GetProviderAsync(Guid tenant)
+    {
+        var tenantConnection = await ConnectionRepository.ByIdAsync(tenant);
+
+        if (tenantConnection == null || tenantConnection.Provider == null)
+        {
+            throw new ArgumentException($"Tenant {tenant} does not exist");
+        }
+        
+        return tenantConnection.Provider;
+    }
+    
     public async Task<string> GetConnectionStringAsync(Guid tenant)
     {
         var tenantConnection = await ConnectionRepository.ByIdAsync(tenant);

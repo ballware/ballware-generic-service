@@ -25,8 +25,6 @@ COPY ./Ballware.Generic.Tenant.Data ./Ballware.Generic.Tenant.Data
 COPY ./Ballware.Generic.Tenant.Data.Commons ./Ballware.Generic.Tenant.Data.Commons
 COPY ./Ballware.Generic.Tenant.Data.Postgres ./Ballware.Generic.Tenant.Data.Postgres
 COPY ./Ballware.Generic.Tenant.Data.SqlServer ./Ballware.Generic.Tenant.Data.SqlServer
-COPY ./Ballware.Meta.Client ./Ballware.Meta.Client
-COPY ./Ballware.Ml.Client ./Ballware.Ml.Client
 
 WORKDIR "/src/Ballware.Generic.Service"
 RUN dotnet nuget add source "https://nuget.pkg.github.com/ballware/index.json" --name github --username frankball --password "$GITHUB_PAT" --store-password-in-clear-text

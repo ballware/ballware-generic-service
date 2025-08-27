@@ -35,6 +35,7 @@ public static class TenantDataEndpoint
     {
         var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
         
+        var tenantConnectionProvider = await storageProvider.GetProviderAsync(tenantId);
         var tenantConnectionString = await storageProvider.GetConnectionStringAsync(tenantId);
 
         var schemaDefinitions = new List<ReportDatasourceDefinition>();
@@ -42,6 +43,7 @@ public static class TenantDataEndpoint
         var tenantLookupsSchemaDefinition = new ReportDatasourceDefinition
         {
             Name = "Lookups",
+            Provider = tenantConnectionProvider,
             ConnectionString = tenantConnectionString,
             Tables = (await metadataAdapter.MetadataForLookupsByTenantAsync(tenantId))
                   .Where(l => !l.HasParam)
@@ -62,20 +64,18 @@ public static class TenantDataEndpoint
         
         foreach (var schemaDefinition in tenant?.ReportDatasourceDefinitions ?? new List<ReportDatasourceDefinition>())
         {
+            schemaDefinition.Provider = tenantConnectionProvider;
             schemaDefinition.ConnectionString = tenantConnectionString;
 
-            foreach (var table in schemaDefinition.Tables ?? new List<ReportDatasourceTable>())
+            foreach (var table in schemaDefinition.Tables.Where(t => !string.IsNullOrEmpty(t.Entity)))
             {
-                if (!string.IsNullOrEmpty(table.Entity))
-                {
-                    var entityMeta = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, table.Entity);
+                var entityMeta = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, table.Entity);
 
-                    if (entityMeta != null)
-                    {
-                        table.Query = storageProvider.ApplyTenantPlaceholderAsync(tenantId,
-                            entityMeta.ListQuery.FirstOrDefault(q => q.Identifier == (table.Query ?? DefaultQuery))?.Query ?? "primary",
-                            TenantPlaceholderOptions.Create().WithReplaceTenantId()).GetAwaiter().GetResult();    
-                    }
+                if (entityMeta != null)
+                {
+                    table.Query = storageProvider.ApplyTenantPlaceholderAsync(tenantId,
+                        entityMeta.ListQuery.FirstOrDefault(q => q.Identifier == (table.Query ?? DefaultQuery))?.Query ?? "primary",
+                        TenantPlaceholderOptions.Create().WithReplaceTenantId()).GetAwaiter().GetResult();    
                 }
             }
 

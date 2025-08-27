@@ -1,15 +1,15 @@
 using AutoMapper;
 using Ballware.Generic.Metadata;
-using Ballware.Ml.Client;
+using Ballware.Ml.Service.Client;
 
 namespace Ballware.Generic.Service.Adapter;
 
 public class MlServiceMlAdapter : IMlAdapter
 {
     private IMapper Mapper { get; }
-    private BallwareMlClient MlClient { get; }
+    private MlServiceClient MlClient { get; }
     
-    public MlServiceMlAdapter(IMapper mapper, BallwareMlClient mlClient)
+    public MlServiceMlAdapter(IMapper mapper, MlServiceClient mlClient)
     {
         Mapper = mapper;
         MlClient = mlClient;
