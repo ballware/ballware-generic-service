@@ -1,3 +1,5 @@
+using Ballware.Generic.Scripting;
+
 namespace Ballware.Generic.Tenant.Data;
 
 public interface IProviderRegistry
@@ -13,4 +15,6 @@ public interface IProviderRegistry
     ITenantMlModelProvider GetMlModelProvider(string providerName);
     
     ITenantStatisticProvider GetStatisticProvider(string providerName);
+    
+    IScriptingTenantDataProvider GetScriptingDataProvider(string providerName);
 }

@@ -11,60 +11,60 @@ class TenantGenericProviderProxy : ITenantGenericProvider
         ProviderRegistry = providerRegistry;
     }
 
-    public async Task<IEnumerable<T>> AllAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims) where T : class
+    public async Task<IEnumerable<T>> AllAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims) where T : class
     {
         var provider = ProviderRegistry.GetGenericProvider(tenant.Provider);
         
-        return await provider.AllAsync<T>(tenant, entity, identifier, claims);
+        return await provider.AllAsync<T>(tenant, entity, identifier, userId, claims);
     }
 
-    public async Task<IEnumerable<T>> QueryAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims,
+    public async Task<IEnumerable<T>> QueryAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims,
         IDictionary<string, object> queryParams) where T : class
     {
         var provider = ProviderRegistry.GetGenericProvider(tenant.Provider);
         
-        return await provider.QueryAsync<T>(tenant, entity, identifier, claims, queryParams);
+        return await provider.QueryAsync<T>(tenant, entity, identifier, userId, claims, queryParams);
     }
 
-    public async Task<long> CountAsync(Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims,
+    public async Task<long> CountAsync(Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims,
         IDictionary<string, object> queryParams)
     {
         var provider = ProviderRegistry.GetGenericProvider(tenant.Provider);
         
-        return await provider.CountAsync(tenant, entity, identifier, claims, queryParams);
+        return await provider.CountAsync(tenant, entity, identifier, userId, claims, queryParams);
     }
 
-    public async Task<T?> ByIdAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims, Guid id) where T : class
+    public async Task<T?> ByIdAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims, Guid id) where T : class
     {
         var provider = ProviderRegistry.GetGenericProvider(tenant.Provider);
         
-        return await provider.ByIdAsync<T>(tenant, entity, identifier, claims, id);
+        return await provider.ByIdAsync<T>(tenant, entity, identifier, userId, claims, id);
     }
 
-    public async Task<T?> NewAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims) where T : class
+    public async Task<T?> NewAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims) where T : class
     {
         var provider = ProviderRegistry.GetGenericProvider(tenant.Provider);
         
-        return await provider.NewAsync<T>(tenant, entity, identifier, claims);
+        return await provider.NewAsync<T>(tenant, entity, identifier, userId, claims);
     }
 
-    public async Task<T?> NewQueryAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims,
+    public async Task<T?> NewQueryAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims,
         IDictionary<string, object> queryParams) where T : class
     {
         var provider = ProviderRegistry.GetGenericProvider(tenant.Provider);
         
-        return await provider.NewQueryAsync<T>(tenant, entity, identifier, claims, queryParams);
+        return await provider.NewQueryAsync<T>(tenant, entity, identifier, userId, claims, queryParams);
     }
 
-    public async Task SaveAsync(Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> claims,
+    public async Task SaveAsync(Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims,
         IDictionary<string, object> value)
     {
         var provider = ProviderRegistry.GetGenericProvider(tenant.Provider);
         
-        await provider.SaveAsync(tenant, entity, userId, identifier, claims, value);
+        await provider.SaveAsync(tenant, entity, identifier, userId, claims, value);
     }
 
-    public async Task<RemoveResult> RemoveAsync(Metadata.Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> claims, Guid id)
+    public async Task<RemoveResult> RemoveAsync(Metadata.Tenant tenant, Entity entity, Guid userId, IDictionary<string, object> claims, Guid id)
     {
         var provider = ProviderRegistry.GetGenericProvider(tenant.Provider);
         
@@ -78,27 +78,27 @@ class TenantGenericProviderProxy : ITenantGenericProvider
         return await provider.GetScalarValueAsync<T>(tenant, entity, column, id, defaultValue);
     }
 
-    public async Task<bool> StateAllowedAsync(Metadata.Tenant tenant, Entity entity, Guid id, int currentState, IDictionary<string, object> claims,
+    public async Task<bool> StateAllowedAsync(Metadata.Tenant tenant, Entity entity, Guid id, int currentState, Guid userId, IDictionary<string, object> claims,
         IEnumerable<string> rights)
     {
         var provider = ProviderRegistry.GetGenericProvider(tenant.Provider);
         
-        return await provider.StateAllowedAsync(tenant, entity, id, currentState, claims, rights);
+        return await provider.StateAllowedAsync(tenant, entity, id, currentState, userId, claims, rights);
     }
 
-    public async Task ImportAsync(Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> claims,
+    public async Task ImportAsync(Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims,
         Stream importStream, Func<IDictionary<string, object>, Task<bool>> authorized)
     {
         var provider = ProviderRegistry.GetGenericProvider(tenant.Provider);
         
-        await provider.ImportAsync(tenant, entity, userId, identifier, claims, importStream, authorized);
+        await provider.ImportAsync(tenant, entity, identifier, userId, claims, importStream, authorized);
     }
 
-    public async Task<GenericExport> ExportAsync(Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims,
+    public async Task<GenericExport> ExportAsync(Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims,
         IDictionary<string, object> queryParams)
     {
         var provider = ProviderRegistry.GetGenericProvider(tenant.Provider);
         
-        return await provider.ExportAsync(tenant, entity, identifier, claims, queryParams);
+        return await provider.ExportAsync(tenant, entity, identifier, userId, claims, queryParams);
     }
 }

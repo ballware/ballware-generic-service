@@ -29,7 +29,7 @@ public static class TenantStorageBuilderExtensions
         builder.Services.AddScoped<PostgresLookupProvider>();
         builder.Services.AddScoped<PostgresMlModelProvider>();
         builder.Services.AddScoped<PostgresStatisticProvider>();
-        builder.Services.AddScoped<ITenantDataAdapter, PostgresGenericScriptingDataAdapter>();
+        builder.Services.AddScoped<PostgresGenericScriptingDataProvider>();
         
         builder.RegisterStorageProvider<PostgresStorageProvider>(ProviderPostgres);
         builder.RegisterGenericProvider<PostgresGenericProvider>(ProviderPostgres);
@@ -37,6 +37,7 @@ public static class TenantStorageBuilderExtensions
         builder.RegisterMlModelProvider<PostgresMlModelProvider>(ProviderPostgres);
         builder.RegisterStatisticProvider<PostgresStatisticProvider>(ProviderPostgres);
         builder.RegisterSchemaProvider<PostgresSchemaProvider>(ProviderPostgres);
+        builder.RegisterScriptingDataProvider<PostgresGenericScriptingDataProvider>(ProviderPostgres);
 
         SqlMapper.AddTypeHandler(new PostgresColumnTypeHandler());
         

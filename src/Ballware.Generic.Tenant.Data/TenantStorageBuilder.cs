@@ -1,3 +1,4 @@
+using Ballware.Generic.Scripting;
 using Ballware.Generic.Tenant.Data.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -43,5 +44,10 @@ public class TenantStorageBuilder
     public void RegisterSchemaProvider<TProvider>(string providerName) where TProvider : ITenantSchemaProvider
     {
         ProviderConfiguration.RegisterSchemaProvider<TProvider>(providerName);
+    }
+    
+    public void RegisterScriptingDataProvider<TProvider>(string providerName) where TProvider : IScriptingTenantDataProvider
+    {
+        ProviderConfiguration.RegisterScriptingDataProvider<TProvider>(providerName);
     }
 }

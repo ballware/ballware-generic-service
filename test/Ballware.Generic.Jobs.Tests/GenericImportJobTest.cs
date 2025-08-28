@@ -118,12 +118,12 @@ public class TenantableMetaImportJobTest
             .Setup(r => r.ImportAsync(
                 expectedTenant,
                 expectedEntity,
-                It.IsAny<Guid?>(),
                 ExpectedFunctionIdentifier,
+                It.IsAny<Guid>(),
                 It.IsAny<IDictionary<string, object>>(),
                 expectedFileStream,
                 It.IsAny<Func<IDictionary<string, object>, Task<bool>>>()))
-            .Returns(async (Metadata.Tenant tenant, Metadata.Entity entity, Guid? userId, string identifier, IDictionary<string, object> claims, Stream stream,
+            .Returns(async (Metadata.Tenant tenant, Metadata.Entity entity, string identifier, Guid userId, IDictionary<string, object> claims, Stream stream,
                 Func<IDictionary<string, object>, Task<bool>> authorize) =>
             {
                 await Assert.MultipleAsync(async () =>
@@ -184,8 +184,8 @@ public class TenantableMetaImportJobTest
         GenericProviderMock.Verify(r => r.ImportAsync(
             expectedTenant,
             expectedEntity,
-            expectedUserId,
             ExpectedFunctionIdentifier,
+            expectedUserId,
             It.IsAny<IDictionary<string, object>>(),
             expectedFileStream,
             It.IsAny<Func<IDictionary<string, object>, Task<bool>>>()), Times.Once);
@@ -235,8 +235,8 @@ public class TenantableMetaImportJobTest
             .Setup(r => r.ImportAsync(
                 expectedTenant,
                 expectedEntity,
-                expectedUserId,
                 "importjson",
+                expectedUserId,
                 expectedClaims,
                 expectedFileStream,
                 It.IsAny<Func<IDictionary<string, object>, Task<bool>>>()))
@@ -301,8 +301,8 @@ public class TenantableMetaImportJobTest
         GenericProviderMock.Verify(r => r.ImportAsync(
             expectedTenant,
             expectedEntity,
-            expectedUserId,
             ExpectedFunctionIdentifier,
+            expectedUserId,
             expectedClaims,
             expectedFileStream,
             It.IsAny<Func<dynamic, Task<bool>>>()), Times.Never);
@@ -349,8 +349,8 @@ public class TenantableMetaImportJobTest
             .Setup(r => r.ImportAsync(
                 expectedTenant,
                 expectedEntity,
-                expectedUserId,
                 "importjson",
+                expectedUserId,
                 expectedClaims,
                 expectedFileStream,
                 It.IsAny<Func<dynamic, Task<bool>>>()))
@@ -407,8 +407,8 @@ public class TenantableMetaImportJobTest
         GenericProviderMock.Verify(r => r.ImportAsync(
             expectedTenant,
             expectedEntity,
-            expectedUserId,
             ExpectedFunctionIdentifier,
+            expectedUserId,
             expectedClaims,
             expectedFileStream,
             It.IsAny<Func<dynamic, Task<bool>>>()), Times.Never);

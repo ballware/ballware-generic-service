@@ -1,3 +1,4 @@
+using Ballware.Generic.Scripting;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Ballware.Generic.Tenant.Data.Internal;
@@ -10,6 +11,7 @@ class DefaultProviderConfiguration
     private Dictionary<string, Type> LookupProviders { get; } = new();
     private Dictionary<string, Type> MlModelProviders { get; } = new();
     private Dictionary<string, Type> StatisticProviders { get; } = new();
+    private Dictionary<string, Type> ScriptingDataProviders { get; } = new();
     
     public void RegisterStorageProvider<TProvider>(string providerName) where TProvider : ITenantStorageProvider
     {
@@ -177,5 +179,33 @@ class DefaultProviderConfiguration
         }
 
         throw new KeyNotFoundException($"No statistic provider found for provider {providerName}");
+    }
+    
+    public void RegisterScriptingDataProvider<TProvider>(string providerName) where TProvider : IScriptingTenantDataProvider
+    {
+        lock (ScriptingDataProviders)
+        {
+            ScriptingDataProviders[providerName] = typeof(TProvider);
+        }
+    }
+
+    public IScriptingTenantDataProvider GetScriptingDataProvider(string providerName, IServiceProvider serviceProvider)
+    {
+        lock (ScriptingDataProviders)
+        {
+            if (ScriptingDataProviders.ContainsKey(providerName))
+            {
+                var serviceInstance = serviceProvider.GetRequiredService(ScriptingDataProviders[providerName]);
+
+                if (serviceInstance is not IScriptingTenantDataProvider scriptingDataProvider)
+                {
+                    throw new InvalidOperationException($"Unable to resolve provider '{providerName}'.");
+                }
+
+                return scriptingDataProvider;
+            }
+        }
+
+        throw new KeyNotFoundException($"No scripting data provider found for provider {providerName}");
     }
 }

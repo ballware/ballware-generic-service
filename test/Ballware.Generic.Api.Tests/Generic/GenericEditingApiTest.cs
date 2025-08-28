@@ -139,7 +139,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         TenantGenericProviderMock
-            .Setup(p => p.AllAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<IDictionary<string, object>>()))
+            .Setup(p => p.AllAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<Guid>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedList);
         
         // Act
@@ -305,7 +305,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         TenantGenericProviderMock
-            .Setup(p => p.NewAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<IDictionary<string, object>>()))
+            .Setup(p => p.NewAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<Guid>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedEntry);
         
         // Act
@@ -368,7 +368,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         TenantGenericProviderMock
-            .Setup(p => p.NewAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<IDictionary<string, object>>()))
+            .Setup(p => p.NewAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<Guid>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedEntry);
         
         // Act
@@ -427,7 +427,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(false);
 
         TenantGenericProviderMock
-            .Setup(p => p.NewAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<IDictionary<string, object>>()))
+            .Setup(p => p.NewAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<Guid>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedEntry);
         
         // Act
@@ -491,7 +491,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         TenantGenericProviderMock
-            .Setup(p => p.ByIdAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
+            .Setup(p => p.ByIdAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<Guid>(), It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
             .ReturnsAsync(expectedEntry);
         
         // Act
@@ -554,7 +554,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         TenantGenericProviderMock
-            .Setup(p => p.ByIdAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
+            .Setup(p => p.ByIdAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<Guid>(), It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
             .ReturnsAsync(expectedEntry);
         
         // Act
@@ -613,7 +613,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         TenantGenericProviderMock
-            .Setup(p => p.ByIdAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
+            .Setup(p => p.ByIdAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<Guid>(), It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
             .ReturnsAsync(null as FakeEntity);
         
         // Act
@@ -677,7 +677,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(false);
         
         TenantGenericProviderMock
-            .Setup(p => p.ByIdAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
+            .Setup(p => p.ByIdAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<Guid>(), It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
             .ReturnsAsync(expectedEntry);
         
         // Act
@@ -741,8 +741,8 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
 
         TenantGenericProviderMock
-            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
-            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> _, IDictionary<string, object> entry) =>
+            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, "primary", expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Callback((Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> _, IDictionary<string, object> entry) =>
             {
                 Assert.Multiple(() =>
                 {
@@ -766,7 +766,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
         
         TenantGenericProviderMock.Verify(r => r.SaveAsync(
-            fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()), Times.Once);
+            fakeTenant, fakeEntity, "primary", expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()), Times.Once);
     }
     
     [Test]
@@ -818,8 +818,8 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
 
         TenantGenericProviderMock
-            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
-            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> claims, IDictionary<string, object> entry) =>
+            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, "primary", expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Callback((Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims, IDictionary<string, object> entry) =>
             {
                 Assert.Multiple(() =>
                 {
@@ -893,8 +893,8 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(false);
 
         TenantGenericProviderMock
-            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
-            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> claims, IDictionary<string, object> entry) =>
+            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, "primary", expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Callback((Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims, IDictionary<string, object> entry) =>
             {
                 Assert.Multiple(() =>
                 {
@@ -973,8 +973,8 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
 
         TenantGenericProviderMock
-            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
-            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> claims, IDictionary<string, object> entry) =>
+            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, "primary", expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Callback((Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims, IDictionary<string, object> entry) =>
             {
                 Assert.Multiple(() =>
                 {
@@ -1065,8 +1065,8 @@ public class GenericEditingApiTest : ApiMappingBaseTest
         var saveCallbackCount = 0;
         
         TenantGenericProviderMock
-            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
-            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> _, IDictionary<string, object> entry) =>
+            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, "primary", expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Callback((Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> _, IDictionary<string, object> entry) =>
             {
                 Assert.Multiple(() =>
                 {
@@ -1092,7 +1092,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.OK));
         
         TenantGenericProviderMock.Verify(r => r.SaveAsync(
-            fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()), Times.Exactly(3));
+            fakeTenant, fakeEntity, "primary", expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()), Times.Exactly(3));
     }
     
     [Test]
@@ -1164,8 +1164,8 @@ public class GenericEditingApiTest : ApiMappingBaseTest
         var saveCallbackCount = 0;
         
         TenantGenericProviderMock
-            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
-            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> _, IDictionary<string, object> entry) =>
+            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, "primary", expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Callback((Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> _, IDictionary<string, object> entry) =>
             {
                 Assert.Multiple(() =>
                 {
@@ -1191,7 +1191,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.NotFound));
         
         TenantGenericProviderMock.Verify(r => r.SaveAsync(
-            fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()), Times.Never);
+            fakeTenant, fakeEntity, "primary", expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()), Times.Never);
     }
     
     [Test]
@@ -1263,8 +1263,8 @@ public class GenericEditingApiTest : ApiMappingBaseTest
         var saveCallbackCount = 0;
         
         TenantGenericProviderMock
-            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
-            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> _, IDictionary<string, object> entry) =>
+            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, "primary", expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Callback((Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> _, IDictionary<string, object> entry) =>
             {
                 Assert.Multiple(() =>
                 {
@@ -1287,7 +1287,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.BadRequest));
         
         TenantGenericProviderMock.Verify(r => r.SaveAsync(
-            fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()), Times.Never);
+            fakeTenant, fakeEntity, "primary", expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()), Times.Never);
     }
     
     [Test]
@@ -1359,8 +1359,8 @@ public class GenericEditingApiTest : ApiMappingBaseTest
         var saveCallbackCount = 0;
         
         TenantGenericProviderMock
-            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
-            .Callback((Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> _, IDictionary<string, object> entry) =>
+            .Setup(r => r.SaveAsync(fakeTenant, fakeEntity, "primary", expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Callback((Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> _, IDictionary<string, object> entry) =>
             {
                 Assert.Multiple(() =>
                 {
@@ -1386,7 +1386,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
         Assert.That(response.StatusCode,Is.EqualTo(HttpStatusCode.Unauthorized));
         
         TenantGenericProviderMock.Verify(r => r.SaveAsync(
-            fakeTenant, fakeEntity, expectedUserId, "primary", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()), Times.Never);
+            fakeTenant, fakeEntity, "primary", expectedUserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()), Times.Never);
     }
     
     [Test]
@@ -1443,7 +1443,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         TenantGenericProviderMock
-            .Setup(r => r.ByIdAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
+            .Setup(r => r.ByIdAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<Guid>(), It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
             .ReturnsAsync(expectedEntry);
         
         TenantGenericProviderMock
@@ -1598,9 +1598,9 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .Setup(c => c.HasRightAsync(expectedTenantId, It.IsAny<Entity>(), It.IsAny<IDictionary<string, object>>(), 
                 "delete", It.IsAny<object>(), false))
             .ReturnsAsync(false);
-        
+
         TenantGenericProviderMock
-            .Setup(r => r.ByIdAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
+            .Setup(r => r.ByIdAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<Guid>(), It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
             .ReturnsAsync(expectedEntry);
 
         TenantGenericProviderMock
@@ -1682,7 +1682,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         TenantGenericProviderMock
-            .Setup(r => r.ByIdAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
+            .Setup(r => r.ByIdAsync<dynamic>(fakeTenant, fakeEntity, "primary", It.IsAny<Guid>(), It.IsAny<IDictionary<string, object>>(), expectedEntry.Id))
             .ReturnsAsync(expectedEntry);
         
         TenantGenericProviderMock
@@ -1784,7 +1784,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         TenantGenericProviderMock
-            .Setup(r => r.ExportAsync(fakeTenant, fakeEntity, "export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.ExportAsync(fakeTenant, fakeEntity, "export", It.IsAny<Guid>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedResult);
         
         // Act
@@ -1867,7 +1867,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(true);
         
         TenantGenericProviderMock
-            .Setup(r => r.ExportAsync(fakeTenant, fakeEntity, "export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.ExportAsync(fakeTenant, fakeEntity, "export", It.IsAny<Guid>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedResult);
         
         // Act
@@ -1946,7 +1946,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             .ReturnsAsync(false);
         
         TenantGenericProviderMock
-            .Setup(r => r.ExportAsync(fakeTenant, fakeEntity, "export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.ExportAsync(fakeTenant, fakeEntity, "export", It.IsAny<Guid>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedResult);
         
         // Act
@@ -2048,7 +2048,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             });
 
         TenantGenericProviderMock
-            .Setup(r => r.ExportAsync(fakeTenant, fakeEntity, "export", It.IsAny<IDictionary<string, object>>(),
+            .Setup(r => r.ExportAsync(fakeTenant, fakeEntity, "export", It.IsAny<Guid>(), It.IsAny<IDictionary<string, object>>(),
                 It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedResult);
 
@@ -2160,7 +2160,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             });
         
         TenantGenericProviderMock
-            .Setup(r => r.ExportAsync(fakeTenant, fakeEntity, "export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.ExportAsync(fakeTenant, fakeEntity, "export", It.IsAny<Guid>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedResult);
         
         // Act
@@ -2257,7 +2257,7 @@ public class GenericEditingApiTest : ApiMappingBaseTest
             });
         
         TenantGenericProviderMock
-            .Setup(r => r.ExportAsync(fakeTenant, fakeEntity, "export", It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
+            .Setup(r => r.ExportAsync(fakeTenant, fakeEntity, "export", It.IsAny<Guid>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync(expectedResult);
         
         // Act

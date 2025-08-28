@@ -212,12 +212,12 @@ public class PostgresLookupProviderTest : DatabaseBackedBaseTest
         
         foreach (var entry in expectedList)
         {
-            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", Claims);
+            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", UserId, Claims);
 
             newEntry.id = entry.Id;
             newEntry.name = entry.Name;
 
-            await genericProvider.SaveAsync(Tenant, Entity, UserId, "primary", Claims, newEntry);
+            await genericProvider.SaveAsync(Tenant, Entity, "primary", UserId, Claims, newEntry);
         }
         
         var lookupProvider = new PostgresLookupProvider(new PostgresStorageProvider(ConnectionRepositoryMock.Object));
@@ -306,12 +306,12 @@ public class PostgresLookupProviderTest : DatabaseBackedBaseTest
         
         foreach (var entry in expectedList)
         {
-            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", Claims);
+            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", UserId, Claims);
 
             newEntry.id = entry.Id;
             newEntry.name = entry.Name;
 
-            await genericProvider.SaveAsync(Tenant, Entity, UserId, "primary", Claims, newEntry);
+            await genericProvider.SaveAsync(Tenant, Entity, "primary", UserId, Claims, newEntry);
         }
         
         var lookupProvider = new PostgresLookupProvider(new PostgresStorageProvider(ConnectionRepositoryMock.Object));
@@ -387,13 +387,13 @@ public class PostgresLookupProviderTest : DatabaseBackedBaseTest
         
         foreach (var entry in expectedList)
         {
-            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", Claims);
+            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", UserId, Claims);
 
             newEntry.id = entry.Id;
             newEntry.name = entry.Name;
             newEntry.additional_param = entry.AdditionalParam;
 
-            await genericProvider.SaveAsync(Tenant, Entity, UserId, "primary", Claims, newEntry);
+            await genericProvider.SaveAsync(Tenant, Entity, "primary", UserId, Claims, newEntry);
         }
         
         var lookupProvider = new PostgresLookupProvider(new PostgresStorageProvider(ConnectionRepositoryMock.Object));
@@ -490,13 +490,13 @@ public class PostgresLookupProviderTest : DatabaseBackedBaseTest
         
         foreach (var entry in expectedList)
         {
-            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", Claims);
+            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", UserId, Claims);
 
             newEntry.id = entry.Id;
             newEntry.name = entry.Name;
             newEntry.additional_param = entry.AdditionalParam;
 
-            await genericProvider.SaveAsync(Tenant, Entity, UserId, "primary", Claims, newEntry);
+            await genericProvider.SaveAsync(Tenant, Entity, "primary", UserId, Claims, newEntry);
         }
         
         var lookupProvider = new PostgresLookupProvider(new PostgresStorageProvider(ConnectionRepositoryMock.Object));
@@ -568,12 +568,12 @@ public class PostgresLookupProviderTest : DatabaseBackedBaseTest
         
         foreach (var entry in expectedList)
         {
-            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", Claims);
+            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", UserId, Claims);
 
             newEntry.id = entry.Id;
             newEntry.name = entry.Name;
 
-            await genericProvider.SaveAsync(Tenant, Entity, UserId, "primary", Claims, newEntry);
+            await genericProvider.SaveAsync(Tenant, Entity, "primary", UserId, Claims, newEntry);
         }
         
         var lookupProvider = new PostgresLookupProvider(new PostgresStorageProvider(ConnectionRepositoryMock.Object));
@@ -653,13 +653,13 @@ public class PostgresLookupProviderTest : DatabaseBackedBaseTest
         
         foreach (var entry in expectedList)
         {
-            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", Claims);
+            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", UserId, Claims);
 
             newEntry.id = entry.Id;
             newEntry.name = entry.Name;
             newEntry.additional_param = entry.AdditionalParam;
 
-            await genericProvider.SaveAsync(Tenant, Entity, UserId, "primary", Claims, newEntry);
+            await genericProvider.SaveAsync(Tenant, Entity, "primary", UserId, Claims, newEntry);
         }
         
         var lookupProvider = new PostgresLookupProvider(new PostgresStorageProvider(ConnectionRepositoryMock.Object));
