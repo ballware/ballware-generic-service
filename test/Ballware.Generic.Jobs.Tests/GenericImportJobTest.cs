@@ -123,7 +123,7 @@ public class TenantableMetaImportJobTest
                 It.IsAny<IDictionary<string, object>>(),
                 expectedFileStream,
                 It.IsAny<Func<IDictionary<string, object>, Task<bool>>>()))
-            .Returns(async (Metadata.Tenant tenant, Metadata.Entity entity, Guid? userId, string identifier, IDictionary<string, object> claims, Stream stream,
+            .Returns(async (Metadata.Tenant tenant, Metadata.Entity entity, string identifier, Guid userId, IDictionary<string, object> claims, Stream stream,
                 Func<IDictionary<string, object>, Task<bool>> authorize) =>
             {
                 await Assert.MultipleAsync(async () =>
