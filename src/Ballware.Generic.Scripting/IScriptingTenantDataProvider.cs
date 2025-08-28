@@ -3,7 +3,7 @@ using Ballware.Generic.Metadata;
 
 namespace Ballware.Generic.Scripting
 {
-    public interface IScriptingTenantDataAdapter
+    public interface IScriptingTenantDataProvider
     {
         IEnumerable<dynamic> RawQuery(IScriptingEntityUserContext context, string table, string columns, string where, object p);
         int RawCount(IScriptingEntityUserContext context, string table, string where, object p);

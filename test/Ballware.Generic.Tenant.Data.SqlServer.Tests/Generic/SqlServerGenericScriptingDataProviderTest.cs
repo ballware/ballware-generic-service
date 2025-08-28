@@ -17,7 +17,7 @@ using Moq;
 namespace Ballware.Generic.Tenant.Data.SqlServer.Tests.Generic;
 
 [TestFixture]
-public class SqlServerGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
+public class SqlServerGenericScriptingDataProviderTest : DatabaseBackedBaseTest
 {
     private SqlServerTenantConfiguration Configuration { get; set; } = null!;
     private Mock<ITenantConnectionRepository> ConnectionRepositoryMock { get; set; } = null!;
@@ -190,7 +190,7 @@ public class SqlServerGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
             ScalarValueQuery = "primary"
         };
 
-        var scriptingDataAdapter = new SqlServerGenericScriptingDataAdapter(genericProvider);
+        var scriptingDataAdapter = new SqlServerGenericScriptingDataProvider(genericProvider);
 
         using var connection = await storageProvider.OpenConnectionAsync(TenantId);
 

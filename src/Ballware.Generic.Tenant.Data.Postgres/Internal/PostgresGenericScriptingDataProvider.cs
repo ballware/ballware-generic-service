@@ -4,14 +4,14 @@ using Ballware.Generic.Tenant.Data.Commons.Provider;
 
 namespace Ballware.Generic.Tenant.Data.Postgres.Internal;
 
-class PostgresGenericScriptingDataAdapter : IScriptingTenantDataAdapter
+class PostgresGenericScriptingDataProvider : IScriptingTenantDataProvider
 {
     private PostgresGenericProvider GenericProvider { get; }
 
     private const string OperationNotSupportedExceptionText =
         "Operation deprecated and not supported on PosgreSQL storage layer";
     
-    public PostgresGenericScriptingDataAdapter(PostgresGenericProvider genericProvider)
+    public PostgresGenericScriptingDataProvider(PostgresGenericProvider genericProvider)
     {
         GenericProvider = genericProvider;
     }

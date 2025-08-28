@@ -5,11 +5,11 @@ using Dapper;
 
 namespace Ballware.Generic.Tenant.Data.SqlServer.Internal;
 
-class SqlServerGenericScriptingDataAdapter : IScriptingTenantDataAdapter
+class SqlServerGenericScriptingDataProvider : IScriptingTenantDataProvider
 {
     private SqlServerGenericProvider GenericProvider { get; }
     
-    public SqlServerGenericScriptingDataAdapter(SqlServerGenericProvider genericProvider)
+    public SqlServerGenericScriptingDataProvider(SqlServerGenericProvider genericProvider)
     {
         GenericProvider = genericProvider;
     }

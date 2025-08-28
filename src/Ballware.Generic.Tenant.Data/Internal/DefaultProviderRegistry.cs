@@ -1,3 +1,5 @@
+using Ballware.Generic.Scripting;
+
 namespace Ballware.Generic.Tenant.Data.Internal;
 
 class DefaultProviderRegistry : IProviderRegistry
@@ -39,5 +41,10 @@ class DefaultProviderRegistry : IProviderRegistry
     public ITenantStatisticProvider GetStatisticProvider(string providerName)
     {
         return Configuration.GetStatisticProvider(providerName, ServiceProvider);
+    }
+    
+    public IScriptingTenantDataProvider GetScriptingDataProvider(string providerName)
+    {
+        return Configuration.GetScriptingDataProvider(providerName, ServiceProvider);
     }
 }

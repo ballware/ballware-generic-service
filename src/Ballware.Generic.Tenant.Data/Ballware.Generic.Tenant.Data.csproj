@@ -16,6 +16,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Ballware.Generic.Data\Ballware.Generic.Data.csproj" />
       <ProjectReference Include="..\Ballware.Generic.Metadata\Ballware.Generic.Metadata.csproj" />
+      <ProjectReference Include="..\Ballware.Generic.Scripting\Ballware.Generic.Scripting.csproj" />
     </ItemGroup>
 
 </Project>

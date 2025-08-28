@@ -8,12 +8,14 @@ namespace Ballware.Generic.Scripting.Jint.Internal;
 
 public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecutor
 {
-    private IScriptingTenantDataAdapter ScriptingTenantDataAdapter { get; }
+    private IScriptingTenantDataProvider ScriptingTenantDataProvider { get; }
     private IMetadataAdapter MetadataAdapter { get; }
+    
+    private string TenantIdVariableName { get; } = "tenantId";
 
-    public JintEntityMetadataScriptingExecutor(IScriptingTenantDataAdapter scriptingTenantDataAdapter, IMetadataAdapter metadataAdapter)
+    public JintEntityMetadataScriptingExecutor(IScriptingTenantDataProvider scriptingTenantDataProvider, IMetadataAdapter metadataAdapter)
     {
-        ScriptingTenantDataAdapter = scriptingTenantDataAdapter;
+        ScriptingTenantDataProvider = scriptingTenantDataProvider;
         MetadataAdapter = metadataAdapter;
     }
 
@@ -27,8 +29,8 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                     .SetValue("identifier", identifier)
                     .SetJsonFunctions()
                     .SetClaimFunctions(context.Claims)
-                    .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
-                    .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                    .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataProvider)
+                    .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataProvider)
                     .SetValue("item", item)
                     .SetValue("addProperty",
                         new Action<string, object>((prop, value) =>
@@ -59,8 +61,8 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                     }))
                 .SetJsonFunctions()
                 .SetClaimFunctions(context.Claims)
-                .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
-                .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataProvider)
+                .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataProvider)
                 .Evaluate((context.Tenant.ServerScriptDefinitions ?? "") + "\n" + context.Entity.ByIdScript);
         }
 
@@ -77,15 +79,15 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
 
                 engine
                     .SetValue("log", new Action<object>((obj) => { Debug.WriteLine($"{obj}"); }))
-                    .SetValue("tenantId", context.Tenant.Id)
+                    .SetValue(TenantIdVariableName, context.Tenant.Id)
                     .SetValue("identifier", identifier)
                     .SetValue("insert", insert)
                     .SetValue("item", JsonSerializer.Serialize(item))
                     .SetJsonFunctions()
                     .SetClaimFunctions(context.Claims)
-                    .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
-                    .SetWritingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
-                    .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                    .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataProvider)
+                    .SetWritingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataProvider)
+                    .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataProvider)
                     .SetValue("getProcessingStateName",
                         new Func<int, string?>((state) =>
                             MetadataAdapter
@@ -133,16 +135,16 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
 
                 engine
                     .SetValue("log", new Action<object>((obj) => { Debug.WriteLine($"{obj}"); }))
-                    .SetValue("tenantId", context.Tenant.Id)
+                    .SetValue(TenantIdVariableName, context.Tenant.Id)
                     .SetValue("identifier", identifier)
                     .SetValue("insert", insert)
                     .SetValue("item", JsonSerializer.Serialize(item))
                     .SetJsonFunctions()
                     .SetClaimFunctions(context.Claims)
-                    .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
-                    .SetWritingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
-                    .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
-                    .SetWritingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                    .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataProvider)
+                    .SetWritingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataProvider)
+                    .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataProvider)
+                    .SetWritingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataProvider)
                     .SetValue("getProcessingStateName",
                         new Func<int, string?>((state) =>
                             MetadataAdapter
@@ -186,16 +188,16 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
         {
             var result = bool.Parse(new Engine()
                 .SetValue("params", p)
-                .SetValue("tenantId", context.Tenant.Id)
+                .SetValue(TenantIdVariableName, context.Tenant.Id)
                 .SetValue("addResultMessage", new Action<string>((msg) => { resultMessages.Add(msg); }))
                 .SetValue("querySingle",
                     new Func<string, dynamic, dynamic>((identifier, p) =>
-                        ScriptingTenantDataAdapter.QuerySingle(context, identifier, p)))
+                        ScriptingTenantDataProvider.QuerySingle(context, identifier, p)))
                 .SetJsonFunctions()
                 .SetClaimFunctions(context.Claims)
-                .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
-                .SetWritingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
-                .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataProvider)
+                .SetWritingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataProvider)
+                .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataProvider)
                 .Evaluate((context.Tenant.ServerScriptDefinitions ?? "") + "\n" +
                           "function internalPreliminaryRemoveScript() { " + context.Entity.RemovePreliminaryCheckScript +
                           " } \n"
@@ -217,12 +219,12 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
         {
             new Engine()
                 .SetValue("params", p)
-                .SetValue("tenantId", context.Tenant.Id)
+                .SetValue(TenantIdVariableName, context.Tenant.Id)
                 .SetJsonFunctions()
                 .SetClaimFunctions(context.Claims)
-                .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
-                .SetWritingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
-                .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataProvider)
+                .SetWritingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataProvider)
+                .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataProvider)
                 .Evaluate((context.Tenant.ServerScriptDefinitions ?? "") + "\n" + context.Entity.RemoveScript);
         }
 
@@ -237,7 +239,7 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                 .SetValue("state", currentState)
                 .SetValue("hasRight", new Func<string, bool>((right) => { return rights?.Contains(right.ToLowerInvariant()) ?? false; }))
                 .SetValue("hasAnyRight", new Func<string, bool>((right) => { return rights?.Any(r => r.StartsWith(right.ToLowerInvariant())) ?? false; }))
-                .SetValue("getValue", new Func<string, object>((column) => ScriptingTenantDataAdapter.QueryScalarValue(context, column, new Dictionary<string, object>() { { "tenantId", context.Tenant.Id }, { "id", id } })))
+                .SetValue("getValue", new Func<string, object>((column) => ScriptingTenantDataProvider.QueryScalarValue(context, column, new Dictionary<string, object>() { { "id", id } })))
                 .Evaluate(context.Entity.StateAllowedScript)
                 .ToString());
             

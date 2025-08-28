@@ -42,49 +42,49 @@ namespace Ballware.Generic.Scripting.Jint.Internal
                 }));
         }
 
-        public static Engine SetReadingEntityFunctions(this Engine engine, IScriptingEntityUserContext context, IMetadataAdapter metadataAdapter, IScriptingTenantDataAdapter scriptingTenantDataAdapter)
+        public static Engine SetReadingEntityFunctions(this Engine engine, IScriptingEntityUserContext context, IMetadataAdapter metadataAdapter, IScriptingTenantDataProvider scriptingTenantDataProvider)
         {
             return engine
                 .SetValue("entityCount", new Func<string, string, string, dynamic, long>((application, entity, query, p) =>
                     {
                         p.tenantId = context.Tenant.Id;
-                        return scriptingTenantDataAdapter.Count(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, entity)), query, p);
+                        return scriptingTenantDataProvider.Count(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, entity)), query, p);
                     }))
                 .SetValue("entityQueryList", new Func<string, string, string, dynamic, object[]>((application, entity, query, p) =>
                     {
                         p.tenantId = context.Tenant.Id;
-                        return scriptingTenantDataAdapter.QueryList(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, entity)), query, p).ToArray();
+                        return scriptingTenantDataProvider.QueryList(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, entity)), query, p).ToArray();
                     }))
                 .SetValue("entityQuerySingle", new Func<string, string, string, dynamic, object>((application, entity, query, p) =>
                     {
                         p.tenantId = context.Tenant.Id;
-                        return scriptingTenantDataAdapter.QuerySingle(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, entity)), query, p);
+                        return scriptingTenantDataProvider.QuerySingle(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, entity)), query, p);
                     }))
                 .SetValue("entityNew", new Func<string, string, string, dynamic, object>((application, entity, query, p) =>
                     {
                         p.tenantId = context.Tenant.Id;
-                        return scriptingTenantDataAdapter.QueryNew(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, entity)), query, p);
+                        return scriptingTenantDataProvider.QueryNew(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, entity)), query, p);
                     }));
         }
 
-        public static Engine SetWritingEntityFunctions(this Engine engine, IScriptingEntityUserContext context, IMetadataAdapter metadataAdapter, IScriptingTenantDataAdapter scriptingTenantDataAdapter)
+        public static Engine SetWritingEntityFunctions(this Engine engine, IScriptingEntityUserContext context, IMetadataAdapter metadataAdapter, IScriptingTenantDataProvider scriptingTenantDataProvider)
         {
             return engine
                 .SetValue("entitySave", new Action<string, string, string, dynamic>((application, entity, statement, p) =>
                     {
                         p.tenantId = context.Tenant.Id;
-                        scriptingTenantDataAdapter.Save(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, entity)), statement, p);
+                        scriptingTenantDataProvider.Save(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, entity)), statement, p);
                     }))
                 .SetValue("entityRemove", new Action<string, string, dynamic>((application, entity, p) =>
                     {
-                        scriptingTenantDataAdapter.Remove(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, entity)), p);
+                        scriptingTenantDataProvider.Remove(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, entity)), p);
                     }));
         }
 
-        public static Engine SetReadingSqlFunctions(this Engine engine, IScriptingEntityUserContext context, IMetadataAdapter metadataAdapter, IScriptingTenantDataAdapter scriptingTenantDataAdapter)
+        public static Engine SetReadingSqlFunctions(this Engine engine, IScriptingEntityUserContext context, IMetadataAdapter metadataAdapter, IScriptingTenantDataProvider scriptingTenantDataProvider)
         {
             return engine
-                .SetValue("getCount", new Func<string, string, object, int>((table, where, p) => scriptingTenantDataAdapter.RawCount(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, table)), table, where, p)))
+                .SetValue("getCount", new Func<string, string, object, int>((table, where, p) => scriptingTenantDataProvider.RawCount(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, table)), table, where, p)))
                 .SetValue("getList",
                     new Func<string, string, string, dynamic, object[]>((table, columns, where, p) =>
                     {
@@ -92,7 +92,7 @@ namespace Ballware.Generic.Scripting.Jint.Internal
 
                         sqlParams["tenantId"] = context.Tenant.Id;
 
-                        return scriptingTenantDataAdapter.RawQuery(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, table)), table, columns, where, sqlParams).ToArray();
+                        return scriptingTenantDataProvider.RawQuery(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, table)), table, columns, where, sqlParams).ToArray();
                     }))
                 .SetValue("getSingleColumnList",
                     new Func<string, string, string, dynamic, object?[]>((table, column, where, p) =>
@@ -101,7 +101,7 @@ namespace Ballware.Generic.Scripting.Jint.Internal
 
                         sqlParams["tenantId"] = context.Tenant.Id;
 
-                        return scriptingTenantDataAdapter.RawQuery(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, table)), table, column, where, sqlParams)
+                        return scriptingTenantDataProvider.RawQuery(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, table)), table, column, where, sqlParams)
                             .Select(d =>
                             {
                                 if ((d as IDictionary<string, object>)?.TryGetValue(column, out var value) ?? false)
@@ -119,7 +119,7 @@ namespace Ballware.Generic.Scripting.Jint.Internal
 
                         sqlParams["tenantId"] = context.Tenant.Id;
 
-                        return scriptingTenantDataAdapter.RawQuery(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, table)), table, column, where, sqlParams)
+                        return scriptingTenantDataProvider.RawQuery(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, table)), table, column, where, sqlParams)
                             .Select(d =>
                             {
                                 if ((d as IDictionary<string, object>)?.TryGetValue(column, out var value) ?? false)
@@ -132,28 +132,28 @@ namespace Ballware.Generic.Scripting.Jint.Internal
                     }));
         }
 
-        public static Engine SetWritingSqlFunctions(this Engine engine, IScriptingEntityUserContext context, IMetadataAdapter metadataAdapter, IScriptingTenantDataAdapter scriptingTenantDataAdapter)
+        public static Engine SetWritingSqlFunctions(this Engine engine, IScriptingEntityUserContext context, IMetadataAdapter metadataAdapter, IScriptingTenantDataProvider scriptingTenantDataProvider)
         {
             return engine
                 .SetValue("dbDelete", new Action<string, string, dynamic>((table, where, p) =>
                     {
                         p.tenantId = context.Tenant.Id;
 
-                        scriptingTenantDataAdapter.RawDelete(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, table)), table, where, p);
+                        scriptingTenantDataProvider.RawDelete(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, table)), table, where, p);
                     }))
                 .SetValue("dbInsert",
                     new Action<string, string, string, dynamic>((table, columns, values, p) =>
                     {
                         p.tenantId = context.Tenant.Id;
 
-                        scriptingTenantDataAdapter.RawInsert(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, table)), table, columns, values, p);
+                        scriptingTenantDataProvider.RawInsert(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, table)), table, columns, values, p);
                     }))
                 .SetValue("dbUpdate",
                     new Action<string, string, string, dynamic>((table, columns, where, p) =>
                     {
                         p.tenantId = context.Tenant.Id;
 
-                        scriptingTenantDataAdapter.RawUpdate(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, table)), table, columns, where, p);
+                        scriptingTenantDataProvider.RawUpdate(DefaultScriptingEntityUserContext.DuplicateForEntity(context, metadataAdapter.MetadataForEntityByTenantAndIdentifier(context.Tenant.Id, table)), table, columns, where, p);
                     }));
         }
     }

@@ -1,3 +1,4 @@
+using Ballware.Generic.Scripting;
 using Ballware.Generic.Tenant.Data.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,6 +16,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITenantMlModelProvider, TenantMlModelProviderProxy>();
         services.AddScoped<ITenantStatisticProvider, TenantStatisticProviderProxy>();
         services.AddScoped<ITenantSchemaProvider, TenantSchemaProviderProxy>();
+        services.AddScoped<IScriptingTenantDataProvider, TenantScriptingDataProviderProxy>();
 
         var defaultProviderConfiguration = new DefaultProviderConfiguration();
         var tenantStorageBuilder = new TenantStorageBuilder(services, defaultProviderConfiguration);

@@ -15,7 +15,7 @@ using Npgsql;
 namespace Ballware.Generic.Tenant.Data.Postgres.Tests.Generic;
 
 [TestFixture]
-public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
+public class PostgresGenericScriptingDataProviderTest : DatabaseBackedBaseTest
 {
     private PostgresTenantConfiguration Configuration { get; set; } = null!;
     private Mock<ITenantConnectionRepository> ConnectionRepositoryMock { get; set; } = null!;
@@ -185,7 +185,7 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
             ScalarValueQuery = "primary"
         };
 
-        var scriptingDataAdapter = new PostgresGenericScriptingDataAdapter(genericProvider);
+        var scriptingDataAdapter = new PostgresGenericScriptingDataProvider(genericProvider);
 
         using var connection = await storageProvider.OpenConnectionAsync(TenantId);
         
