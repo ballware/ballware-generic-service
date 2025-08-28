@@ -8,37 +8,35 @@ namespace Ballware.Generic.Scripting.Jint.Internal;
 
 public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecutor
 {
-    private ITenantDataAdapter TenantDataAdapter { get; }
+    private IScriptingTenantDataAdapter ScriptingTenantDataAdapter { get; }
     private IMetadataAdapter MetadataAdapter { get; }
 
-    public JintEntityMetadataScriptingExecutor(ITenantDataAdapter tenantDataAdapter, IMetadataAdapter metadataAdapter)
+    public JintEntityMetadataScriptingExecutor(IScriptingTenantDataAdapter scriptingTenantDataAdapter, IMetadataAdapter metadataAdapter)
     {
-        TenantDataAdapter = tenantDataAdapter;
+        ScriptingTenantDataAdapter = scriptingTenantDataAdapter;
         MetadataAdapter = metadataAdapter;
     }
 
-    public virtual IEnumerable<T> ListScript<T>(IDbConnection db, IDbTransaction? transaction,
-        Tenant tenant, Entity entity, string identifier,
-        IDictionary<string, object> claims, IEnumerable<T> results) where T : class
+    public virtual IEnumerable<T> ListScript<T>(IScriptingEntityUserContext context, string identifier, IEnumerable<T> results) where T : class
     {
-        if (!string.IsNullOrEmpty(entity.ListScript))
+        if (!string.IsNullOrEmpty(context.Entity.ListScript))
         {
             return results.Select(item =>
             {
                 new Engine()
                     .SetValue("identifier", identifier)
                     .SetJsonFunctions()
-                    .SetClaimFunctions(claims)
-                    .SetReadingEntityFunctions(tenant, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
-                    .SetReadingSqlFunctions(tenant.Id, db, transaction, TenantDataAdapter)
+                    .SetClaimFunctions(context.Claims)
+                    .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                    .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
                     .SetValue("item", item)
                     .SetValue("addProperty",
                         new Action<string, object>((prop, value) =>
                         {
                             (item as IDictionary<string, object>)?.Add(prop, value);
                         }))
-                    .Evaluate((tenant.ServerScriptDefinitions ?? "") + "\n" +
-                              entity.ListScript);
+                    .Evaluate((context.Tenant.ServerScriptDefinitions ?? "") + "\n" +
+                              context.Entity.ListScript);
 
                 return item;
             });
@@ -47,11 +45,9 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
         return results;
     }
 
-    public virtual async Task<T> ByIdScriptAsync<T>(IDbConnection db, IDbTransaction? transaction, Tenant tenant,
-        Entity entity,
-        string identifier, IDictionary<string, object> claims, T item) where T : class
+    public virtual async Task<T> ByIdScriptAsync<T>(IScriptingEntityUserContext context, string identifier, T item) where T : class
     {
-        if (!string.IsNullOrEmpty(entity.ByIdScript))
+        if (!string.IsNullOrEmpty(context.Entity.ByIdScript))
         {
             new Engine()
                 .SetValue("item", item)
@@ -62,19 +58,18 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                         (item as IDictionary<string, object>)?.Add(prop, value);
                     }))
                 .SetJsonFunctions()
-                .SetClaimFunctions(claims)
-                .SetReadingEntityFunctions(tenant, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
-                .SetReadingSqlFunctions(tenant.Id, db, transaction, TenantDataAdapter)
-                .Evaluate((tenant.ServerScriptDefinitions ?? "") + "\n" + entity.ByIdScript);
+                .SetClaimFunctions(context.Claims)
+                .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                .Evaluate((context.Tenant.ServerScriptDefinitions ?? "") + "\n" + context.Entity.ByIdScript);
         }
 
         return await Task.FromResult(item);
     }
 
-    public virtual async Task BeforeSaveScriptAsync(IDbConnection db, IDbTransaction transaction, Tenant tenant,
-        Entity entity, Guid? userId, string identifier, IDictionary<string, object> claims, bool insert, object item)
+    public virtual async Task BeforeSaveScriptAsync(IScriptingEntityUserContext context, string identifier, bool insert, object item)
     {
-        if (!string.IsNullOrEmpty(entity.BeforeSaveScript))
+        if (!string.IsNullOrEmpty(context.Entity.BeforeSaveScript))
         {
             try
             {
@@ -82,57 +77,55 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
 
                 engine
                     .SetValue("log", new Action<object>((obj) => { Debug.WriteLine($"{obj}"); }))
-                    .SetValue("tenantId", tenant.Id)
+                    .SetValue("tenantId", context.Tenant.Id)
                     .SetValue("identifier", identifier)
                     .SetValue("insert", insert)
                     .SetValue("item", JsonSerializer.Serialize(item))
                     .SetJsonFunctions()
-                    .SetClaimFunctions(claims)
-                    .SetReadingEntityFunctions(tenant, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
-                    .SetWritingEntityFunctions(tenant, userId, db, transaction, MetadataAdapter, TenantDataAdapter,
-                        claims)
-                    .SetReadingSqlFunctions(tenant.Id, db, transaction, TenantDataAdapter)
+                    .SetClaimFunctions(context.Claims)
+                    .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                    .SetWritingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                    .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
                     .SetValue("getProcessingStateName",
                         new Func<int, string?>((state) =>
                             MetadataAdapter
-                                .SingleProcessingStateForTenantAndEntityByValue(tenant.Id, entity.Identifier, state)
+                                .SingleProcessingStateForTenantAndEntityByValue(context.Tenant.Id, context.Entity.Identifier, state)
                                 ?.Name))
                     .SetValue("triggerNotification", new Action<string, string>(
                         (notificationIdentifier, notificationParams) =>
                         {
                             var notification =
-                                MetadataAdapter.MetadataForNotificationByTenantAndIdentifier(tenant.Id,
+                                MetadataAdapter.MetadataForNotificationByTenantAndIdentifier(context.Tenant.Id,
                                     notificationIdentifier);
 
-                            if (notification == null || !userId.HasValue)
+                            if (notification == null)
                             {
-                                throw new Exception($"No notification with identifier {notificationIdentifier}");
+                                throw new ArgumentException($"No notification with identifier {notificationIdentifier}");
                             }
 
-                            MetadataAdapter.CreateNotificationTriggerForTenantBehalfOfUser(tenant.Id, userId.Value, new NotificationTriggerCreatePayload()
+                            MetadataAdapter.CreateNotificationTriggerForTenantBehalfOfUser(context.Tenant.Id, context.UserId, new NotificationTriggerCreatePayload()
                             {
                                 NotificationId = notification.Id
                             });
                         }))
-                    .Evaluate((tenant.ServerScriptDefinitions ?? "") + "\n" +
+                    .Evaluate((context.Tenant.ServerScriptDefinitions ?? "") + "\n" +
                               "item=JSON.parse(item);" +
-                              entity.BeforeSaveScript);
+                              context.Entity.BeforeSaveScript);
             }
             catch (Exception ex)
             {
                 Debug.Write(ex);
-                throw new Exception("Error executing save script", ex);
+                throw new InvalidOperationException("Error executing save script", ex);
             }
         }
 
         await Task.CompletedTask;
     }
 
-    public virtual async Task SaveScriptAsync(IDbConnection db, IDbTransaction transaction, Tenant tenant,
-        Entity entity, Guid? userId, string identifier, IDictionary<string, object> claims, bool insert, object item)
+    public virtual async Task SaveScriptAsync(IScriptingEntityUserContext context, string identifier, bool insert, object item)
     {
 
-        if (!string.IsNullOrEmpty(entity.SaveScript))
+        if (!string.IsNullOrEmpty(context.Entity.SaveScript))
         {
             try
             {
@@ -140,74 +133,71 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
 
                 engine
                     .SetValue("log", new Action<object>((obj) => { Debug.WriteLine($"{obj}"); }))
-                    .SetValue("tenantId", tenant.Id)
+                    .SetValue("tenantId", context.Tenant.Id)
                     .SetValue("identifier", identifier)
                     .SetValue("insert", insert)
                     .SetValue("item", JsonSerializer.Serialize(item))
                     .SetJsonFunctions()
-                    .SetClaimFunctions(claims)
-                    .SetReadingEntityFunctions(tenant, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
-                    .SetWritingEntityFunctions(tenant, userId, db, transaction, MetadataAdapter, TenantDataAdapter,
-                        claims)
-                    .SetReadingSqlFunctions(tenant.Id, db, transaction, TenantDataAdapter)
-                    .SetWritingSqlFunctions(tenant.Id, db, transaction, TenantDataAdapter)
+                    .SetClaimFunctions(context.Claims)
+                    .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                    .SetWritingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                    .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                    .SetWritingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
                     .SetValue("getProcessingStateName",
                         new Func<int, string?>((state) =>
                             MetadataAdapter
-                                .SingleProcessingStateForTenantAndEntityByValue(tenant.Id, entity.Identifier, state)
+                                .SingleProcessingStateForTenantAndEntityByValue(context.Tenant.Id, context.Entity.Identifier, state)
                                 ?.Name))
                     .SetValue("triggerNotification", new Action<string, string>(
                         (notificationIdentifier, notificationParams) =>
                         {
                             var notification =
-                                MetadataAdapter.MetadataForNotificationByTenantAndIdentifier(tenant.Id,
+                                MetadataAdapter.MetadataForNotificationByTenantAndIdentifier(context.Tenant.Id,
                                     notificationIdentifier);
 
-                            if (notification == null || !userId.HasValue)
+                            if (notification == null)
                             {
-                                throw new Exception($"No notification with identifier {notificationIdentifier}");
+                                throw new ArgumentException($"No notification with identifier {notificationIdentifier}");
                             }
 
-                            MetadataAdapter.CreateNotificationTriggerForTenantBehalfOfUser(tenant.Id, userId.Value, new NotificationTriggerCreatePayload()
+                            MetadataAdapter.CreateNotificationTriggerForTenantBehalfOfUser(context.Tenant.Id, context.UserId, new NotificationTriggerCreatePayload()
                             {
                                 NotificationId = notification.Id
                             });
                         }))
-                    .Evaluate((tenant.ServerScriptDefinitions ?? "") + "\n" + "item=JSON.parse(item);" + "\n" +
-                              entity.SaveScript);
+                    .Evaluate((context.Tenant.ServerScriptDefinitions ?? "") + "\n" + "item=JSON.parse(item);" + "\n" +
+                              context.Entity.SaveScript);
             }
             catch (Exception ex)
             {
                 Debug.Write(ex);
-                throw new Exception("Error executing save script", ex);
+                throw new InvalidOperationException("Error executing save script", ex);
             }
         }
 
         await Task.CompletedTask;
     }
 
-    public async Task<(bool Result, IEnumerable<string> Messages)> RemovePreliminaryCheckAsync(IDbConnection db,
-        IDbTransaction transaction, Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> claims,
-        object p)
+    public async Task<(bool Result, IEnumerable<string> Messages)> RemovePreliminaryCheckAsync(IScriptingEntityUserContext context, object p)
     {
         var resultMessages = new List<string>();
 
-        if (!string.IsNullOrEmpty(entity.RemovePreliminaryCheckScript))
+        if (!string.IsNullOrEmpty(context.Entity.RemovePreliminaryCheckScript))
         {
             var result = bool.Parse(new Engine()
                 .SetValue("params", p)
-                .SetValue("tenantId", tenant.Id)
+                .SetValue("tenantId", context.Tenant.Id)
                 .SetValue("addResultMessage", new Action<string>((msg) => { resultMessages.Add(msg); }))
                 .SetValue("querySingle",
                     new Func<string, dynamic, dynamic>((identifier, p) =>
-                        TenantDataAdapter.QuerySingle(db, transaction, tenant, entity, claims, identifier, p)))
+                        ScriptingTenantDataAdapter.QuerySingle(context, identifier, p)))
                 .SetJsonFunctions()
-                .SetClaimFunctions(claims)
-                .SetReadingEntityFunctions(tenant, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
-                .SetWritingEntityFunctions(tenant, userId, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
-                .SetReadingSqlFunctions(tenant.Id, db, transaction, TenantDataAdapter)
-                .Evaluate((tenant.ServerScriptDefinitions ?? "") + "\n" +
-                          "function internalPreliminaryRemoveScript() { " + entity.RemovePreliminaryCheckScript +
+                .SetClaimFunctions(context.Claims)
+                .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                .SetWritingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                .Evaluate((context.Tenant.ServerScriptDefinitions ?? "") + "\n" +
+                          "function internalPreliminaryRemoveScript() { " + context.Entity.RemovePreliminaryCheckScript +
                           " } \n"
                           + "internalPreliminaryRemoveScript();"
                 )
@@ -221,36 +211,34 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
         }
     }
 
-    public async Task RemoveScriptAsync(IDbConnection db, IDbTransaction transaction, Tenant tenant, Entity entity,
-        Guid? userId, IDictionary<string, object> claims, object p)
+    public async Task RemoveScriptAsync(IScriptingEntityUserContext context, object p)
     {
-        if (!string.IsNullOrEmpty(entity.RemoveScript))
+        if (!string.IsNullOrEmpty(context.Entity.RemoveScript))
         {
             new Engine()
                 .SetValue("params", p)
-                .SetValue("tenantId", tenant.Id)
+                .SetValue("tenantId", context.Tenant.Id)
                 .SetJsonFunctions()
-                .SetClaimFunctions(claims)
-                .SetReadingEntityFunctions(tenant, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
-                .SetWritingEntityFunctions(tenant, userId, db, transaction, MetadataAdapter, TenantDataAdapter, claims)
-                .SetReadingSqlFunctions(tenant.Id, db, transaction, TenantDataAdapter)
-                .Evaluate((tenant.ServerScriptDefinitions ?? "") + "\n" + entity.RemoveScript);
+                .SetClaimFunctions(context.Claims)
+                .SetReadingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                .SetWritingEntityFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                .SetReadingSqlFunctions(context, MetadataAdapter, ScriptingTenantDataAdapter)
+                .Evaluate((context.Tenant.ServerScriptDefinitions ?? "") + "\n" + context.Entity.RemoveScript);
         }
 
         await Task.CompletedTask;
     }
 
-    public async Task<bool> StateAllowedScriptAsync(IDbConnection db, IDbTransaction? transaction, Tenant tenant,
-        Entity entity, Guid id, int currentState, IDictionary<string, object> claims, IEnumerable<string> rights)
+    public async Task<bool> StateAllowedScriptAsync(IScriptingEntityUserContext context, Guid id, int currentState, IEnumerable<string> rights)
     {
-        if (!string.IsNullOrEmpty(entity.StateAllowedScript))
+        if (!string.IsNullOrEmpty(context.Entity.StateAllowedScript))
         {
             var result = bool.Parse(new Engine()
                 .SetValue("state", currentState)
                 .SetValue("hasRight", new Func<string, bool>((right) => { return rights?.Contains(right.ToLowerInvariant()) ?? false; }))
                 .SetValue("hasAnyRight", new Func<string, bool>((right) => { return rights?.Any(r => r.StartsWith(right.ToLowerInvariant())) ?? false; }))
-                .SetValue("getValue", new Func<string, object>((column) => TenantDataAdapter.QueryScalarValue(db, transaction, tenant, entity, claims, column, new Dictionary<string, object>() { { "tenantId", tenant.Id }, { "id", id } })))
-                .Evaluate(entity.StateAllowedScript)
+                .SetValue("getValue", new Func<string, object>((column) => ScriptingTenantDataAdapter.QueryScalarValue(context, column, new Dictionary<string, object>() { { "tenantId", context.Tenant.Id }, { "id", id } })))
+                .Evaluate(context.Entity.StateAllowedScript)
                 .ToString());
             
             return await Task.FromResult(result);

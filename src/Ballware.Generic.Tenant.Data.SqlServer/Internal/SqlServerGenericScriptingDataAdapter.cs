@@ -1,12 +1,11 @@
 using System.Data;
 using Ballware.Generic.Scripting;
-using Ballware.Generic.Metadata;
 using Ballware.Generic.Tenant.Data.Commons.Provider;
 using Dapper;
 
 namespace Ballware.Generic.Tenant.Data.SqlServer.Internal;
 
-class SqlServerGenericScriptingDataAdapter : ITenantDataAdapter
+class SqlServerGenericScriptingDataAdapter : IScriptingTenantDataAdapter
 {
     private SqlServerGenericProvider GenericProvider { get; }
     
@@ -15,35 +14,35 @@ class SqlServerGenericScriptingDataAdapter : ITenantDataAdapter
         GenericProvider = genericProvider;
     }
     
-    public IEnumerable<dynamic> RawQuery(IDbConnection db, IDbTransaction? transaction, string table, string columns, string where, object p)
+    public IEnumerable<dynamic> RawQuery(IScriptingEntityUserContext context, string table, string columns, string where, object p)
     {
-        return db.Query<dynamic>($"SELECT {columns} FROM {table} WHERE {where}", p, transaction);
+        return context.Connection.Query<dynamic>($"SELECT {columns} FROM {table} WHERE {where}", p, context.Transaction);
     }
 
-    public int RawCount(IDbConnection db, IDbTransaction? transaction, string table, string where, object p)
+    public int RawCount(IScriptingEntityUserContext context, string table, string where, object p)
     {
-        return db.ExecuteScalar<int>($"SELECT COUNT(*) FROM {table} WHERE {where}", p, transaction);
+        return context.Connection.ExecuteScalar<int>($"SELECT COUNT(*) FROM {table} WHERE {where}", p, context.Transaction);
     }
 
-    public void RawDelete(IDbConnection db, IDbTransaction transaction, string table, string where, object p)
+    public void RawDelete(IScriptingEntityUserContext context, string table, string where, object p)
     {
-        db.Execute($"DELETE FROM {table} WHERE {where}", p, transaction);
+        context.Connection.Execute($"DELETE FROM {table} WHERE {where}", p, context.Transaction);
     }
 
-    public void RawInsert(IDbConnection db, IDbTransaction transaction, string table, string columns, string values, object p)
+    public void RawInsert(IScriptingEntityUserContext context, string table, string columns, string values, object p)
     {
-        db.Execute($"INSERT INTO {table} ({columns}) VALUES ({values})", p, transaction);
+        context.Connection.Execute($"INSERT INTO {table} ({columns}) VALUES ({values})", p, context.Transaction);
     }
 
-    public void RawUpdate(IDbConnection db, IDbTransaction transaction, string table, string columns, string where, object p)
+    public void RawUpdate(IScriptingEntityUserContext context, string table, string columns, string where, object p)
     {
-        db.Execute($"UPDATE {table} SET {columns} WHERE {where}", p, transaction);
+        context.Connection.Execute($"UPDATE {table} SET {columns} WHERE {where}", p, context.Transaction);
     }
 
-    public object? QueryScalarValue(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Entity entity, IDictionary<string, object> claims,
+    public object? QueryScalarValue(IScriptingEntityUserContext context, 
         string column, IDictionary<string, object> p)
     {
-        var result = QuerySingle(db, transaction, tenant, entity, claims, entity.ScalarValueQuery ?? "primary", p);
+        var result = QuerySingle(context, context.Entity.ScalarValueQuery ?? "primary", p);
 
         if (result is IDictionary<string, object> resultDict && resultDict.TryGetValue(column, out object? value))
         {
@@ -53,40 +52,40 @@ class SqlServerGenericScriptingDataAdapter : ITenantDataAdapter
         return null;
     }
 
-    public long Count(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Entity entity, IDictionary<string, object> claims, string queryIdentifier,
+    public long Count(IScriptingEntityUserContext context, string queryIdentifier,
         IDictionary<string, object> p)
     {
-        return GenericProvider.ProcessCountAsync(new GenericProcessingContext(db, transaction, tenant, entity), queryIdentifier, claims, p).GetAwaiter().GetResult();
+        return GenericProvider.ProcessCountAsync(new GenericProcessingContext(context.Connection, context.Transaction, context.Tenant, context.Entity), queryIdentifier, context.UserId, context.Claims, p).GetAwaiter().GetResult();
     }
 
-    public IEnumerable<dynamic> QueryList(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Entity entity, IDictionary<string, object> claims, 
+    public IEnumerable<dynamic> QueryList(IScriptingEntityUserContext context, 
         string queryIdentifier, IDictionary<string, object> p)
     {
-        return GenericProvider.ProcessQueryListAsync<dynamic>(new GenericProcessingContext(db, transaction, tenant, entity), queryIdentifier, claims, p).GetAwaiter().GetResult();
+        return GenericProvider.ProcessQueryListAsync<dynamic>(new GenericProcessingContext(context.Connection, context.Transaction, context.Tenant, context.Entity), queryIdentifier, context.UserId, context.Claims, p).GetAwaiter().GetResult();
     }
 
-    public dynamic? QuerySingle(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Entity entity, IDictionary<string, object> claims,
+    public dynamic? QuerySingle(IScriptingEntityUserContext context, 
         string queryIdentifier, IDictionary<string, object> p)
     {
-        return GenericProvider.ProcessQuerySingleAsync<dynamic>(new GenericProcessingContext(db, transaction, tenant, entity), queryIdentifier, claims, p).GetAwaiter().GetResult();
+        return GenericProvider.ProcessQuerySingleAsync<dynamic>(new GenericProcessingContext(context.Connection, context.Transaction, context.Tenant, context.Entity), queryIdentifier, context.UserId, context.Claims, p).GetAwaiter().GetResult();
     }
 
-    public dynamic? QueryNew(IDbConnection db, IDbTransaction? transaction, Metadata.Tenant tenant, Entity entity, IDictionary<string, object> claims,
+    public dynamic? QueryNew(IScriptingEntityUserContext context, 
         string queryIdentifier, IDictionary<string, object> p)
     {
-        return GenericProvider.ProcessNewAsync<dynamic>(new GenericProcessingContext(db, transaction, tenant, entity), queryIdentifier, claims, p).GetAwaiter().GetResult();
+        return GenericProvider.ProcessNewAsync<dynamic>(new GenericProcessingContext(context.Connection, context.Transaction, context.Tenant, context.Entity), queryIdentifier, context.UserId, context.Claims, p).GetAwaiter().GetResult();
     }
 
-    public void Save(IDbConnection db, IDbTransaction transaction, Metadata.Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> claims,
+    public void Save(IScriptingEntityUserContext context, 
         string statementIdentifier, IDictionary<string, object> p)
     {
-        GenericProvider.ProcessSaveAsync(new GenericProcessingContext(db, transaction, tenant, entity), userId, statementIdentifier, claims, p).GetAwaiter().GetResult();
+        GenericProvider.ProcessSaveAsync(new GenericProcessingContext(context.Connection, context.Transaction, context.Tenant, context.Entity), statementIdentifier, context.UserId, context.Claims, p).GetAwaiter().GetResult();
     }
 
-    public (bool Result, IEnumerable<string> Messages) Remove(IDbConnection db, IDbTransaction transaction, Metadata.Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> claims,
+    public (bool Result, IEnumerable<string> Messages) Remove(IScriptingEntityUserContext context, 
         IDictionary<string, object> p)
     {
-        var result = GenericProvider.ProcessRemoveAsync(new GenericProcessingContext(db, transaction, tenant, entity), userId, claims, p).GetAwaiter().GetResult(); 
+        var result = GenericProvider.ProcessRemoveAsync(new GenericProcessingContext(context.Connection, context.Transaction, context.Tenant, context.Entity), context.UserId, context.Claims, p).GetAwaiter().GetResult(); 
         
         return (result.Result, result.Messages); 
     }

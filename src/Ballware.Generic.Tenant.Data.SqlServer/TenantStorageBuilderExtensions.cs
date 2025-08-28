@@ -32,7 +32,7 @@ public static class TenantStorageBuilderExtensions
         builder.Services.AddScoped<SqlServerLookupProvider>();
         builder.Services.AddScoped<SqlServerMlModelProvider>();
         builder.Services.AddScoped<SqlServerStatisticProvider>();
-        builder.Services.AddScoped<ITenantDataAdapter, SqlServerGenericScriptingDataAdapter>();
+        builder.Services.AddScoped<IScriptingTenantDataAdapter, SqlServerGenericScriptingDataAdapter>();
         
         builder.RegisterStorageProvider<SqlServerStorageProvider>(ProviderMssql);
         builder.RegisterGenericProvider<SqlServerGenericProvider>(ProviderMssql);

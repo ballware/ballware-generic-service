@@ -179,6 +179,7 @@ public static class GenericDataEndpoint
         string identifier)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
+        var userId = principalUtils.GetUserId(user);
         var claims = principalUtils.GetUserClaims(user);
         
         var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
@@ -198,7 +199,7 @@ public static class GenericDataEndpoint
             return Results.Unauthorized();
         }
         
-        return Results.Ok(await genericProvider.AllAsync<dynamic>(tenant, metaData, identifier, claims));
+        return Results.Ok(await genericProvider.AllAsync<dynamic>(tenant, metaData, identifier, userId, claims));
     }
     
     [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
@@ -208,7 +209,7 @@ public static class GenericDataEndpoint
         string identifier, QueryValueBag query)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
-
+        var userId = principalUtils.GetUserId(user);
         var claims = principalUtils.GetUserClaims(user);
         var queryParams = GetQueryParams(query.Query);
         
@@ -228,7 +229,7 @@ public static class GenericDataEndpoint
             return Results.Unauthorized();
         }
         
-        return Results.Ok(await genericProvider.QueryAsync<dynamic>(tenant, metaData, identifier, claims, queryParams));
+        return Results.Ok(await genericProvider.QueryAsync<dynamic>(tenant, metaData, identifier, userId, claims, queryParams));
     }
     
     [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
@@ -238,7 +239,7 @@ public static class GenericDataEndpoint
         string identifier, QueryValueBag query)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
-
+        var userId = principalUtils.GetUserId(user);
         var claims = principalUtils.GetUserClaims(user);
         var queryParams = GetQueryParams(query.Query);
         
@@ -258,7 +259,7 @@ public static class GenericDataEndpoint
             return Results.Unauthorized();
         }
         
-        return Results.Ok(new CountResult { Count = await genericProvider.CountAsync(tenant, metaData, identifier, claims, queryParams) });
+        return Results.Ok(new CountResult { Count = await genericProvider.CountAsync(tenant, metaData, identifier, userId, claims, queryParams) });
     }
 
     [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
@@ -269,7 +270,7 @@ public static class GenericDataEndpoint
         string identifier)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
-
+        var userId = principalUtils.GetUserId(user);
         var claims = principalUtils.GetUserClaims(user);
         
         var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
@@ -288,7 +289,7 @@ public static class GenericDataEndpoint
             return Results.Unauthorized();
         }
         
-        return Results.Ok(await genericProvider.NewAsync<dynamic>(tenant, metaData, identifier, claims));
+        return Results.Ok(await genericProvider.NewAsync<dynamic>(tenant, metaData, identifier, userId, claims));
     }
     
     [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
@@ -299,7 +300,7 @@ public static class GenericDataEndpoint
         string identifier, QueryValueBag query)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
-        
+        var userId = principalUtils.GetUserId(user);
         var claims = principalUtils.GetUserClaims(user);
         var queryParams = GetQueryParams(query.Query);
         
@@ -319,7 +320,7 @@ public static class GenericDataEndpoint
             return Results.Unauthorized();
         }
         
-        return Results.Ok(await genericProvider.NewQueryAsync<dynamic>(tenant, metaData, identifier, claims, queryParams));
+        return Results.Ok(await genericProvider.NewQueryAsync<dynamic>(tenant, metaData, identifier, userId, claims, queryParams));
     }
 
     [SuppressMessage("Major Code Smell", "S107:Methods should not have too many parameters", Justification = "DI injection needed")]
@@ -330,7 +331,7 @@ public static class GenericDataEndpoint
         string identifier, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
-
+        var userId = principalUtils.GetUserId(user);
         var claims = principalUtils.GetUserClaims(user);
         
         var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
@@ -341,7 +342,7 @@ public static class GenericDataEndpoint
             return Results.NotFound(TenantOrEntityNotFoundError);
         }
         
-        var value = await genericProvider.ByIdAsync<dynamic>(tenant, metaData, identifier, claims, id);
+        var value = await genericProvider.ByIdAsync<dynamic>(tenant, metaData, identifier, userId, claims, id);
         
         if (value == null)
         {
@@ -392,7 +393,7 @@ public static class GenericDataEndpoint
             return Results.Unauthorized();
         }
         
-        await genericProvider.SaveAsync(tenant, metaData, currentUserId, identifier, claims, value.Value);
+        await genericProvider.SaveAsync(tenant, metaData, identifier, currentUserId, claims, value.Value);
 
         return Results.Ok();
     }
@@ -435,7 +436,7 @@ public static class GenericDataEndpoint
         
         foreach (var value in values.Values)
         {
-            await genericProvider.SaveAsync(tenant, metaData, currentUserId, identifier, claims, value);
+            await genericProvider.SaveAsync(tenant, metaData, identifier, currentUserId, claims, value);
         }
 
         return Results.Ok();
@@ -460,7 +461,7 @@ public static class GenericDataEndpoint
             return Results.NotFound(TenantOrEntityNotFoundError);
         }
 
-        var value = await genericProvider.ByIdAsync<dynamic>(tenant, metaData, DefaultQuery, claims, id);
+        var value = await genericProvider.ByIdAsync<dynamic>(tenant, metaData, DefaultQuery, currentUserId, claims, id);
 
         var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, application, entity, claims, "delete");
         var authorized = await entityRightsChecker.HasRightAsync(tenantId, metaData, claims, "delete", value, tenantAuthorized);
@@ -534,6 +535,7 @@ public static class GenericDataEndpoint
         string identifier, HttpRequest request)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
+        var userId = principalUtils.GetUserId(user);
         var claims = principalUtils.GetUserClaims(user);
         
         var query = request.Query;
@@ -561,7 +563,7 @@ public static class GenericDataEndpoint
             return Results.Unauthorized();
         }
         
-        var export = await genericProvider.ExportAsync(tenant, metaData, identifier, claims, queryParams);
+        var export = await genericProvider.ExportAsync(tenant, metaData, identifier, userId, claims, queryParams);
 
         return Results.Content(Encoding.UTF8.GetString(export.Data), export.MediaType);
     }
@@ -603,7 +605,7 @@ public static class GenericDataEndpoint
             return Results.Unauthorized();
         }
         
-        var export = await genericProvider.ExportAsync(tenant, metaData, identifier, claims, queryParams);
+        var export = await genericProvider.ExportAsync(tenant, metaData, identifier, currentUserId, claims, queryParams);
         
         var exportPayload = new ExportCreatePayload()
         {

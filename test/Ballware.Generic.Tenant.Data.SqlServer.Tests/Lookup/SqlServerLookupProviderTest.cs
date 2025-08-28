@@ -214,12 +214,12 @@ public class SqlServerLookupProviderTest : DatabaseBackedBaseTest
         
         foreach (var entry in expectedList)
         {
-            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", Claims);
+            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", UserId, Claims);
 
             newEntry.Id = entry.Id;
             newEntry.Name = entry.Name;
 
-            await genericProvider.SaveAsync(Tenant, Entity, UserId, "primary", Claims, newEntry);
+            await genericProvider.SaveAsync(Tenant, Entity, "primary", UserId, Claims, newEntry);
         }
         
         var lookupProvider = new SqlServerLookupProvider(new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
@@ -310,12 +310,12 @@ public class SqlServerLookupProviderTest : DatabaseBackedBaseTest
         
         foreach (var entry in expectedList)
         {
-            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", Claims);
+            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", UserId, Claims);
 
             newEntry.Id = entry.Id;
             newEntry.Name = entry.Name;
 
-            await genericProvider.SaveAsync(Tenant, Entity, UserId, "primary", Claims, newEntry);
+            await genericProvider.SaveAsync(Tenant, Entity, "primary", UserId, Claims, newEntry);
         }
         
         var lookupProvider = new SqlServerLookupProvider(new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
@@ -393,13 +393,13 @@ public class SqlServerLookupProviderTest : DatabaseBackedBaseTest
         
         foreach (var entry in expectedList)
         {
-            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", Claims);
+            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", UserId, Claims);
 
             newEntry.Id = entry.Id;
             newEntry.Name = entry.Name;
             newEntry.AdditionalParam = entry.AdditionalParam;
 
-            await genericProvider.SaveAsync(Tenant, Entity, UserId, "primary", Claims, newEntry);
+            await genericProvider.SaveAsync(Tenant, Entity, "primary", UserId, Claims, newEntry);
         }
         
         var lookupProvider = new SqlServerLookupProvider(new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
@@ -498,13 +498,13 @@ public class SqlServerLookupProviderTest : DatabaseBackedBaseTest
         
         foreach (var entry in expectedList)
         {
-            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", Claims);
+            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", UserId, Claims);
 
             newEntry.Id = entry.Id;
             newEntry.Name = entry.Name;
             newEntry.AdditionalParam = entry.AdditionalParam;
 
-            await genericProvider.SaveAsync(Tenant, Entity, UserId, "primary", Claims, newEntry);
+            await genericProvider.SaveAsync(Tenant, Entity, "primary", UserId, Claims, newEntry);
         }
         
         var lookupProvider = new SqlServerLookupProvider(new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
@@ -578,12 +578,12 @@ public class SqlServerLookupProviderTest : DatabaseBackedBaseTest
         
         foreach (var entry in expectedList)
         {
-            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", Claims);
+            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", UserId, Claims);
 
             newEntry.Id = entry.Id;
             newEntry.Name = entry.Name;
 
-            await genericProvider.SaveAsync(Tenant, Entity, UserId, "primary", Claims, newEntry);
+            await genericProvider.SaveAsync(Tenant, Entity, "primary", UserId, Claims, newEntry);
         }
         
         var lookupProvider = new SqlServerLookupProvider(new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
@@ -665,13 +665,13 @@ public class SqlServerLookupProviderTest : DatabaseBackedBaseTest
         
         foreach (var entry in expectedList)
         {
-            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", Claims);
+            var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, Entity, "primary", UserId, Claims);
 
             newEntry.Id = entry.Id;
             newEntry.Name = entry.Name;
             newEntry.AdditionalParam = entry.AdditionalParam;
 
-            await genericProvider.SaveAsync(Tenant, Entity, UserId, "primary", Claims, newEntry);
+            await genericProvider.SaveAsync(Tenant, Entity, "primary", UserId, Claims, newEntry);
         }
         
         var lookupProvider = new SqlServerLookupProvider(new SqlServerStorageProvider(ConnectionRepositoryMock.Object));

@@ -127,17 +127,17 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
     [TenantConnection("generictenant2")]
     public async Task Dataadapter_operations_succeeds()
     {
-        ScriptingExecutorMock.Setup(s => s.ListScript(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction?>(),
-                It.IsAny<Metadata.Tenant>(), It.IsAny<Entity>(), It.IsAny<string>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<IEnumerable<object>>()))
-            .Returns((IDbConnection _, IDbTransaction? _, Metadata.Tenant _, Entity _, string _, IDictionary<string, object> _, IEnumerable<object> items) => items);            
+        ScriptingExecutorMock.Setup(s => s.ListScript(It.IsAny<IScriptingEntityUserContext>(),
+                It.IsAny<string>(), It.IsAny<IEnumerable<object>>()))
+            .Returns((IScriptingEntityUserContext _, string _, IEnumerable<object> items) => items);            
         
-        ScriptingExecutorMock.Setup(s => s.ByIdScriptAsync(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction?>(),
-                It.IsAny<Metadata.Tenant>(), It.IsAny<Entity>(), It.IsAny<string>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<object>()))
-            .ReturnsAsync((IDbConnection _, IDbTransaction? _, Metadata.Tenant _, Entity _, string _, IDictionary<string, object> _, IDictionary<string, object> item) => item);            
+        ScriptingExecutorMock.Setup(s => s.ByIdScriptAsync(It.IsAny<IScriptingEntityUserContext>(),
+                It.IsAny<string>(), It.IsAny<object>()))
+            .ReturnsAsync((IScriptingEntityUserContext _, string _, IDictionary<string, object> item) => item);            
         
-        ScriptingExecutorMock.Setup(s => s.RemovePreliminaryCheckAsync(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction?>(),
-                It.IsAny<Metadata.Tenant>(), It.IsAny<Entity>(), UserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<object>()))
-            .ReturnsAsync((IDbConnection _, IDbTransaction? _, Metadata.Tenant _, Entity _, Guid? _, IDictionary<string, object> _, IDictionary<string, object> item) => (true, []));            
+        ScriptingExecutorMock.Setup(s => s.RemovePreliminaryCheckAsync(It.IsAny<IScriptingEntityUserContext>(),
+                It.IsAny<object>()))
+            .ReturnsAsync((IScriptingEntityUserContext _, IDictionary<string, object> item) => (true, []));            
         
         PreparedBuilder.Services.AddSingleton(ScriptingExecutorMock.Object);
         
@@ -188,9 +188,10 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
         var scriptingDataAdapter = new PostgresGenericScriptingDataAdapter(genericProvider);
 
         using var connection = await storageProvider.OpenConnectionAsync(TenantId);
+        
+        var context = DefaultScriptingEntityUserContext.Create(connection, Tenant, entity, UserId, Claims);
 
-        var queryNewActual = scriptingDataAdapter.QueryNew(connection, null, Tenant, entity,
-            ImmutableDictionary<string, object>.Empty,
+        var queryNewActual = scriptingDataAdapter.QueryNew(context,
             "primary", ImmutableDictionary<string, object>.Empty);
 
         Assert.Multiple(() =>
@@ -201,9 +202,9 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
         queryNewActual.Colnumber = (object)4;
         queryNewActual.Coltextline = null;
         
-        scriptingDataAdapter.Save(connection, null, Tenant, entity, UserId, Claims, "primary", queryNewActual);
+        scriptingDataAdapter.Save(context, "primary", queryNewActual);
         
-        var querySingleActual = scriptingDataAdapter.QuerySingle(connection, null, Tenant, entity, ImmutableDictionary<string, object>.Empty,
+        var querySingleActual = scriptingDataAdapter.QuerySingle(context,
             "primary", ImmutableDictionary.CreateRange(new[]
             {
                 new KeyValuePair<string, object>("id", queryNewActual.id),
@@ -219,7 +220,7 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
             Assert.That(actualId, Is.EqualTo(expectedId));
         });
         
-        var queryListActual = scriptingDataAdapter.QueryList(connection, null, Tenant, entity, ImmutableDictionary<string, object>.Empty,
+        var queryListActual = scriptingDataAdapter.QueryList(context,
             "primary", ImmutableDictionary<string, object>.Empty)?.ToList();
         
         Assert.Multiple(() =>
@@ -228,7 +229,7 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
             Assert.That(queryListActual.Count, Is.EqualTo(1));
         });
 
-        var queryCountActual = scriptingDataAdapter.Count(connection, null, Tenant, entity, ImmutableDictionary<string, object>.Empty,
+        var queryCountActual = scriptingDataAdapter.Count(context,
             "count", ImmutableDictionary<string, object>.Empty);
         
         Assert.Multiple(() =>
@@ -236,22 +237,19 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
             Assert.That(queryCountActual, Is.EqualTo(1));
         });
 
-        var queryScalarIntActual = scriptingDataAdapter.QueryScalarValue(connection, null, Tenant, entity,
-            ImmutableDictionary<string, object>.Empty,
+        var queryScalarIntActual = scriptingDataAdapter.QueryScalarValue(context,
             "colnumber", ImmutableDictionary.CreateRange(new[]
             {
                 new KeyValuePair<string, object>("id", queryNewActual.id),
             }));
         
-        var queryScalarNullActual = scriptingDataAdapter.QueryScalarValue(connection, null, Tenant, entity,
-            ImmutableDictionary<string, object>.Empty,
+        var queryScalarNullActual = scriptingDataAdapter.QueryScalarValue(context,
             "coltextline", ImmutableDictionary.CreateRange(new[]
             {
                 new KeyValuePair<string, object>("id", queryNewActual.id),
             }));
         
-        var queryScalarNotExistingActual = scriptingDataAdapter.QueryScalarValue(connection, null, Tenant, entity,
-            ImmutableDictionary<string, object>.Empty,
+        var queryScalarNotExistingActual = scriptingDataAdapter.QueryScalarValue(context,
             "colnotexisting", ImmutableDictionary.CreateRange(new[]
             {
                 new KeyValuePair<string, object>("id", queryNewActual.id),
@@ -264,12 +262,12 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
             Assert.That(queryScalarNotExistingActual, Is.Null);
         });
         
-        scriptingDataAdapter.Remove(connection, null, Tenant, entity, UserId, Claims, ImmutableDictionary.CreateRange(new[]
+        scriptingDataAdapter.Remove(context, ImmutableDictionary.CreateRange(new[]
         {
             new KeyValuePair<string, object>("id", queryNewActual.id),
         }));
         
-        var queryRemovedCountActual = scriptingDataAdapter.Count(connection, null, Tenant, entity, ImmutableDictionary<string, object>.Empty,
+        var queryRemovedCountActual = scriptingDataAdapter.Count(context,
             "count", ImmutableDictionary<string, object>.Empty);
         
         Assert.Multiple(() =>

@@ -62,7 +62,7 @@ public class GenericImportJob : IJob
 
             var file = await StorageAdapter.TemporaryFileByIdAsync(tenantId, temporaryId);
 
-            await GenericProvider.ImportAsync(tenant, metadata, userId, identifier, claims, file, async (item) =>
+            await GenericProvider.ImportAsync(tenant, metadata, identifier, userId, claims, file, async (item) =>
             {
                 var tenantAuthorized = await TenantRightsChecker.HasRightAsync(tenant, application, entity, claims, identifier);
                 var authorized = await EntityRightsChecker.HasRightAsync(tenantId, metadata, claims, identifier, item, tenantAuthorized);

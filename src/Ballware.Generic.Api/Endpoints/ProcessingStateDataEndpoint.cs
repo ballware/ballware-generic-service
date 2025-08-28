@@ -51,6 +51,7 @@ public static class ProcessingStateDataEndpoint
     private static async Task<IResult> HandleSelectListAllowedSuccessorsForEntityByIdentifierAndIdAsync(IPrincipalUtils principalUtils, IMetadataAdapter metadataAdapter, ITenantGenericProvider tenantGenericProvider, ClaimsPrincipal user, string entity, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
+        var userId = principalUtils.GetUserId(user);       
         var claims = principalUtils.GetUserClaims(user);
         var rights = principalUtils.GetUserRights(user);
 
@@ -71,7 +72,7 @@ public static class ProcessingStateDataEndpoint
         
         var possibleStates = await metadataAdapter.SelectListPossibleSuccessorsForEntityAsync(tenantId, entity, currentState);
 
-        var allowedStates = possibleStates?.Where(ps => tenantGenericProvider.StateAllowedAsync(tenant, entityMeta, id, ps.State, claims, rights).Result);
+        var allowedStates = possibleStates?.Where(ps => tenantGenericProvider.StateAllowedAsync(tenant, entityMeta, id, ps.State, userId, claims, rights).Result);
 
         return Results.Ok(allowedStates);
     }
@@ -79,6 +80,7 @@ public static class ProcessingStateDataEndpoint
     private static async Task<IResult> HandleSelectListAllowedSuccessorsForEntityByIdentifierAndIdsAsync(IPrincipalUtils principalUtils, IMetadataAdapter metadataAdapter, ITenantGenericProvider tenantGenericProvider, ClaimsPrincipal user, string entity, QueryValueBag query)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
+        var userId = principalUtils.GetUserId(user);
         var claims = principalUtils.GetUserClaims(user);
         var rights = principalUtils.GetUserRights(user);
 
@@ -101,7 +103,7 @@ public static class ProcessingStateDataEndpoint
             {
                 var currentState = await tenantGenericProvider.GetScalarValueAsync(tenant, entityMeta, entityMeta.StateColumn, id, 0);
                 var possibleStates = await metadataAdapter.SelectListPossibleSuccessorsForEntityAsync(tenantId, entity, currentState);
-                var allowedStates = possibleStates?.Where(ps => tenantGenericProvider.StateAllowedAsync(tenant, entityMeta, id, ps.State, claims, rights).GetAwaiter().GetResult());
+                var allowedStates = possibleStates?.Where(ps => tenantGenericProvider.StateAllowedAsync(tenant, entityMeta, id, ps.State, userId, claims, rights).GetAwaiter().GetResult());
 
                 return allowedStates;
             })))?.ToList();
@@ -127,6 +129,7 @@ public static class ProcessingStateDataEndpoint
     private static async Task<IResult> HandleIsStateAllowedForEntityByIdentifierStateAndIdAsync(IPrincipalUtils principalUtils, IMetadataAdapter metadataAdapter, ITenantGenericProvider tenantGenericProvider, ClaimsPrincipal user, string entity, int state, Guid id)
     {
         var tenantId = principalUtils.GetUserTenandId(user);
+        var userId = principalUtils.GetUserId(user);
         var claims = principalUtils.GetUserClaims(user);
         var rights = principalUtils.GetUserRights(user);
 
@@ -143,7 +146,7 @@ public static class ProcessingStateDataEndpoint
             return Results.NotFound($"Entity with identifier {entity} not found or has no state support for tenant {tenantId}.");
         }   
         
-        if (await tenantGenericProvider.StateAllowedAsync(tenant, entityMeta, id, state, claims, rights))
+        if (await tenantGenericProvider.StateAllowedAsync(tenant, entityMeta, id, state, userId, claims, rights))
         {
             return Results.Ok();
         }

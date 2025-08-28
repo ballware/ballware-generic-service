@@ -29,7 +29,7 @@ public static class TenantStorageBuilderExtensions
         builder.Services.AddScoped<PostgresLookupProvider>();
         builder.Services.AddScoped<PostgresMlModelProvider>();
         builder.Services.AddScoped<PostgresStatisticProvider>();
-        builder.Services.AddScoped<ITenantDataAdapter, PostgresGenericScriptingDataAdapter>();
+        builder.Services.AddScoped<IScriptingTenantDataAdapter, PostgresGenericScriptingDataAdapter>();
         
         builder.RegisterStorageProvider<PostgresStorageProvider>(ProviderPostgres);
         builder.RegisterGenericProvider<PostgresGenericProvider>(ProviderPostgres);

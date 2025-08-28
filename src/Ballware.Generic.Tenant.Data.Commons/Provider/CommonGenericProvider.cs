@@ -39,52 +39,52 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
         Services = serviceProvider;
     }
     
-    public async Task<IEnumerable<T>> AllAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims) where T : class
+    public async Task<IEnumerable<T>> AllAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims) where T : class
     {
-        return await QueryAsync<T>(tenant, entity, identifier, claims, new Dictionary<string, object>());
+        return await QueryAsync<T>(tenant, entity, identifier, userId, claims, new Dictionary<string, object>());
     }
 
-    public async Task<IEnumerable<T>> QueryAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams) where T : class
-    {
-        using var db = await StorageProvider.OpenConnectionAsync(tenant.Id);
-        
-        return await ProcessQueryListAsync<T>(new GenericProcessingContext(db, null, tenant, entity), identifier, claims, queryParams);
-    }
-
-    public async Task<long> CountAsync(Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
+    public async Task<IEnumerable<T>> QueryAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims, IDictionary<string, object> queryParams) where T : class
     {
         using var db = await StorageProvider.OpenConnectionAsync(tenant.Id);
         
-        return await ProcessCountAsync(new GenericProcessingContext(db, null, tenant, entity), identifier, claims, queryParams);
+        return await ProcessQueryListAsync<T>(new GenericProcessingContext(db, null, tenant, entity), identifier, userId, claims, queryParams);
     }
 
-    public async Task<T?> ByIdAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims, Guid id) where T : class
+    public async Task<long> CountAsync(Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
     {
         using var db = await StorageProvider.OpenConnectionAsync(tenant.Id);
         
-        return await ProcessQuerySingleAsync<T>(new GenericProcessingContext(db, null, tenant, entity), identifier, claims, new Dictionary<string, object>() { { "id", id } });
+        return await ProcessCountAsync(new GenericProcessingContext(db, null, tenant, entity), identifier, userId, claims, queryParams);
     }
 
-    public async Task<T?> NewAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims) where T : class
-    {
-        return await NewQueryAsync<T>(tenant, entity, identifier, claims, new Dictionary<string, object>());
-    }
-
-    public async Task<T?> NewQueryAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams) where T : class
+    public async Task<T?> ByIdAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims, Guid id) where T : class
     {
         using var db = await StorageProvider.OpenConnectionAsync(tenant.Id);
         
-        return await ProcessNewAsync<T>(new GenericProcessingContext(db, null, tenant, entity), identifier, claims, queryParams);
+        return await ProcessQuerySingleAsync<T>(new GenericProcessingContext(db, null, tenant, entity), identifier, userId, claims, new Dictionary<string, object>() { { "id", id } });
     }
 
-    public async Task SaveAsync(Metadata.Tenant tenant, Entity entity, Guid? userId, string identifier, IDictionary<string, object> claims, IDictionary<string, object> value)
+    public async Task<T?> NewAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims) where T : class
+    {
+        return await NewQueryAsync<T>(tenant, entity, identifier, userId, claims, new Dictionary<string, object>());
+    }
+
+    public async Task<T?> NewQueryAsync<T>(Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims, IDictionary<string, object> queryParams) where T : class
+    {
+        using var db = await StorageProvider.OpenConnectionAsync(tenant.Id);
+        
+        return await ProcessNewAsync<T>(new GenericProcessingContext(db, null, tenant, entity), identifier, userId, claims, queryParams);
+    }
+
+    public async Task SaveAsync(Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims, IDictionary<string, object> value)
     {
         using var db = await StorageProvider.OpenConnectionAsync(tenant.Id);
         using var transaction = db.BeginTransaction();
 
         try
         {
-            await ProcessSaveAsync(new GenericProcessingContext(db, transaction, tenant, entity), userId, identifier, claims, value);
+            await ProcessSaveAsync(new GenericProcessingContext(db, transaction, tenant, entity), identifier, userId, claims, value);
             
             transaction.Commit();
         }
@@ -96,7 +96,7 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
         }
     }
 
-    public async Task<RemoveResult> RemoveAsync(Metadata.Tenant tenant, Entity entity, Guid? userId, IDictionary<string, object> claims, Guid id)
+    public async Task<RemoveResult> RemoveAsync(Metadata.Tenant tenant, Entity entity, Guid userId, IDictionary<string, object> claims, Guid id)
     {
         using var db = await StorageProvider.OpenConnectionAsync(tenant.Id);
         using var transaction = db.BeginTransaction();
@@ -124,17 +124,17 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
         return await ProcessScalarValueAsync(new GenericProcessingContext(db, null, tenant, entity), column, id, defaultValue);
     }
 
-    public async Task<bool> StateAllowedAsync(Metadata.Tenant tenant, Entity entity, Guid id, int currentState, IDictionary<string, object> claims,
+    public async Task<bool> StateAllowedAsync(Metadata.Tenant tenant, Entity entity, Guid id, int currentState, Guid userId, IDictionary<string, object> claims,
         IEnumerable<string> rights)
     {
         using var db = await StorageProvider.OpenConnectionAsync(tenant.Id);
         
-        return await ProcessStateAllowedAsync(new GenericProcessingContext(db, null, tenant, entity), id, currentState, claims, rights);
+        return await ProcessStateAllowedAsync(new GenericProcessingContext(db, null, tenant, entity), id, currentState, userId, claims, rights);
     }
 
     public async Task ImportAsync(Metadata.Tenant tenant, Entity entity,
-      Guid? userId,
       string identifier,
+      Guid userId,
       IDictionary<string, object> claims,
       Stream importStream,
       Func<IDictionary<string, object>, Task<bool>> authorized)
@@ -144,7 +144,7 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
         
         try
         {
-            await ProcessImportAsync(new GenericProcessingContext(db, transaction, tenant, entity), userId, identifier, claims, importStream, authorized);
+            await ProcessImportAsync(new GenericProcessingContext(db, transaction, tenant, entity), identifier, userId, claims, importStream, authorized);
             
             transaction.Commit();
         }
@@ -156,14 +156,14 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
         }
     }
 
-    public async Task<GenericExport> ExportAsync(Metadata.Tenant tenant, Entity entity, string identifier, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
+    public async Task<GenericExport> ExportAsync(Metadata.Tenant tenant, Entity entity, string identifier, Guid userId, IDictionary<string, object> claims, IDictionary<string, object> queryParams)
     {
         using var db = await StorageProvider.OpenConnectionAsync(tenant.Id);
         
-        return await ProcessExportAsync(new GenericProcessingContext(db, null, tenant, entity), identifier, claims, queryParams);
+        return await ProcessExportAsync(new GenericProcessingContext(db, null, tenant, entity), identifier, userId, claims, queryParams);
     }
     
-    public async Task<IEnumerable<T>> ProcessQueryListAsync<T>(GenericProcessingContext context, string identifier, IDictionary<string, object> claims, IDictionary<string, object> p) where T : class
+    public async Task<IEnumerable<T>> ProcessQueryListAsync<T>(GenericProcessingContext context, string identifier, Guid userId, IDictionary<string, object> claims, IDictionary<string, object> p) where T : class
     {
         var scriptingExecutor = Services.GetRequiredService<IGenericEntityScriptingExecutor>();
         
@@ -184,7 +184,7 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
         queryParams = await StorageProvider.TransferToVariablesAsync(context.Tenant.Id, queryParams, claims, ClaimVariablePrefix);
         queryParams[TenantVariableIdentifier] = context.Tenant.Id;
 
-        return scriptingExecutor.ListScript<T>(context.Connection, context.Transaction, context.Tenant, context.Entity, identifier, claims, await context.Connection.QueryAsync<T>(
+        return scriptingExecutor.ListScript<T>(DefaultScriptingEntityUserContext.CreateWithTransaction(context.Connection, context.Transaction, context.Tenant, context.Entity, userId, claims), identifier, await context.Connection.QueryAsync<T>(
             await StorageProvider.ApplyTenantPlaceholderAsync(
                 context.Tenant.Id, 
                 query.Query, 
@@ -192,7 +192,7 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
             queryParams, context.Transaction));
     }
 
-    public async Task<long> ProcessCountAsync(GenericProcessingContext context, string identifier, IDictionary<string, object> claims, IDictionary<string, object> p)
+    public async Task<long> ProcessCountAsync(GenericProcessingContext context, string identifier, Guid userId, IDictionary<string, object> claims, IDictionary<string, object> p)
     {
         var query = context.Entity.ListQuery.FirstOrDefault(q => q.Identifier.Equals(identifier));
 
@@ -218,7 +218,7 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
             queryParams, context.Transaction);
     }
 
-    public async Task<T?> ProcessQuerySingleAsync<T>(GenericProcessingContext context, string identifier, IDictionary<string, object> claims, IDictionary<string, object> p) where T : class
+    public async Task<T?> ProcessQuerySingleAsync<T>(GenericProcessingContext context, string identifier, Guid userId, IDictionary<string, object> claims, IDictionary<string, object> p) where T : class
     {
         var scriptingExecutor = Services.GetRequiredService<IGenericEntityScriptingExecutor>();
         
@@ -247,19 +247,15 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
         if (item != null)
         {
             item = await scriptingExecutor.ByIdScriptAsync(
-                context.Connection,
-                context.Transaction,
-                context.Tenant,
-                context.Entity,
+                DefaultScriptingEntityUserContext.CreateWithTransaction(context.Connection, context.Transaction, context.Tenant, context.Entity, userId, claims),
                 identifier,
-                claims,
                 item);
         }
 
         return item;
     }
 
-    public async Task<T?> ProcessNewAsync<T>(GenericProcessingContext context, string identifier, IDictionary<string, object> claims, IDictionary<string, object> p) where T : class
+    public async Task<T?> ProcessNewAsync<T>(GenericProcessingContext context, string identifier, Guid userId, IDictionary<string, object> claims, IDictionary<string, object> p) where T : class
     {
         var query = context.Entity.NewQuery.FirstOrDefault(q => q.Identifier.Equals(identifier));
 
@@ -284,7 +280,7 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
             queryParams, context.Transaction)).FirstOrDefault();
     }
 
-    public async Task ProcessSaveAsync(GenericProcessingContext context, Guid? userId, string identifier, IDictionary<string, object> claims, IDictionary<string, object> value)
+    public async Task ProcessSaveAsync(GenericProcessingContext context, string identifier, Guid userId, IDictionary<string, object> claims, IDictionary<string, object> value)
     {
         var scriptingExecutor = Services.GetRequiredService<IGenericEntityScriptingExecutor>();
         
@@ -309,7 +305,7 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
         if (value.ContainsKey(ItemIdIdentifier) && Guid.TryParse(value[ItemIdIdentifier].ToString(), out Guid guid))
         {
             var existingValue = await ProcessQuerySingleAsync<dynamic>(
-                context, identifier, claims, new Dictionary<string, object>() { { "id", guid } });
+                context, identifier, userId, claims, new Dictionary<string, object>() { { "id", guid } });
 
             if (existingValue != null)
             {
@@ -329,13 +325,8 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
         }
 
         await scriptingExecutor.BeforeSaveScriptAsync(
-            context.Connection,
-            context.Transaction, 
-            context.Tenant,
-            context.Entity,
-            userId,
+            DefaultScriptingEntityUserContext.CreateWithTransaction(context.Connection, context.Transaction, context.Tenant, context.Entity, userId, claims),
             identifier,
-            claims,
             insert,
             value);
 
@@ -345,28 +336,18 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
             context.Transaction);
 
         await scriptingExecutor.SaveScriptAsync(
-            context.Connection,
-            context.Transaction, 
-            context.Tenant,
-            context.Entity,
-            userId,
+            DefaultScriptingEntityUserContext.CreateWithTransaction(context.Connection, context.Transaction, context.Tenant, context.Entity, userId, claims),
             identifier,
-            claims,
             insert,
             value);
     }
 
-    public async Task<RemoveResult> ProcessRemoveAsync(GenericProcessingContext context, Guid? userId, IDictionary<string, object> claims, IDictionary<string, object> p)
+    public async Task<RemoveResult> ProcessRemoveAsync(GenericProcessingContext context, Guid userId, IDictionary<string, object> claims, IDictionary<string, object> p)
     {
         var scriptingExecutor = Services.GetRequiredService<IGenericEntityScriptingExecutor>();
         
         var preliminaryCheckResult = await scriptingExecutor.RemovePreliminaryCheckAsync(
-            context.Connection,
-            context.Transaction, 
-            context.Tenant,
-            context.Entity,
-            userId,
-            claims,
+            DefaultScriptingEntityUserContext.CreateWithTransaction(context.Connection, context.Transaction, context.Tenant, context.Entity, userId, claims),
             p);
 
         if (!preliminaryCheckResult.Result)
@@ -383,12 +364,7 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
         queryParams[TenantVariableIdentifier] = context.Tenant.Id;
 
         await scriptingExecutor.RemoveScriptAsync(
-            context.Connection,
-            context.Transaction, 
-            context.Tenant,
-            context.Entity,
-            userId,
-            claims,
+            DefaultScriptingEntityUserContext.CreateWithTransaction(context.Connection, context.Transaction, context.Tenant, context.Entity, userId, claims),
             p);
 
         await context.Connection.ExecuteAsync(
@@ -434,26 +410,22 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
         return defaultValue;
     }
     
-    public async Task<bool> ProcessStateAllowedAsync(GenericProcessingContext context, Guid id, int currentState, IDictionary<string, object> claims,
+    public async Task<bool> ProcessStateAllowedAsync(GenericProcessingContext context, Guid id, int currentState, Guid userId, IDictionary<string, object> claims,
         IEnumerable<string> rights)
     {
         var scriptingExecutor = Services.GetRequiredService<IGenericEntityScriptingExecutor>();
         
         return await scriptingExecutor.StateAllowedScriptAsync(
-            context.Connection,
-            context.Transaction,
-            context.Tenant,
-            context.Entity,
+            DefaultScriptingEntityUserContext.CreateWithTransaction(context.Connection, context.Transaction, context.Tenant, context.Entity, userId, claims),
             id,
             currentState,
-            claims,
             rights);
     }
     
     public async Task ProcessImportAsync(
-        GenericProcessingContext context, 
-        Guid? userId,
+        GenericProcessingContext context,
         string identifier,
+        Guid userId, 
         IDictionary<string, object> claims,
         Stream importStream,
         Func<IDictionary<string, object>, Task<bool>> authorized)
@@ -474,7 +446,7 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
                     {
                         if (await authorized(item))
                         {
-                            await ProcessSaveAsync(context, userId, identifier, claims, item);
+                            await ProcessSaveAsync(context, identifier, userId, claims, item);
                         }
                     }
                 }
@@ -485,7 +457,7 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
                     {
                         if (await authorized(item))
                         {
-                            await ProcessSaveAsync(context, userId, identifier, claims, item);
+                            await ProcessSaveAsync(context, identifier, userId, claims, item);
                         }
                     }
                 }
@@ -531,7 +503,7 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
         }
     }
     
-    private async Task<GenericExport> ProcessExportAsync(GenericProcessingContext context, string identifier, IDictionary<string, object> claims, IDictionary<string, object> p)
+    private async Task<GenericExport> ProcessExportAsync(GenericProcessingContext context, string identifier, Guid userId, IDictionary<string, object> claims, IDictionary<string, object> p)
     {
         var scriptingExecutor = Services.GetRequiredService<IGenericEntityScriptingExecutor>();
         
@@ -587,12 +559,8 @@ public abstract class CommonGenericProvider : ITenantGenericProvider
             case "json":
                 {
                     var items = await Task.WhenAll(queryResult.Select(async item => await scriptingExecutor.ByIdScriptAsync(
-                        context.Connection,
-                        context.Transaction, 
-                        context.Tenant,
-                        context.Entity,
+                        DefaultScriptingEntityUserContext.CreateWithTransaction(context.Connection, context.Transaction, context.Tenant, context.Entity, userId, claims),
                         identifier,
-                        claims,
                         item)));
 
                     result.Data = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(items));
