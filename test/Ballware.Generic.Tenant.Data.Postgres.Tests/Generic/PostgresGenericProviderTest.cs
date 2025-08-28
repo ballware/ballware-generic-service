@@ -134,17 +134,17 @@ public class PostgresGenericProviderTest : DatabaseBackedBaseTest
     [TenantConnection("generictenant1")]
     public async Task Entity_with_identity_succeeds()
     {
-        ScriptingExecutorMock.Setup(s => s.ListScript(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction?>(),
-                It.IsAny<Metadata.Tenant>(), It.IsAny<Entity>(), It.IsAny<string>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<IEnumerable<object>>()))
-            .Returns((IDbConnection _, IDbTransaction? _, Metadata.Tenant _, Entity _, string _, IDictionary<string, object> _, IEnumerable<object> items) => items);            
+        ScriptingExecutorMock.Setup(s => s.ListScript(It.IsAny<IScriptingEntityUserContext>(), 
+                It.IsAny<string>(), It.IsAny<IEnumerable<object>>()))
+            .Returns((IScriptingEntityUserContext _, string _, IEnumerable<object> items) => items);            
         
-        ScriptingExecutorMock.Setup(s => s.ByIdScriptAsync(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction?>(),
-                It.IsAny<Metadata.Tenant>(), It.IsAny<Entity>(), It.IsAny<string>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<object>()))
-            .ReturnsAsync((IDbConnection _, IDbTransaction? _, Metadata.Tenant _, Entity _, string _, IDictionary<string, object> _, IDictionary<string, object> item) => item);            
+        ScriptingExecutorMock.Setup(s => s.ByIdScriptAsync(It.IsAny<IScriptingEntityUserContext>(),
+                It.IsAny<string>(), It.IsAny<object>()))
+            .ReturnsAsync((IScriptingEntityUserContext _, string _, IDictionary<string, object> item) => item);            
         
-        ScriptingExecutorMock.Setup(s => s.RemovePreliminaryCheckAsync(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction?>(),
-                It.IsAny<Metadata.Tenant>(), It.IsAny<Entity>(), UserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<object>()))
-            .ReturnsAsync((IDbConnection _, IDbTransaction? _, Metadata.Tenant _, Entity _, Guid? _, IDictionary<string, object> _, IDictionary<string, object> item) => (true, []));            
+        ScriptingExecutorMock.Setup(s => s.RemovePreliminaryCheckAsync(It.IsAny<IScriptingEntityUserContext>(),
+                It.IsAny<object>()))
+            .ReturnsAsync((IScriptingEntityUserContext _, IDictionary<string, object> item) => (true, []));            
         
         PreparedBuilder.Services.AddSingleton(ScriptingExecutorMock.Object);
         
@@ -190,19 +190,19 @@ public class PostgresGenericProviderTest : DatabaseBackedBaseTest
             RemoveStatement = "delete from testentity where tenant_id=@tenant_id and uuid=@id"
         };
 
-        var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, entity, "notexistingforcedefault", Claims);
+        var newEntry = await genericProvider.NewAsync<dynamic>(Tenant, entity, "notexistingforcedefault", UserId, Claims);
 
         Assert.That(newEntry, Is.Not.Null);
 
-        await genericProvider.SaveAsync(Tenant, entity, UserId, "primary", Claims, newEntry);
+        await genericProvider.SaveAsync(Tenant, entity, "primary", UserId, Claims, newEntry);
 
-        var byIdEntry = await genericProvider.ByIdAsync<dynamic>(Tenant, entity, "primary", Claims, newEntry.id);
+        var byIdEntry = await genericProvider.ByIdAsync<dynamic>(Tenant, entity, "primary", UserId, Claims, newEntry.id);
         
         Assert.That(byIdEntry, Is.Not.Null);
         Assert.That(byIdEntry.coltextline, Is.EqualTo("test textline"));
         Assert.That(byIdEntry.colnumber, Is.EqualTo(3));
         
-        var queryResult = await genericProvider.QueryAsync<dynamic>(Tenant, entity, "notexistingforcedefault", Claims,
+        var queryResult = await genericProvider.QueryAsync<dynamic>(Tenant, entity, "notexistingforcedefault", UserId, Claims,
             ImmutableDictionary<string, object>.Empty);
         
         Assert.That(queryResult, Is.Not.Null);
@@ -217,9 +217,9 @@ public class PostgresGenericProviderTest : DatabaseBackedBaseTest
         byIdEntry.coltextline = "test textline updated";
         byIdEntry.colnumber = (object)7;
         
-        await genericProvider.SaveAsync(Tenant, entity, UserId, "notexistingforcedefault", Claims, byIdEntry);
+        await genericProvider.SaveAsync(Tenant, entity, "notexistingforcedefault", UserId, Claims, byIdEntry);
 
-        byIdEntry = await genericProvider.ByIdAsync<dynamic>(Tenant, entity, "primary", Claims, newEntry.id);
+        byIdEntry = await genericProvider.ByIdAsync<dynamic>(Tenant, entity, "primary", UserId, Claims, newEntry.id);
         var scalarNumberColumnValue = await genericProvider.GetScalarValueAsync<int>(Tenant, entity, "colnumber", newEntry.id, 0);
         
         Assert.That(byIdEntry, Is.Not.Null);
@@ -227,26 +227,26 @@ public class PostgresGenericProviderTest : DatabaseBackedBaseTest
         Assert.That(byIdEntry.colnumber, Is.EqualTo(7));
         Assert.That(scalarNumberColumnValue, Is.EqualTo(7));
         
-        var countResult = await genericProvider.CountAsync(Tenant, entity, "count", Claims, ImmutableDictionary<string, object>.Empty);
+        var countResult = await genericProvider.CountAsync(Tenant, entity, "count", UserId, Claims, ImmutableDictionary<string, object>.Empty);
         
         Assert.That(countResult, Is.EqualTo(1));
         
-        var secondEntry = await genericProvider.NewAsync<dynamic>(Tenant, entity, "primary", Claims);
+        var secondEntry = await genericProvider.NewAsync<dynamic>(Tenant, entity, "primary", UserId, Claims);
 
         Assert.That(secondEntry, Is.Not.Null);
         
         secondEntry.Coltextline = "test textline second entry";
 
-        await genericProvider.SaveAsync(Tenant, entity, UserId, "primary", Claims, secondEntry);
+        await genericProvider.SaveAsync(Tenant, entity, "primary", UserId, Claims, secondEntry);
         
-        countResult = await genericProvider.CountAsync(Tenant, entity, "count", Claims, ImmutableDictionary<string, object>.Empty);
+        countResult = await genericProvider.CountAsync(Tenant, entity, "count", UserId, Claims, ImmutableDictionary<string, object>.Empty);
         
         Assert.That(countResult, Is.EqualTo(2)); 
         
         await genericProvider.RemoveAsync(Tenant, entity, UserId, Claims, queryEntry.id);
         
         scalarNumberColumnValue = await genericProvider.GetScalarValueAsync<int>(Tenant, entity, "Colnumber", queryEntry.id, -1);
-        countResult = await genericProvider.CountAsync(Tenant, entity, "count", Claims, ImmutableDictionary<string, object>.Empty);
+        countResult = await genericProvider.CountAsync(Tenant, entity, "count", UserId, Claims, ImmutableDictionary<string, object>.Empty);
         
         Assert.That(countResult, Is.EqualTo(1));     
         Assert.That(scalarNumberColumnValue, Is.EqualTo(-1));
@@ -256,17 +256,17 @@ public class PostgresGenericProviderTest : DatabaseBackedBaseTest
     [TenantConnection("generictenant2")]
     public async Task Entity_import_export_succeeds()
     {
-        ScriptingExecutorMock.Setup(s => s.ListScript(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction?>(),
-                It.IsAny<Metadata.Tenant>(), It.IsAny<Entity>(), It.IsAny<string>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<IEnumerable<object>>()))
-            .Returns((IDbConnection _, IDbTransaction? _, Metadata.Tenant _, Entity _, string _, IDictionary<string, object> _, IEnumerable<object> items) => items);            
+        ScriptingExecutorMock.Setup(s => s.ListScript(It.IsAny<IScriptingEntityUserContext>(),
+                It.IsAny<string>(), It.IsAny<IEnumerable<object>>()))
+            .Returns((IScriptingEntityUserContext _, string _, IEnumerable<object> items) => items);            
         
-        ScriptingExecutorMock.Setup(s => s.ByIdScriptAsync(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction?>(),
-                It.IsAny<Metadata.Tenant>(), It.IsAny<Entity>(), It.IsAny<string>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<object>()))
-            .ReturnsAsync((IDbConnection _, IDbTransaction? _, Metadata.Tenant _, Entity _, string _, IDictionary<string, object> _, IDictionary<string, object> item) => item);            
+        ScriptingExecutorMock.Setup(s => s.ByIdScriptAsync(It.IsAny<IScriptingEntityUserContext>(),
+                It.IsAny<string>(), It.IsAny<object>()))
+            .ReturnsAsync((IScriptingEntityUserContext _, string _, IDictionary<string, object> item) => item);            
         
-        ScriptingExecutorMock.Setup(s => s.RemovePreliminaryCheckAsync(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction?>(),
-                It.IsAny<Metadata.Tenant>(), It.IsAny<Entity>(), UserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<object>()))
-            .ReturnsAsync((IDbConnection _, IDbTransaction? _, Metadata.Tenant _, Entity _, Guid? _, IDictionary<string, object> _, IDictionary<string, object> item) => (true, []));            
+        ScriptingExecutorMock.Setup(s => s.RemovePreliminaryCheckAsync(It.IsAny<IScriptingEntityUserContext>(),
+                It.IsAny<object>()))
+            .ReturnsAsync((IScriptingEntityUserContext _, IDictionary<string, object> item) => (true, []));            
         
         PreparedBuilder.Services.AddSingleton(ScriptingExecutorMock.Object);
         
@@ -352,10 +352,10 @@ public class PostgresGenericProviderTest : DatabaseBackedBaseTest
 
         var serializedExpectedItems = JsonConvert.SerializeObject(expectedItems);
         
-        await genericProvider.ImportAsync(Tenant, entity, UserId, "importjson", Claims, new MemoryStream(Encoding.UTF8.GetBytes(serializedExpectedItems)),
+        await genericProvider.ImportAsync(Tenant, entity, "importjson", UserId, Claims, new MemoryStream(Encoding.UTF8.GetBytes(serializedExpectedItems)),
             item => Task.FromResult(true));
         
-        var result = await genericProvider.ExportAsync(Tenant, entity, "exportjson", Claims, new Dictionary<string, object>()
+        var result = await genericProvider.ExportAsync(Tenant, entity, "exportjson", UserId, Claims, new Dictionary<string, object>()
         {
             { "id", new StringValues(expectedItems.Select(item => item["id"].ToString()).ToArray()) }
         });

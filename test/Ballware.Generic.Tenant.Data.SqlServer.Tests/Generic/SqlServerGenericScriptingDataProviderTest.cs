@@ -5,19 +5,21 @@ using Ballware.Generic.Data.Public;
 using Ballware.Generic.Data.Repository;
 using Ballware.Generic.Metadata;
 using Ballware.Generic.Scripting;
-using Ballware.Generic.Tenant.Data.Postgres.Internal;
-using Ballware.Generic.Tenant.Data.Postgres.Tests.Utils;
+using Ballware.Generic.Tenant.Data.SqlServer.Internal;
+using Ballware.Generic.Tenant.Data.SqlServer.Tests.Utils;
 using Dapper;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Npgsql;
 
-namespace Ballware.Generic.Tenant.Data.Postgres.Tests.Generic;
+namespace Ballware.Generic.Tenant.Data.SqlServer.Tests.Generic;
 
 [TestFixture]
-public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
+public class SqlServerGenericScriptingDataProviderTest : DatabaseBackedBaseTest
 {
-    private PostgresTenantConfiguration Configuration { get; set; } = null!;
+    private SqlServerTenantConfiguration Configuration { get; set; } = null!;
     private Mock<ITenantConnectionRepository> ConnectionRepositoryMock { get; set; } = null!;
     private Mock<ITenantEntityRepository> EntityRepositoryMock { get; set; } = null!;
     private Mock<IGenericEntityScriptingExecutor> ScriptingExecutorMock { get; set; } = null!;
@@ -43,7 +45,7 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
         Tenant = new Metadata.Tenant()
         {
             Id = TenantId,
-            Provider = "postgres",
+            Provider = "mssql",
         };
 
         Claims = new Dictionary<string, object> { { "sub", UserId.ToString() } };
@@ -52,19 +54,20 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
 
         var testConnectionAttribute = testMethodInfo?.GetCustomAttributes<TenantConnectionAttribute>(false).FirstOrDefault();
 
-        Schema = testConnectionAttribute?.Schema ?? "public";
-        User = testConnectionAttribute?.User ?? $"tenant_{TenantId.ToString("N").ToLower()}";
+        Schema = testConnectionAttribute?.Schema ?? "dbo";
+        User = testConnectionAttribute?.User ?? $"tenant_{TenantId.ToString().ToLower()}";
         
-        SqlMapper.AddTypeHandler(new PostgresColumnTypeHandler());
+        SqlMapper.AddTypeHandler(new SqlServerColumnTypeHandler());
         
-        Configuration = new PostgresTenantConfiguration()
+        Configuration = new SqlServerTenantConfiguration()
         {
-            TenantMasterConnectionString = MasterConnectionString
+            TenantMasterConnectionString = MasterConnectionString,
+            UseContainedDatabase = false
         };
         
         ScriptingExecutorMock = new Mock<IGenericEntityScriptingExecutor>();
-        ConnectionRepositoryMock = new Mock<ITenantConnectionRepository>();
         EntityRepositoryMock = new Mock<ITenantEntityRepository>();
+        ConnectionRepositoryMock = new Mock<ITenantConnectionRepository>();
         
         ConnectionRepositoryMock.Setup(m => m.NewAsync("primary", It.IsAny<IDictionary<string, object>>()))
             .ReturnsAsync((string _, IDictionary<string, object> _) => new TenantConnection()
@@ -91,9 +94,9 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
             .ReturnsAsync((Guid _, string _, IDictionary<string, object> _) => new TenantEntity()
             {
                 Id = Guid.NewGuid()
-            });        
+            });  
         
-        var tenantModel = new PostgresTenantModel()
+        var tenantModel = new SqlServerTenantModel()
         {
             Schema = Schema,
             DatabaseObjects = []
@@ -105,20 +108,20 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
         });
 
         {
-            await using var tenantDb = new NpgsqlConnection(Configuration.TenantMasterConnectionString);
+            await using var tenantDb = new SqlConnection(Configuration.TenantMasterConnectionString);
             await tenantDb.DropSchemaForUserAsync("tenant", Schema, User);
             await tenantDb.CloseAsync();
         }
         
-        SchemaProvider = new PostgresSchemaProvider(Configuration, ConnectionRepositoryMock.Object, EntityRepositoryMock.Object, new PostgresStorageProvider(ConnectionRepositoryMock.Object));
+        SchemaProvider = new SqlServerSchemaProvider(Configuration, ConnectionRepositoryMock.Object, EntityRepositoryMock.Object, new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
             
-        await SchemaProvider.CreateOrUpdateTenantAsync(TenantId, "postgres", serializedTenantModel, UserId);
+        await SchemaProvider.CreateOrUpdateTenantAsync(TenantId, "mssql", serializedTenantModel, UserId);
     }
 
     [TearDown]
     public async Task TearDown()
     {
-        await using var tenantDb = new NpgsqlConnection(Configuration.TenantMasterConnectionString);
+        await using var tenantDb = new SqlConnection(Configuration.TenantMasterConnectionString);
         await tenantDb.DropSchemaForUserAsync("tenant", Schema, User);
         await tenantDb.CloseAsync();
     }
@@ -127,29 +130,31 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
     [TenantConnection("generictenant2")]
     public async Task Dataadapter_operations_succeeds()
     {
-        ScriptingExecutorMock.Setup(s => s.ListScript(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction?>(),
-                It.IsAny<Metadata.Tenant>(), It.IsAny<Entity>(), It.IsAny<string>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<IEnumerable<object>>()))
-            .Returns((IDbConnection _, IDbTransaction? _, Metadata.Tenant _, Entity _, string _, IDictionary<string, object> _, IEnumerable<object> items) => items);            
+        using var listener = new SqlClientListener();
+     
+        ScriptingExecutorMock.Setup(s => s.ListScript(It.IsAny<IScriptingEntityUserContext>(),
+                It.IsAny<string>(), It.IsAny<IEnumerable<object>>()))
+            .Returns((IScriptingEntityUserContext _, string _, IEnumerable<object> items) => items);            
         
-        ScriptingExecutorMock.Setup(s => s.ByIdScriptAsync(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction?>(),
-                It.IsAny<Metadata.Tenant>(), It.IsAny<Entity>(), It.IsAny<string>(), It.IsAny<IDictionary<string, object>>(), It.IsAny<object>()))
-            .ReturnsAsync((IDbConnection _, IDbTransaction? _, Metadata.Tenant _, Entity _, string _, IDictionary<string, object> _, IDictionary<string, object> item) => item);            
+        ScriptingExecutorMock.Setup(s => s.ByIdScriptAsync(It.IsAny<IScriptingEntityUserContext>(),
+                It.IsAny<string>(), It.IsAny<object>()))
+            .ReturnsAsync((IScriptingEntityUserContext _, string _, IDictionary<string, object> item) => item);            
         
-        ScriptingExecutorMock.Setup(s => s.RemovePreliminaryCheckAsync(It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction?>(),
-                It.IsAny<Metadata.Tenant>(), It.IsAny<Entity>(), UserId, It.IsAny<IDictionary<string, object>>(), It.IsAny<object>()))
-            .ReturnsAsync((IDbConnection _, IDbTransaction? _, Metadata.Tenant _, Entity _, Guid? _, IDictionary<string, object> _, IDictionary<string, object> item) => (true, []));            
+        ScriptingExecutorMock.Setup(s => s.RemovePreliminaryCheckAsync(It.IsAny<IScriptingEntityUserContext>(),
+                It.IsAny<object>()))
+            .ReturnsAsync((IScriptingEntityUserContext _, IDictionary<string, object> item) => (true, []));            
         
         PreparedBuilder.Services.AddSingleton(ScriptingExecutorMock.Object);
         
         var app = PreparedBuilder.Build();
 
-        var entityModel = new PostgresTableModel()
+        var entityModel = new SqlServerTableModel()
         {
             TableName = "testentity",
             NoIdentity = false,
             CustomColumns = [
-                new PostgresColumnModel() { ColumnName = "coltextline", ColumnType = PostgresColumnType.String, MaxLength = 50, Nullable = true },
-                new PostgresColumnModel() { ColumnName = "colnumber", ColumnType = PostgresColumnType.Int, Nullable = true }
+                new SqlServerColumnModel() { ColumnName = "Coltextline", ColumnType = SqlServerColumnType.String, MaxLength = 50, Nullable = true },
+                new SqlServerColumnModel() { ColumnName = "Colnumber", ColumnType = SqlServerColumnType.Int, Nullable = true }
             ],
             CustomIndexes = []
         };
@@ -161,36 +166,37 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
         
         await SchemaProvider.CreateOrUpdateEntityAsync(TenantId, serializedEntityModel, UserId);
 
-        var storageProvider = new PostgresStorageProvider(ConnectionRepositoryMock.Object);
-        var genericProvider = new PostgresGenericProvider(storageProvider, app.Services);
+        var storageProvider = new SqlServerStorageProvider(ConnectionRepositoryMock.Object);
+        var genericProvider = new SqlServerGenericProvider(storageProvider, app.Services);
 
         var entity = new Metadata.Entity()
         {
             Application = "test",
             Identifier = "testentity",
             ListQuery = [
-                new QueryEntry() { Identifier = "primary", Query = "select uuid as id, coltextline, colnumber from testentity" },
+                new QueryEntry() { Identifier = "primary", Query = "select Uuid as Id, Coltextline, Colnumber from testentity" },
                 new QueryEntry() { Identifier = "count", Query = "select count (*) from testentity" }
             ],
             NewQuery = [
-                new QueryEntry() { Identifier = "primary", Query = "select gen_random_uuid() as id, 'test textline' as coltextline, 3 as colnumber" }
+                new QueryEntry() { Identifier = "primary", Query = "select Id=NEWID(), Coltextline = 'test textline', Colnumber = 3" }
             ],
             ByIdQuery = [
-                new QueryEntry() { Identifier = "primary", Query = "select uuid as id, coltextline, colnumber from testentity where tenant_id=@tenant_id and uuid = @id" }
+                new QueryEntry() { Identifier = "primary", Query = "select Uuid as Id, Coltextline, Colnumber from testentity where TenantId=@tenantId and Uuid = @id" }
             ],
             SaveStatement = [
-                new QueryEntry() { Identifier = "primary", Query = "INSERT INTO testentity (uuid, tenant_id, coltextline, colnumber, creator_id, create_stamp) VALUES (@id, @tenant_id, @coltextline, @colnumber, @claim_sub::uuid, NOW()) ON CONFLICT (tenant_id, uuid) DO UPDATE SET coltextline = @coltextline, colnumber = @colnumber, last_changer_id = @claim_sub::uuid, last_change_stamp = NOW()" }
+                new QueryEntry() { Identifier = "primary", Query = "update testentity set ColTextline=@ColTextline, Colnumber=@Colnumber, LastChangerId = @claim_sub, LastChangeStamp = GETDATE() where TenantId=@tenantId and Uuid=@Id; if @@ROWCOUNT=0 begin insert into testentity (Uuid, TenantId, Coltextline, Colnumber, CreatorId, CreateStamp) select @Id, @tenantId, @Coltextline, @Colnumber, @claim_sub, GETDATE() where not exists (select * from testentity where TenantId=@tenantId and Uuid=@Id) end" }
             ],
-            RemoveStatement = "delete from testentity where tenant_id=@tenant_id and uuid=@id",
+            RemoveStatement = "delete from testentity where TenantId=@tenantId and Uuid=@id",
             ScalarValueQuery = "primary"
         };
 
-        var scriptingDataAdapter = new PostgresGenericScriptingDataAdapter(genericProvider);
+        var scriptingDataAdapter = new SqlServerGenericScriptingDataProvider(genericProvider);
 
         using var connection = await storageProvider.OpenConnectionAsync(TenantId);
 
-        var queryNewActual = scriptingDataAdapter.QueryNew(connection, null, Tenant, entity,
-            ImmutableDictionary<string, object>.Empty,
+        var context = DefaultScriptingEntityUserContext.Create(connection, Tenant, entity, UserId, Claims);
+
+        var queryNewActual = scriptingDataAdapter.QueryNew(context,
             "primary", ImmutableDictionary<string, object>.Empty);
 
         Assert.Multiple(() =>
@@ -201,25 +207,25 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
         queryNewActual.Colnumber = (object)4;
         queryNewActual.Coltextline = null;
         
-        scriptingDataAdapter.Save(connection, null, Tenant, entity, UserId, Claims, "primary", queryNewActual);
+        scriptingDataAdapter.Save(context, "primary", queryNewActual);
         
-        var querySingleActual = scriptingDataAdapter.QuerySingle(connection, null, Tenant, entity, ImmutableDictionary<string, object>.Empty,
+        var querySingleActual = scriptingDataAdapter.QuerySingle(context,
             "primary", ImmutableDictionary.CreateRange(new[]
             {
-                new KeyValuePair<string, object>("id", queryNewActual.id),
+                new KeyValuePair<string, object>("id", queryNewActual.Id),
             }));
         
         Assert.Multiple(() =>
         {   
             Assert.That(querySingleActual, Is.Not.Null);
             
-            Guid actualId = querySingleActual?.id;
-            Guid expectedId = queryNewActual.id;
+            Guid actualId = querySingleActual?.Id;
+            Guid expectedId = queryNewActual.Id;
             
             Assert.That(actualId, Is.EqualTo(expectedId));
         });
         
-        var queryListActual = scriptingDataAdapter.QueryList(connection, null, Tenant, entity, ImmutableDictionary<string, object>.Empty,
+        var queryListActual = scriptingDataAdapter.QueryList(context,
             "primary", ImmutableDictionary<string, object>.Empty)?.ToList();
         
         Assert.Multiple(() =>
@@ -228,7 +234,7 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
             Assert.That(queryListActual.Count, Is.EqualTo(1));
         });
 
-        var queryCountActual = scriptingDataAdapter.Count(connection, null, Tenant, entity, ImmutableDictionary<string, object>.Empty,
+        var queryCountActual = scriptingDataAdapter.Count(context,
             "count", ImmutableDictionary<string, object>.Empty);
         
         Assert.Multiple(() =>
@@ -236,25 +242,22 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
             Assert.That(queryCountActual, Is.EqualTo(1));
         });
 
-        var queryScalarIntActual = scriptingDataAdapter.QueryScalarValue(connection, null, Tenant, entity,
-            ImmutableDictionary<string, object>.Empty,
-            "colnumber", ImmutableDictionary.CreateRange(new[]
+        var queryScalarIntActual = scriptingDataAdapter.QueryScalarValue(context,
+            "Colnumber", ImmutableDictionary.CreateRange(new[]
             {
-                new KeyValuePair<string, object>("id", queryNewActual.id),
+                new KeyValuePair<string, object>("id", queryNewActual.Id),
             }));
         
-        var queryScalarNullActual = scriptingDataAdapter.QueryScalarValue(connection, null, Tenant, entity,
-            ImmutableDictionary<string, object>.Empty,
-            "coltextline", ImmutableDictionary.CreateRange(new[]
+        var queryScalarNullActual = scriptingDataAdapter.QueryScalarValue(context,
+            "Coltextline", ImmutableDictionary.CreateRange(new[]
             {
-                new KeyValuePair<string, object>("id", queryNewActual.id),
+                new KeyValuePair<string, object>("id", queryNewActual.Id),
             }));
         
-        var queryScalarNotExistingActual = scriptingDataAdapter.QueryScalarValue(connection, null, Tenant, entity,
-            ImmutableDictionary<string, object>.Empty,
-            "colnotexisting", ImmutableDictionary.CreateRange(new[]
+        var queryScalarNotExistingActual = scriptingDataAdapter.QueryScalarValue(context,
+            "Colnotexisting", ImmutableDictionary.CreateRange(new[]
             {
-                new KeyValuePair<string, object>("id", queryNewActual.id),
+                new KeyValuePair<string, object>("id", queryNewActual.Id),
             }));
         
         Assert.Multiple(() =>
@@ -264,12 +267,12 @@ public class PostgresGenericScriptingDataAdapterTest : DatabaseBackedBaseTest
             Assert.That(queryScalarNotExistingActual, Is.Null);
         });
         
-        scriptingDataAdapter.Remove(connection, null, Tenant, entity, UserId, Claims, ImmutableDictionary.CreateRange(new[]
+        scriptingDataAdapter.Remove(context, ImmutableDictionary.CreateRange(new[]
         {
-            new KeyValuePair<string, object>("id", queryNewActual.id),
+            new KeyValuePair<string, object>("id", queryNewActual.Id),
         }));
         
-        var queryRemovedCountActual = scriptingDataAdapter.Count(connection, null, Tenant, entity, ImmutableDictionary<string, object>.Empty,
+        var queryRemovedCountActual = scriptingDataAdapter.Count(context,
             "count", ImmutableDictionary<string, object>.Empty);
         
         Assert.Multiple(() =>
