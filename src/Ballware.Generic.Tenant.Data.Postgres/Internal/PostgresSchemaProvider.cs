@@ -100,19 +100,19 @@ class PostgresSchemaProvider : ITenantSchemaProvider
 
         var droppedTypes = GetDroppedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [], PostgresDatabaseObjectTypes.Type);
         var changedTypes = GetAddedOrChangedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [],
-            PostgresDatabaseObjectTypes.Type);
+            PostgresDatabaseObjectTypes.Type).Where(v => v.Execute);
         
         var droppedFunctions = GetDroppedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [], PostgresDatabaseObjectTypes.Function);
         var changedFunctions = GetAddedOrChangedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [],
-            PostgresDatabaseObjectTypes.Function);
+            PostgresDatabaseObjectTypes.Function).Where(v => v.Execute);
         
         var droppedTables = GetDroppedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [], PostgresDatabaseObjectTypes.Table);
         var changedTables = GetAddedOrChangedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [],
-            PostgresDatabaseObjectTypes.Table);
+            PostgresDatabaseObjectTypes.Table).Where(v => v.Execute);
         
         var droppedViews = GetDroppedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [], PostgresDatabaseObjectTypes.View);
         var changedViews = GetAddedOrChangedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [],
-            PostgresDatabaseObjectTypes.View);
+            PostgresDatabaseObjectTypes.View).Where(v => v.Execute);
         
         foreach (var dropped in droppedViews)
         {
