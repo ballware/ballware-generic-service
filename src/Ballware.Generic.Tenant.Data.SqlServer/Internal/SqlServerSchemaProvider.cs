@@ -99,7 +99,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
 
         var droppedTypes = GetDroppedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [], SqlServerDatabaseObjectTypes.Type);
         var changedTypes = GetAddedOrChangedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [],
-            SqlServerDatabaseObjectTypes.Type).Where(v => v.Execute);
+            SqlServerDatabaseObjectTypes.Type);
         
         foreach (var dropped in droppedTypes)
         {
@@ -113,7 +113,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         
         var droppedFunctions = GetDroppedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [], SqlServerDatabaseObjectTypes.Function);
         var changedFunctions = GetAddedOrChangedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [],
-            SqlServerDatabaseObjectTypes.Function).Where(v => v.Execute);
+            SqlServerDatabaseObjectTypes.Function);
         
         foreach (var dropped in droppedFunctions)
         {
@@ -127,7 +127,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         
         var droppedTables = GetDroppedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [], SqlServerDatabaseObjectTypes.Table);
         var changedTables = GetAddedOrChangedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [],
-            SqlServerDatabaseObjectTypes.Table).Where(v => v.Execute);
+            SqlServerDatabaseObjectTypes.Table);
         
         foreach (var dropped in droppedTables)
         {
@@ -141,7 +141,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         
         var droppedViews = GetDroppedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [], SqlServerDatabaseObjectTypes.View);
         var changedViews = GetAddedOrChangedItems(previousTenantModel.DatabaseObjects ?? [], nextTenantModel.DatabaseObjects ?? [],
-            SqlServerDatabaseObjectTypes.View).Where(v => v.Execute);
+            SqlServerDatabaseObjectTypes.View);
         
         foreach (var dropped in droppedViews)
         {
@@ -202,7 +202,7 @@ class SqlServerSchemaProvider : ITenantSchemaProvider
         
         var changedItems = 
             nextItems
-                .Where(n => !previousItems.ContainsKey(n.Key) || !previousItems[n.Key].Sql.Equals(n.Value.Sql))
+                .Where(n => !previousItems.ContainsKey(n.Key) || !previousItems[n.Key].Sql.Equals(n.Value.Sql) || n.Value.Execute)
                 .Select(n => n.Value);
         
         return changedItems;

@@ -203,7 +203,7 @@ class PostgresSchemaProvider : ITenantSchemaProvider
         
         var changedItems = 
             nextItems
-                .Where(n => !previousItems.ContainsKey(n.Key) || !previousItems[n.Key].Sql.Equals(n.Value.Sql))
+                .Where(n => !previousItems.ContainsKey(n.Key) || !previousItems[n.Key].Sql.Equals(n.Value.Sql) || n.Value.Execute)
                 .Select(n => n.Value);
         
         return changedItems;
