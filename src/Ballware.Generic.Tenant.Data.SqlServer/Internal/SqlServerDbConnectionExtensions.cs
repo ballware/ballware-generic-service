@@ -22,7 +22,7 @@ static class SqlServerDbConnectionExtensions
         {
             if (column.MaxLength != null && column.MaxLength != -1)
             {
-                return column.ColumnType + $"({column.MaxLength})";
+                return column.ColumnType + $"({column.MaxLength})" + (column.Nullable ? " NULL" : " NOT NULL");
             }
             
             return column.ColumnType + $"(4000)" + (column.Nullable ? " NULL" : " NOT NULL");
