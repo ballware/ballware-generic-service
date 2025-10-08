@@ -1,4 +1,4 @@
-using System.Security.Claims;
+using System.Collections.Immutable;
 using Ballware.Generic.Tenant.Data;
 using Ballware.Generic.Metadata;
 using Microsoft.AspNetCore.Builder;
@@ -35,7 +35,17 @@ public static class TenantDataEndpoint
     {
         var tenant = await metadataAdapter.MetadataForTenantByIdAsync(tenantId);
         
-        var tenantConnectionProvider = await storageProvider.GetProviderAsync(tenantId);
+        string tenantConnectionProvider;
+        
+        try
+        {
+            tenantConnectionProvider = await storageProvider.GetProviderAsync(tenantId);   
+        } 
+        catch (ArgumentException) 
+        {
+            return Results.Ok(ImmutableArray<ReportDatasourceDefinition>.Empty);
+        }
+        
         var tenantConnectionString = await storageProvider.GetConnectionStringAsync(tenantId);
 
         var schemaDefinitions = new List<ReportDatasourceDefinition>();

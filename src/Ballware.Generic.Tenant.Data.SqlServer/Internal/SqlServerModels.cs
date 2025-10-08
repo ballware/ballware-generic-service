@@ -37,6 +37,7 @@ class SqlServerColumnType
     public static readonly SqlServerColumnType Int = new SqlServerColumnType("int");
     public static readonly SqlServerColumnType Float = new SqlServerColumnType("float");
     public static readonly SqlServerColumnType Date = new SqlServerColumnType("date");
+    public static readonly SqlServerColumnType Time = new SqlServerColumnType("time");
     public static readonly SqlServerColumnType Datetime = new SqlServerColumnType("datetime");
     public static readonly SqlServerColumnType String = new SqlServerColumnType("nvarchar");
     public static readonly SqlServerColumnType Text = new SqlServerColumnType("text");

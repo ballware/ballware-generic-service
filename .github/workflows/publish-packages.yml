@@ -6,27 +6,33 @@ on:
       - develop
 
 jobs:
-  publish:
+  build_and_pack:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:8.0
+    outputs:
+      semver: ${{ steps.gitversion.outputs.SemVer }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version:
-            8.0   
+          fetch-depth: 0      
+      - name: Fix workspace ownership (container)
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          chown -R $(id -u):$(id -g) "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"          
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v4.1.0
         with:
-          versionSpec: '6.3.x'
-      - name: Install swashbuckle CLI
-        run: dotnet tool install --global Swashbuckle.AspNetCore.Cli --version 7.2.0
-      - name: Install nswag CLI
-        run: dotnet tool install --global Nswag.ConsoleCore
+          versionSpec: '6.3.x'          
+      - name: Ensure tool manifest exists & install local tools
+        run: |
+          dotnet new tool-manifest || true
+          dotnet tool update Swashbuckle.AspNetCore.Cli --version 7.2.0
+          dotnet tool update Nswag.ConsoleCore
       - name: Fetch GitVersion
+        id: gitversion
         uses: gittools/actions/gitversion/execute@v4.1.0
       - name: Restore dependencies
         env:
@@ -46,22 +52,22 @@ jobs:
         env:
           ASPNETCORE_ENVIRONMENT: Swagger
         run: |
-          swagger tofile \
+          dotnet tool run swagger tofile \
             --output ../Ballware.Generic.Service.Client/swagger.json \
             ./bin/Release/net8.0/Ballware.Generic.Service.dll \
             service
-          swagger tofile \
+          dotnet tool run swagger tofile \
             --output ../Ballware.Generic.Schema.Client/swagger.json \
             ./bin/Release/net8.0/Ballware.Generic.Service.dll \
             schema
       - name: Generate service client code
         working-directory: src/Ballware.Generic.Service.Client
         run: |
-          nswag run nswag.json
+          dotnet tool run nswag run nswag.json
       - name: Generate schema client code
         working-directory: src/Ballware.Generic.Schema.Client
         run: |
-          nswag run nswag.json          
+          dotnet tool run nswag run nswag.json          
       - name: Pack NuGet packages
         run: |
           dotnet restore ballware-generic-service.sln
@@ -78,9 +84,17 @@ jobs:
           git config user.email "github-actions@github.com"
           git tag v${{ env.GitVersion_SemVer }}
           git push origin refs/tags/v${{ env.GitVersion_SemVer }} refs/heads/main
+  docker_publish:          
+    needs: build_and_pack
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Set environment variables for Docker tags
         run: |
-          echo "DOCKER_TAG=${{ env.GitVersion_SemVer }}" >> $GITHUB_ENV
+          echo "DOCKER_TAG=${{ needs.build_and_pack.outputs.semver }}" >> $GITHUB_ENV
           if [[ "${GITHUB_REF##*/}" == "main" ]]; then
             echo "DOCKER_TAG2=stable" >> $GITHUB_ENV
           else
