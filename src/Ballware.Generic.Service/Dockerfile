@@ -5,6 +5,7 @@ EXPOSE 5001
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS build
 
+ARG GITHUB_USERNAME
 ARG GITHUB_PAT
 
 WORKDIR /src
@@ -27,7 +28,7 @@ COPY ./Ballware.Generic.Tenant.Data.Postgres ./Ballware.Generic.Tenant.Data.Post
 COPY ./Ballware.Generic.Tenant.Data.SqlServer ./Ballware.Generic.Tenant.Data.SqlServer
 
 WORKDIR "/src/Ballware.Generic.Service"
-RUN dotnet nuget add source "https://nuget.pkg.github.com/ballware/index.json" --name github --username frankball --password "$GITHUB_PAT" --store-password-in-clear-text
+RUN dotnet nuget add source "https://nuget.pkg.github.com/ballware/index.json" --name github --username "$GITHUB_USERNAME" --password "$GITHUB_PAT" --store-password-in-clear-text
 RUN dotnet restore "Ballware.Generic.Service.csproj"
 RUN dotnet build "Ballware.Generic.Service.csproj" -c Release -o /app/build
 

@@ -40,7 +40,7 @@ jobs:
         run: |
           dotnet nuget add source "https://nuget.pkg.github.com/ballware/index.json" \
             --name github \
-            --username frankball \
+            --username "${{ github.actor }}" \
             --password "$GITHUB_TOKEN" \
             --store-password-in-clear-text
           dotnet restore ballware-generic-service.sln
@@ -120,6 +120,7 @@ jobs:
           file: src/Ballware.Generic.Service/Dockerfile
           platforms: linux/amd64,linux/arm64
           build-args: |
+            GITHUB_USERNAME=${{ github.actor }}
             GITHUB_PAT=${{ secrets.GITHUB_TOKEN }}
           push: true
           tags: |
