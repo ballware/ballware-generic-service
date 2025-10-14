@@ -134,6 +134,7 @@ static class PostgresDbConnectionExtensions
         }
     
         await db.ExecuteAsync($"GRANT ALL PRIVILEGES ON SCHEMA {schema} TO \"{username}\""); // NOSONAR - S2077 Validation existing
+        await db.ExecuteAsync($"GRANT CONNECT ON DATABASE {catalog} TO \"{username}\""); // NOSONAR - S2077 Validation existing
         await db.ExecuteAsync($"ALTER USER \"{username}\" SET search_path TO {schema}"); // NOSONAR - S2077 Validation existing
     }
 
@@ -175,6 +176,16 @@ static class PostgresDbConnectionExtensions
             await db.ExecuteAsync($"DROP SCHEMA IF EXISTS {schema}"); // NOSONAR - S2077 Validation existing
         }
 
+        try
+        {
+            await db.ExecuteAsync(
+                $"REVOKE ALL PRIVILEGES ON DATABASE {catalog} FROM \"{username}\""); // NOSONAR - S2077 Validation existing    
+        }
+        catch (PostgresException)
+        {
+            // Could possibly fail if the user is not existing
+        }
+        
         await db.ExecuteAsync($"DROP USER IF EXISTS \"{username}\""); // NOSONAR - S2077 Validation existing
     }
     

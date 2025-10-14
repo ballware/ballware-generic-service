@@ -268,6 +268,7 @@ class PostgresSchemaProvider : ITenantSchemaProvider
 
         tenantCreationConnectionStringBuilder.Username = user;
         tenantCreationConnectionStringBuilder.Password = password;
+        tenantCreationConnectionStringBuilder.IncludeErrorDetail = true;
         
         tenantConnection.Provider = "postgres";
         tenantConnection.Schema = tenantModel.Schema;
