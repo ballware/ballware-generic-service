@@ -99,16 +99,18 @@ public static class ProcessingStateDataEndpoint
         
         if (query.Query.TryGetValue("id", out var ids))
         {
-            var listOfStates = (await Task.WhenAll(ids.Select(Guid.Parse).AsParallel().Select(async (id) =>
+            var listOfStates = new List<IEnumerable<ProcessingStateSelectListEntry>>();
+            
+            foreach (var id in ids.Select(Guid.Parse))
             {
                 var currentState = await tenantGenericProvider.GetScalarValueAsync(tenant, entityMeta, entityMeta.StateColumn, id, 0);
                 var possibleStates = await metadataAdapter.SelectListPossibleSuccessorsForEntityAsync(tenantId, entity, currentState);
-                var allowedStates = possibleStates?.Where(ps => tenantGenericProvider.StateAllowedAsync(tenant, entityMeta, id, ps.State, userId, claims, rights).GetAwaiter().GetResult());
+                var allowedStates = possibleStates.Where(ps => tenantGenericProvider.StateAllowedAsync(tenant, entityMeta, id, ps.State, userId, claims, rights).GetAwaiter().GetResult());
 
-                return allowedStates;
-            })))?.ToList();
-
-            if (listOfStates != null && listOfStates.Count > 1)
+                listOfStates.Add(allowedStates);
+            }
+            
+            if (listOfStates.Count > 1)
             {
                 return Results.Ok(listOfStates.Skip(1).Aggregate(new HashSet<ProcessingStateSelectListEntry>(listOfStates[0]), (h, e) =>
                 {
@@ -117,7 +119,7 @@ public static class ProcessingStateDataEndpoint
                 }));
             }
             
-            if (listOfStates != null && listOfStates.Count == 1)
+            if (listOfStates.Count == 1)
             {
                 return Results.Ok(listOfStates[0]);
             }
