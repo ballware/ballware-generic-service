@@ -8,6 +8,12 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Ballware.Generic.Api.Endpoints;
 
+class ProcessingStateSelectListEntryComparer : IEqualityComparer<ProcessingStateSelectListEntry>
+{
+    public bool Equals(ProcessingStateSelectListEntry? x, ProcessingStateSelectListEntry? y) => x?.Id == y?.Id;
+    public int GetHashCode(ProcessingStateSelectListEntry obj) => obj.Id.GetHashCode();
+}
+
 public static class ProcessingStateDataEndpoint
 {
     public static IEndpointRouteBuilder MapProcessingStateDataApi(this IEndpointRouteBuilder app, 
@@ -105,14 +111,22 @@ public static class ProcessingStateDataEndpoint
             {
                 var currentState = await tenantGenericProvider.GetScalarValueAsync(tenant, entityMeta, entityMeta.StateColumn, id, 0);
                 var possibleStates = await metadataAdapter.SelectListPossibleSuccessorsForEntityAsync(tenantId, entity, currentState);
-                var allowedStates = possibleStates.Where(ps => tenantGenericProvider.StateAllowedAsync(tenant, entityMeta, id, ps.State, userId, claims, rights).GetAwaiter().GetResult());
+                var allowedStates = new List<ProcessingStateSelectListEntry>();
 
+                foreach (var possibleState in possibleStates)
+                {
+                    if (await tenantGenericProvider.StateAllowedAsync(tenant, entityMeta, id, possibleState.State, userId, claims, rights))
+                    {
+                        allowedStates.Add(possibleState);
+                    }
+                }
+                
                 listOfStates.Add(allowedStates);
             }
             
             if (listOfStates.Count > 1)
             {
-                return Results.Ok(listOfStates.Skip(1).Aggregate(new HashSet<ProcessingStateSelectListEntry>(listOfStates[0]), (h, e) =>
+                return Results.Ok(listOfStates.Skip(1).Aggregate(new HashSet<ProcessingStateSelectListEntry>(listOfStates[0], new ProcessingStateSelectListEntryComparer()), (h, e) =>
                 {
                     h.IntersectWith(e);
                     return h;
