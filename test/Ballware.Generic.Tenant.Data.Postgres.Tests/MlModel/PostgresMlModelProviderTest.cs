@@ -231,14 +231,10 @@ public class PostgresMlModelProviderTest : DatabaseBackedBaseTest
         }
         
         var mlModelprovider = new PostgresMlModelProvider(new PostgresStorageProvider(ConnectionRepositoryMock.Object));
-
-        var mlModel = new Metadata.MlModel()
-        {
-            TrainSql = "select uuid as id, name, additional_param as AdditionalParam from testentity where tenant_id=@tenant_id order by name",
-        };
+        var trainSql = "select uuid as id, name, additional_param as AdditionalParam from testentity where tenant_id=@tenant_id order by name";
         
         // Act
-        var actualList = (await mlModelprovider.TrainDataByModelAsync<MlModelTrainEntry>(Tenant, mlModel)).ToList();
+        var actualList = (await mlModelprovider.TrainDataByPlainQueryAsync<MlModelTrainEntry>(Tenant, trainSql)).ToList();
         
         // Assert
         Assert.Multiple(() =>

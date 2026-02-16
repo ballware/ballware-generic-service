@@ -21,6 +21,9 @@ using Ballware.Generic.Tenant.Data.SqlServer.Configuration;
 using Ballware.Meta.Service.Client;
 using Ballware.Ml.Service.Client;
 using Ballware.Storage.Service.Client;
+using Duende.AccessTokenManagement;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -231,30 +234,30 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddClientCredentialsTokenManagement()
             .AddClient("meta", client =>
             {
-                client.TokenEndpoint = metaClientOptions.TokenEndpoint;
+                client.TokenEndpoint = new Uri(metaClientOptions.TokenEndpoint);
 
-                client.ClientId = metaClientOptions.ClientId;
-                client.ClientSecret = metaClientOptions.ClientSecret;
+                client.ClientId = ClientId.Parse(metaClientOptions.ClientId);
+                client.ClientSecret = ClientSecret.Parse(metaClientOptions.ClientSecret);
 
-                client.Scope = metaClientOptions.Scopes;
+                client.Scope = Scope.Parse(metaClientOptions.Scopes);
             })
             .AddClient("storage", client =>
             {
-                client.TokenEndpoint = storageClientOptions.TokenEndpoint;
+                client.TokenEndpoint = new Uri(storageClientOptions.TokenEndpoint);
 
-                client.ClientId = storageClientOptions.ClientId;
-                client.ClientSecret = storageClientOptions.ClientSecret;
+                client.ClientId = ClientId.Parse(storageClientOptions.ClientId);
+                client.ClientSecret = ClientSecret.Parse(storageClientOptions.ClientSecret);
 
-                client.Scope = storageClientOptions.Scopes;
+                client.Scope = Scope.Parse(storageClientOptions.Scopes);
             })
             .AddClient("ml", client =>
             {
-                client.TokenEndpoint = mlClientOptions.TokenEndpoint;
+                client.TokenEndpoint = new Uri(mlClientOptions.TokenEndpoint);
 
-                client.ClientId = mlClientOptions.ClientId;
-                client.ClientSecret = mlClientOptions.ClientSecret;
+                client.ClientId = ClientId.Parse(mlClientOptions.ClientId);
+                client.ClientSecret = ClientSecret.Parse(mlClientOptions.ClientSecret);
 
-                client.Scope = mlClientOptions.Scopes;
+                client.Scope = Scope.Parse(mlClientOptions.Scopes);
             });
         
         Services.AddHttpClient<MetaServiceClient>(client =>
@@ -267,7 +270,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             })
 #endif                  
-            .AddClientCredentialsTokenHandler("meta");
+            .AddClientCredentialsTokenHandler(ClientCredentialsClientName.Parse("meta"));
 
         Services.AddHttpClient<StorageServiceClient>(client =>
             {
@@ -279,7 +282,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             })
 #endif            
-            .AddClientCredentialsTokenHandler("storage");
+            .AddClientCredentialsTokenHandler(ClientCredentialsClientName.Parse("storage"));
         
         Services.AddHttpClient<MlServiceClient>(client =>
             {
@@ -291,14 +294,16 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             })
 #endif                        
-            .AddClientCredentialsTokenHandler("ml");
+            .AddClientCredentialsTokenHandler(ClientCredentialsClientName.Parse("ml"));
         
-        Services.AddAutoMapper(config =>
-        {
-            config.AddBallwareTenantStorageMappings();
-            config.AddProfile<MetaServiceGenericMetadataProfile>();
-        });
-
+        var mapsterConfig = new TypeAdapterConfig()
+            .AddBallwareTenantStorageMappings();
+        
+        new MetaServiceGenericMetadataProfile().Register(mapsterConfig);
+        
+        Services.AddSingleton(mapsterConfig);
+        Services.AddScoped<IMapper, ServiceMapper>();
+        
         Services.AddScoped<IMetadataAdapter, MetaServiceMetadataAdapter>();
         Services.AddScoped<IMlAdapter, MlServiceMlAdapter>();
         Services.AddScoped<IGenericFileStorageAdapter, StorageServiceFileStorageAdapter>();

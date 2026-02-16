@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IncludeSource>true</IncludeSource>
@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Ballware.Shared.Data" Version="0.0.5" />
+      <PackageReference Include="Ballware.Shared.Data" Version="1.1.0" />
     </ItemGroup>
 
 </Project>

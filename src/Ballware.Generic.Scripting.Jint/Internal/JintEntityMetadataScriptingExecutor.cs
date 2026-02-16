@@ -1,4 +1,3 @@
-using System.Data;
 using System.Diagnostics;
 using System.Text.Json;
 using Ballware.Generic.Metadata;
@@ -93,23 +92,6 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                             MetadataAdapter
                                 .SingleProcessingStateForTenantAndEntityByValue(context.Tenant.Id, context.Entity.Identifier, state)
                                 ?.Name))
-                    .SetValue("triggerNotification", new Action<string, string>(
-                        (notificationIdentifier, notificationParams) =>
-                        {
-                            var notification =
-                                MetadataAdapter.MetadataForNotificationByTenantAndIdentifier(context.Tenant.Id,
-                                    notificationIdentifier);
-
-                            if (notification == null)
-                            {
-                                throw new ArgumentException($"No notification with identifier {notificationIdentifier}");
-                            }
-
-                            MetadataAdapter.CreateNotificationTriggerForTenantBehalfOfUser(context.Tenant.Id, context.UserId, new NotificationTriggerCreatePayload()
-                            {
-                                NotificationId = notification.Id
-                            });
-                        }))
                     .Evaluate((context.Tenant.ServerScriptDefinitions ?? "") + "\n" +
                               "item=JSON.parse(item);" +
                               context.Entity.BeforeSaveScript);
@@ -150,23 +132,6 @@ public class JintEntityMetadataScriptingExecutor : IGenericEntityScriptingExecut
                             MetadataAdapter
                                 .SingleProcessingStateForTenantAndEntityByValue(context.Tenant.Id, context.Entity.Identifier, state)
                                 ?.Name))
-                    .SetValue("triggerNotification", new Action<string, string>(
-                        (notificationIdentifier, notificationParams) =>
-                        {
-                            var notification =
-                                MetadataAdapter.MetadataForNotificationByTenantAndIdentifier(context.Tenant.Id,
-                                    notificationIdentifier);
-
-                            if (notification == null)
-                            {
-                                throw new ArgumentException($"No notification with identifier {notificationIdentifier}");
-                            }
-
-                            MetadataAdapter.CreateNotificationTriggerForTenantBehalfOfUser(context.Tenant.Id, context.UserId, new NotificationTriggerCreatePayload()
-                            {
-                                NotificationId = notification.Id
-                            });
-                        }))
                     .Evaluate((context.Tenant.ServerScriptDefinitions ?? "") + "\n" + "item=JSON.parse(item);" + "\n" +
                               context.Entity.SaveScript);
             }

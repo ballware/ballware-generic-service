@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IncludeSource>true</IncludeSource>
@@ -10,14 +10,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="AutoMapper" Version="13.0.1" />
-      <PackageReference Include="Ballware.Shared.Data.Ef" Version="0.0.5" />
+      <PackageReference Include="Mapster" Version="7.4.0" />
+      <PackageReference Include="Ballware.Shared.Data.Ef" Version="1.1.0" />
       <PackageReference Include="Dapper" Version="2.1.66" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.2">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.2" />
     </ItemGroup>
 
     <ItemGroup>

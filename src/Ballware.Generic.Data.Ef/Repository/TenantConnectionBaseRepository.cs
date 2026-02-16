@@ -1,6 +1,6 @@
-using AutoMapper;
 using Ballware.Generic.Data.Repository;
 using Ballware.Shared.Data.Ef.Repository;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ballware.Generic.Data.Ef.Repository;

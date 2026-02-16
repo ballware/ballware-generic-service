@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -17,8 +17,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="AutoMapper" Version="13.0.1" />
-      <PackageReference Include="Ballware.Shared.Authorization" Version="0.0.4" />
+      <PackageReference Include="Mapster" Version="7.4.0" />
+      <PackageReference Include="Ballware.Shared.Authorization" Version="1.1.0" />
       <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="Quartz" Version="3.8.1" />
