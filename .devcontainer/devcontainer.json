@@ -1,0 +1,74 @@
+{
+  "name": "generic-dev",
+
+  "image": "mcr.microsoft.com/dotnet/sdk:8.0",
+
+  "workspaceFolder": "/workspace",
+
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+
+  "runArgs": [
+    "--network=ballware-docker-compose_default",
+    "--network-alias=generic",
+    "--name=generic-dev",
+    "-p",
+    "5002:5002"
+  ],
+
+  "envFile": ".devcontainer/devcontainer.local.env",
+
+  "containerEnv": {
+    Kestrel__Endpoints__Http__Url: "http://+:5002",
+    Swagger__EnableClient: true,
+    Swagger__ClientId: "ballwareweb",
+    Cors__AllowedOrigins: "*",
+    Cors__AllowedMethods: "*",
+    Cors__AllowedHeaders: "*",
+    "Quartz__quartz.scheduler.instanceName": "ballware-local-generic",
+    "Quartz__quartz.jobStore.dataSource": "ballware",
+    "Quartz__quartz.dataSource.ballware.provider": "Npgsql",
+    "Quartz__quartz.dataSource.ballware.connectionStringName": "QuartzConnection",
+    Authorization__Authority: "${KEYCLOAK_REALM_BASE:-http://keycloak:8080/realms/ballware}",
+    Authorization__Audience: "metaApi",
+    Authorization__RequiredScopes: "openid",
+    Authorization__RequireHttpsMetadata: "false",
+    StorageClient__ServiceUrl: "${STORAGE_BASE:-http://storage:5005}",
+    StorageClient__TokenEndpoint: "${KEYCLOAK_REALM_BASE:-http://keycloak:8080/realms/ballware}/protocol/openid-connect/token",
+    StorageClient__ClientId: "storage",
+    StorageClient__ClientSecret: "${STORAGE_CLIENT_SECRET:-ChangeMe2025!}",
+    StorageClient__Scopes: "openid serviceApi offline_access",
+    MetaClient__ServiceUrl: "${META_BASE:-http://meta:5001}",
+    MetaClient__TokenEndpoint: "${KEYCLOAK_REALM_BASE:-http://keycloak:8080/realms/ballware}/protocol/openid-connect/token",
+    MetaClient__ClientId: "meta",
+    MetaClient__ClientSecret: "${META_CLIENT_SECRET:-ChangeMe2025!}",
+    MetaClient__Scopes: "openid serviceApi offline_access",
+    MlClient__ServiceUrl: "${ML_BASE:-http://ml:5003}",
+    MLClient__TokenEndpoint: "${KEYCLOAK_REALM_BASE:-http://keycloak:8080/realms/ballware}/protocol/openid-connect/token",
+    MlClient__ClientId: "ml",
+    MlClient__ClientSecret: "${ML_CLIENT_SECRET:-ChangeMe2025!}",
+    MlClient__Scopes: "openid serviceApi offline_access",
+    Storage__AutoMigrations: true,
+    TenantStorage__Provider: "postgres",
+    TenantStorage__ConnectionString: "TenantStorageConnection",
+    PostgresTenantStorage__Enabled: true,
+    PostgresTenantStorage__ConnectionString: "TenantStorageMasterConnection",
+    SqlServerTenantStorage__Enabled: true,
+    SqlServerTenantStorage__ConnectionString: "TenantStorageSqlServerConnection",
+    ConnectionStrings__TenantStorageConnection: "Host=postgres;Port=5432;Database=tenant;Username=tenant;Password=${DB_TENANT_PASSWORD:-ChangeMe2025!}",
+    ConnectionStrings__TenantStorageMasterConnection: "Host=postgres;Port=5432;Database=tenant;Username=admin;Password=${DB_ADMIN_PASSWORD:-ChangeMe2025!}",
+    ConnectionStrings__TenantStorageSqlServerConnection: "Server=mssql;Database=tenant;User Id=sa;Password=${DB_ADMIN_PASSWORD:-ChangeMe2025!};Encrypt=True;TrustServerCertificate=True",
+    ConnectionStrings__QuartzConnection: "Host=postgres;Port=5432;Database=quartz;Username=quartz;Password=${DB_QUARTZ_PASSWORD:-ChangeMe2025!}"
+  },
+
+  "postCreateCommand": "dotnet restore",
+
+  "customizations": {
+    "jetbrains": {
+      "backend": "Rider",
+      "plugins": [
+        "Docker",
+        "com.jetbrains.rider.aspnet"
+      ]
+    }
+  }
+}
