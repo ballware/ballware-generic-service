@@ -22,9 +22,16 @@ public class MetaServiceMetadataAdapter : IMetadataAdapter
         return Mapper.Map<Metadata.Tenant>(await MetaClient.TenantServiceMetadataAsync(tenantId));
     }
 
+    public async Task<IEnumerable<EntitySelectListEntry>> SelectListForEntityAsync(Guid tenantId)
+    {
+        return Mapper.Map<IEnumerable<Metadata.EntitySelectListEntry>>(await MetaClient.EntitySelectListForTenantAsync(tenantId));
+    }
+
     public async Task<Entity?> MetadataForEntityByTenantAndIdentifierAsync(Guid tenantId, string identifier)
     {
-        return Mapper.Map<Entity?>(await MetaClient.EntityServiceMetadataForTenantByIdentifierAsync(tenantId, identifier));
+        var rawEntity = await MetaClient.EntityServiceMetadataForTenantByIdentifierAsync(tenantId, identifier);
+        
+        return Mapper.Map<Entity?>(rawEntity);
     }
 
     public async Task<Lookup?> MetadataForLookupByTenantAndIdAsync(Guid tenantId, Guid id)

@@ -8,6 +8,7 @@ using Ballware.Generic.Data.Ef.Configuration;
 using Ballware.Generic.Data.Ef.Postgres;
 using Ballware.Generic.Data.Ef.SqlServer;
 using Ballware.Generic.Jobs;
+using Ballware.Generic.Mcp.Endpoints;
 using Ballware.Generic.Metadata;
 using Ballware.Generic.Scripting.Jint;
 using Ballware.Generic.Service.Adapter;
@@ -20,6 +21,9 @@ using Ballware.Generic.Tenant.Data.SqlServer;
 using Ballware.Generic.Tenant.Data.SqlServer.Configuration;
 using Ballware.Meta.Service.Client;
 using Ballware.Ml.Service.Client;
+using Ballware.Shared.Mcp;
+using Ballware.Shared.Mcp.Endpoints;
+using Ballware.Shared.Mcp.Endpoints.Configuration;
 using Ballware.Storage.Service.Client;
 using Duende.AccessTokenManagement;
 using Mapster;
@@ -61,6 +65,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         TenantStorageOptions? tenantStorageOptions = Configuration.GetSection("TenantStorage").Get<TenantStorageOptions>();
         PostgresTenantStorageOptions? postgresTenantStorageOptions = Configuration.GetSection("PostgresTenantStorage").Get<PostgresTenantStorageOptions>();
         SqlServerTenantStorageOptions? sqlServerTenantStorageOptions = Configuration.GetSection("SqlServerTenantStorage").Get<SqlServerTenantStorageOptions>();
+        McpEndpointOptions? mcpOptions = Configuration.GetSection("Mcp").Get<McpEndpointOptions>();
         CacheOptions? cacheOptions = Configuration.GetSection("Cache").Get<CacheOptions>();
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
         ServiceClientOptions? metaClientOptions = Configuration.GetSection("MetaClient").Get<ServiceClientOptions>();
@@ -78,6 +83,10 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddOptionsWithValidateOnStart<TenantStorageOptions>()
             .Bind(Configuration.GetSection("TenantStorage"))
             .ValidateDataAnnotations();        
+        
+        Services.AddOptionsWithValidateOnStart<McpEndpointOptions>()
+            .Bind(Configuration.GetSection("Mcp"))
+            .ValidateDataAnnotations();
         
         Services.AddOptionsWithValidateOnStart<Ballware.Generic.Caching.Configuration.CacheOptions>()
             .Bind(Configuration.GetSection("Cache"))
@@ -113,6 +122,15 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         if (!validProviders.Contains(tenantStorageOptions.Provider))
         {
             throw new ConfigurationException("Invalid tenant storage provider specified. Valid providers are: " + string.Join(", ", validProviders));
+        }
+        
+        if (mcpOptions == null)
+        {
+            mcpOptions = new McpEndpointOptions()
+            {
+                RequiredMcpScope = authorizationOptions.RequiredMetaScope,
+                ResourceUri = string.Empty
+            };
         }
         
         if (cacheOptions == null)
@@ -377,6 +395,13 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             }
         });
 
+        Services.AddBallwareMcpTools((serviceProvider, registry) =>
+        {
+            registry.RegisterBallwareGenericTools();
+        });
+        
+        Services.AddBallwareMcpEndpoint(mcpOptions);
+        
         Services.AddEndpointsApiExplorer();
         
         if (swaggerOptions != null)
@@ -471,10 +496,17 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         app.MapGenericDataApi("/generic");
         
         app.MapTenantServiceSchemaApi("/api/tenant");
-
+        
+        var mcpEndpointOptions = app.Services.GetService<IOptions<McpEndpointOptions>>()?.Value;
+        
         var authorizationOptions = app.Services.GetService<IOptions<AuthorizationOptions>>()?.Value;
         var swaggerOptions = app.Services.GetService<IOptions<SwaggerOptions>>()?.Value;
 
+        if (mcpEndpointOptions != null && mcpEndpointOptions.Enabled)
+        {
+            app.MapBallwareUserMcpEndpoint("/generic/mcp", mcpEndpointOptions);
+        }
+        
         if (swaggerOptions != null && authorizationOptions != null)
         {
             app.MapSwagger();

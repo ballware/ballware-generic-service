@@ -3,10 +3,35 @@ using Ballware.Shared.Authorization;
 
 namespace Ballware.Generic.Metadata;
 
+public class QueryParameter
+{
+    public required string Name { get; set; }
+
+    public required string Type { get; set; }
+
+    public string? Description { get; set; }
+}
+
+public class QueryResultParameter
+{
+    public required string Name { get; set; }
+
+    public required string Type { get; set; }
+
+    public string? Description { get; set; }
+}
+
 public class QueryEntry
 {
     public required string Identifier { get; set; }
     public required string Query { get; set; }
+    
+    public bool AiEnabled { get; set; }
+    public string? Description { get; set; }
+
+    public ICollection<QueryParameter> Parameters { get; set; } = [];
+
+    public ICollection<QueryResultParameter> ResultColumns { get; set; } = [];
 }
 
 public enum CustomFunctionTypes

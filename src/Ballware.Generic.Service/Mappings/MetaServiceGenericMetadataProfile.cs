@@ -7,7 +7,8 @@ public class MetaServiceGenericMetadataProfile : IRegister
     public void Register(TypeAdapterConfig config)
     {   
         config.NewConfig<Ballware.Meta.Service.Client.ServiceTenant, Ballware.Generic.Metadata.Tenant>();
-        config.NewConfig<Ballware.Meta.Service.Client.ServiceEntityQueryEntry, Ballware.Generic.Metadata.QueryEntry>();
+        config.NewConfig<Ballware.Meta.Service.Client.ServiceEntityQueryEntry, Ballware.Generic.Metadata.QueryEntry>()
+            .Map(dst => dst.AiEnabled, source => source.Ai_enabled);
         config.NewConfig<Ballware.Meta.Service.Client.ServiceEntityCustomFunction, Ballware.Generic.Metadata.CustomFunctionEntry>();
         config.NewConfig<Ballware.Meta.Service.Client.ServiceEntityCustomFunctionOptions, Ballware.Generic.Metadata.CustomFunctionOptions>();
         
@@ -22,6 +23,10 @@ public class MetaServiceGenericMetadataProfile : IRegister
             .Map(dst => dst.Identifier, source => source.Entity)
             .Map(dst => dst.ExtendedRightsCheckScript, 
                 source => source.CustomScripts.ExtendedRightsCheck);
+        config
+            .NewConfig<Ballware.Meta.Service.Client.EntitySelectListEntry,
+                Ballware.Generic.Metadata.EntitySelectListEntry>()
+            .Map(dst => dst.Identifier, source => source.Entity); 
         config.NewConfig<Ballware.Meta.Service.Client.Lookup, Ballware.Generic.Metadata.Lookup>();
         config.NewConfig<Ballware.Meta.Service.Client.Statistic, Ballware.Generic.Metadata.Statistic>();
         config.NewConfig<Ballware.Meta.Service.Client.ProcessingStateSelectListEntry, Ballware.Generic.Metadata.ProcessingStateSelectListEntry>();

@@ -3,6 +3,9 @@ namespace Ballware.Generic.Metadata;
 public interface IMetadataAdapter
 {
     Task<Tenant?> MetadataForTenantByIdAsync(Guid tenantId);
+    
+    Task<IEnumerable<EntitySelectListEntry>> SelectListForEntityAsync(Guid tenantId);
+    
     Task<Entity?> MetadataForEntityByTenantAndIdentifierAsync(Guid tenantId, string identifier);
     
     Task<Lookup?> MetadataForLookupByTenantAndIdAsync(Guid tenantId, Guid id);

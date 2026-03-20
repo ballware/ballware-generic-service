@@ -18,6 +18,7 @@ COPY ./Ballware.Generic.Data.Ef ./Ballware.Generic.Data.Ef
 COPY ./Ballware.Generic.Data.Ef.Postgres ./Ballware.Generic.Data.Ef.Postgres
 COPY ./Ballware.Generic.Data.Ef.SqlServer ./Ballware.Generic.Data.Ef.SqlServer
 COPY ./Ballware.Generic.Jobs ./Ballware.Generic.Jobs
+COPY ./Ballware.Generic.Mcp ./Ballware.Generic.Mcp
 COPY ./Ballware.Generic.Metadata ./Ballware.Generic.Metadata
 COPY ./Ballware.Generic.Scripting ./Ballware.Generic.Scripting
 COPY ./Ballware.Generic.Scripting.Jint ./Ballware.Generic.Scripting.Jint
