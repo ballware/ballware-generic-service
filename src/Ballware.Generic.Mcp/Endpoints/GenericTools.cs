@@ -168,6 +168,11 @@ public class EntityTools
                         
                         var result = await genericProvider.ByIdAsync<dynamic>(tenant, entityData, capturedQueryIdentifier, userId, claims, id);
 
+                        if (result == null)
+                        {
+                            throw new ArgumentException("Item not found.");
+                        }
+                        
                         return new ToolResult
                         {
                             StructuredContent = JsonSerializer.SerializeToElement(new { results = result }, JsonSchemaDefaults.SerializerOptions),
