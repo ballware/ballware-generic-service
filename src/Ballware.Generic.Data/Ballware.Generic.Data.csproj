@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Ballware.Shared.Data" Version="1.2.0-alpha.12" />
+      <PackageReference Include="Ballware.Shared.Data" Version="1.2.0-alpha.14" />
     </ItemGroup>
 
 </Project>

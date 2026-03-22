@@ -7,8 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Ballware.Shared.Mcp" Version="1.2.0-alpha.12" />
-        <PackageReference Include="Ballware.Shared.Mcp.Authorization" Version="1.2.0-alpha.12" />
+        <PackageReference Include="Ballware.Shared.Mcp" Version="1.2.0-alpha.14" />
+        <PackageReference Include="Ballware.Shared.Mcp.Authorization" Version="1.2.0-alpha.14" />
         <PackageReference Include="Mapster" Version="7.4.0" />
         <PackageReference Include="NJsonSchema" Version="11.5.2" />
     </ItemGroup>

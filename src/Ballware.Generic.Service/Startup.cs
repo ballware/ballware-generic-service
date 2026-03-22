@@ -37,6 +37,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
@@ -504,6 +505,9 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
         if (mcpEndpointOptions != null && mcpEndpointOptions.Enabled)
         {
+            var logger = app.Services.GetService<ILogger<Startup>>();
+            
+            logger?.LogDebug("Enabling MCP endpoint at /generic/mcp");
             app.MapBallwareUserMcpEndpoint("/generic/mcp", mcpEndpointOptions);
         }
         
