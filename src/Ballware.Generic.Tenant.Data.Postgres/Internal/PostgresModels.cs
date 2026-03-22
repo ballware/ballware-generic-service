@@ -37,6 +37,7 @@ class PostgresColumnType
     public static readonly PostgresColumnType Int = new PostgresColumnType("integer");
     public static readonly PostgresColumnType Float = new PostgresColumnType("real");
     public static readonly PostgresColumnType Date = new PostgresColumnType("date");
+    public static readonly PostgresColumnType Time = new PostgresColumnType("time");
     public static readonly PostgresColumnType Datetime = new PostgresColumnType("timestamp");
     public static readonly PostgresColumnType String = new PostgresColumnType("varchar");
     public static readonly PostgresColumnType Text = new PostgresColumnType("text");
