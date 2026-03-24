@@ -1,6 +1,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using Dapper;
+using NanoidDotNet;
 using Npgsql;
 
 namespace Ballware.Generic.Tenant.Data.Postgres.Internal;
@@ -39,7 +40,15 @@ static class PostgresDbConnectionExtensions
             return index.IndexName;
         }
 
-        return $"{(index.Unique ? "uidx" : "idx")}_{tableName}_{string.Join("_", index.ColumnNames).ToLowerInvariant()}";
+        var preferredIndexName =
+            $"{(index.Unique ? "uidx" : "idx")}_{tableName}_{string.Join("_", index.ColumnNames).ToLowerInvariant()}";
+
+        if (preferredIndexName.Length > 63)
+        {
+            return $"{(index.Unique ? "uidx" : "idx")}_{tableName}_{Nanoid.Generate()}";
+        }
+        
+        return preferredIndexName;
     }
 
     private static string CreateMandatoryColumns(bool noIdentity)
