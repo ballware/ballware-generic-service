@@ -49,7 +49,7 @@ static class PostgresDbConnectionExtensions
             
             var remainingLength = 63 - indexPrefix.Length;
             
-            return $"{(index.Unique ? "uidx" : "idx")}_{tableName}_{Nanoid.Generate(size: Math.Min(remainingLength, 20))}";
+            return $"{(index.Unique ? "uidx" : "idx")}_{tableName}_{Nanoid.Generate(alphabet: Nanoid.Alphabets.LowercaseLettersAndDigits, size: Math.Min(remainingLength, 20))}";
         }
         
         return preferredIndexName;
