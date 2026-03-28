@@ -110,11 +110,16 @@ static class PostgresDbConnectionExtensions
         PostgresValidator.ValidateTableAndColumnIdentifier(existing.ColumnName, nameof(existing.ColumnName));
         PostgresValidator.ValidateTableAndColumnIdentifier(changed.ColumnName, nameof(changed.ColumnName));
         
-        if (existing.ColumnType != changed.ColumnType || existing.Nullable != changed.Nullable ||
-            existing.MaxLength != changed.MaxLength)
+        var existingColumnTypeDefinition = CreateColumnTypeDefinition(existing);
+        var changedColumnTypeDefinition = CreateColumnTypeDefinition(changed);
+        
+        if (existingColumnTypeDefinition != changedColumnTypeDefinition) 
         {
             db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{changed.ColumnName}\" TYPE {CreateColumnTypeDefinition(changed)}");  // NOSONAR - S2077 Validation existing
-            
+        }
+
+        if (existing.Nullable != changed.Nullable)
+        {
             if (!changed.Nullable)
             {
                 db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{changed.ColumnName}\" SET NOT NULL");  // NOSONAR - S2077 Validation existing

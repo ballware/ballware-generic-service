@@ -6,18 +6,33 @@ using Dapper;
 
 namespace Ballware.Generic.Tenant.Data.Postgres.Internal;
 
-class PostgresColumnType
+class PostgresColumnType : IEquatable<PostgresColumnType>
 {
     private static readonly Dictionary<string, PostgresColumnType> Types = new();
     
     private readonly string _literalValue;
 
     [JsonConstructor]
-    private PostgresColumnType(string literalValue)
+    private PostgresColumnType(string literalValue, IEnumerable<string>? aliases = null)
     {
         _literalValue = literalValue;
-        
+
         Types.Add(literalValue, this);
+
+        foreach (var alias in aliases ?? [])
+        {
+            Types.Add(alias, this);
+        }
+    }
+    
+    public bool Equals(PostgresColumnType? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+        
+        return _literalValue.Equals(other._literalValue, StringComparison.OrdinalIgnoreCase);
     }
 
     public override string ToString()
@@ -38,8 +53,8 @@ class PostgresColumnType
     public static readonly PostgresColumnType Float = new PostgresColumnType("real");
     public static readonly PostgresColumnType Date = new PostgresColumnType("date");
     public static readonly PostgresColumnType Time = new PostgresColumnType("time");
-    public static readonly PostgresColumnType Datetime = new PostgresColumnType("timestamp");
-    public static readonly PostgresColumnType String = new PostgresColumnType("varchar");
+    public static readonly PostgresColumnType Datetime = new PostgresColumnType("timestamp", ["timestamp without time zone"]);
+    public static readonly PostgresColumnType String = new PostgresColumnType("varchar", ["character varying"]);
     public static readonly PostgresColumnType Text = new PostgresColumnType("text");
 
     public static PostgresColumnType Custom(string literalValue)
