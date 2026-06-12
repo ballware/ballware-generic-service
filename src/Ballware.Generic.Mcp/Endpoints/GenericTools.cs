@@ -19,7 +19,7 @@ public static class GenericToolRegistryExtensions
     }
 }
 
-public class EntityTools
+public static class EntityTools
 {
     public static async Task<IEnumerable<Tool>> GetEntityFetchToolsAsync(IServiceProvider serviceProvider, ClaimsPrincipal? user)
     {
@@ -53,13 +53,13 @@ public class EntityTools
 
                     tools.Add(new Tool()
                     {
-                        Name = $"generic.{entity.Application}.{entity.Identifier}.query.{query.Identifier}",
-                        Description = query.Description,
+                        Name = $"generic.{tenantId}.{entity.Identifier}.query.{query.Identifier}",
+                        Description = query.Description ?? "",
                         Params = query.Parameters.Select(p => new ToolParam()
                         {
                             Name = p.Name,
                             Type = ConvertToToolParamType(p.Type),
-                            Description = p.Description,
+                            Description = p.Description ?? "",
                             Required = true,
                         }),
                         OutputSchema = ConvertToOutputSchema(query.Identifier, query.Description, query.ResultColumns),
@@ -119,17 +119,22 @@ public class EntityTools
                     tools.Add(new Tool()
                     {
                         Name = $"generic.{entity.Application}.{entity.Identifier}.byid.{query.Identifier}",
-                        Description = query.Description,
+                        Description = query.Description ?? "",
                         Params = query.Parameters.Select(p => new ToolParam()
                         {
                             Name = p.Name,
                             Type = ConvertToToolParamType(p.Type),
-                            Description = p.Description,
+                            Description = p.Description ?? "",
                             Required = true,
                         }),
                         OutputSchema = ConvertToOutputSchema(query.Identifier, query.Description, query.ResultColumns),
                         ExecuteAsync = async (sp, u, queryParams) =>
                         {
+                            if (u == null)
+                            {
+                                throw new UnauthorizedAccessException("Authenticated user needed to access this entity.");
+                            }
+                            
                             var missingParams = capturedRequiredParams
                                 .Where(p => !queryParams.ContainsKey(p))
                                 .ToList();
