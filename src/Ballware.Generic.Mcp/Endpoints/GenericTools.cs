@@ -118,7 +118,7 @@ public static class EntityTools
 
                     tools.Add(new Tool()
                     {
-                        Name = $"generic_{entity.Application}_{entity.Identifier}_byid_{query.Identifier}",
+                        Name = $"generic_{tenantId}_{entity.Identifier}_byid_{query.Identifier}",
                         Description = query.Description ?? "",
                         Params = query.Parameters.Select(p => new ToolParam()
                         {
