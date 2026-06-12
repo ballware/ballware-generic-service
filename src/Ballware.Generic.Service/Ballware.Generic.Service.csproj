@@ -11,8 +11,8 @@
     <ItemGroup>
         <PackageReference Include="ballware.meta.service.client" Version="1.4.0-alpha.28" />
         <PackageReference Include="Ballware.Ml.Service.Client" Version="1.2.1" />
-        <PackageReference Include="Ballware.Shared.Authorization.Jint" Version="1.2.0-alpha.14" />
-        <PackageReference Include="Ballware.Shared.Mcp.Endpoints" Version="1.2.0-alpha.14" />
+        <PackageReference Include="Ballware.Shared.Authorization.Jint" Version="1.2.0" />
+        <PackageReference Include="Ballware.Shared.Mcp.Endpoints" Version="1.2.0" />
         <PackageReference Include="ballware.storage.service.client" Version="9.3.1" />
         <PackageReference Include="Duende.AccessTokenManagement" Version="4.1.1" />
         <PackageReference Include="Duende.AccessTokenManagement.OpenIdConnect" Version="4.1.1" />

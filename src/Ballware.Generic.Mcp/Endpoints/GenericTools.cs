@@ -33,153 +33,156 @@ public class EntityTools
 
         var tools = new List<Tool>();
         
-        var tenantId = principalUtils.GetUserTenandId(user);
+        var tenantIds = principalUtils.GetUserTenantIds(user);
 
-        var availableEntities = await metadataProvider.SelectListForEntityAsync(tenantId);
-
-        foreach (var entity in availableEntities)
+        foreach (var tenantId in tenantIds)
         {
-            var entityMetadata = await metadataProvider.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity.Identifier);
-            
-            var aiEnabledQueries = entityMetadata?.ListQuery.Where(q => q.AiEnabled).ToList() ?? []; 
+            var availableEntities = await metadataProvider.SelectListForEntityAsync(tenantId);
 
-            foreach (var query in aiEnabledQueries)
+            foreach (var entity in availableEntities)
             {
-                var capturedEntityIdentifier = entity.Identifier;
-                var capturedQueryIdentifier = query.Identifier;
-                var capturedRequiredParams = query.Parameters.Select(p => p.Name).ToList();
+                var entityMetadata = await metadataProvider.MetadataForEntityByTenantAndIdentifierAsync(tenantId, entity.Identifier);
+                
+                var aiEnabledQueries = entityMetadata?.ListQuery.Where(q => q.AiEnabled).ToList() ?? []; 
 
-                tools.Add(new Tool()
+                foreach (var query in aiEnabledQueries)
                 {
-                    Name = $"generic.{entity.Application}.{entity.Identifier}.query.{query.Identifier}",
-                    Description = query.Description,
-                    Params = query.Parameters.Select(p => new ToolParam()
+                    var capturedEntityIdentifier = entity.Identifier;
+                    var capturedQueryIdentifier = query.Identifier;
+                    var capturedRequiredParams = query.Parameters.Select(p => p.Name).ToList();
+
+                    tools.Add(new Tool()
                     {
-                        Name = p.Name,
-                        Type = ConvertToToolParamType(p.Type),
-                        Description = p.Description,
-                        Required = true,
-                    }),
-                    OutputSchema = ConvertToOutputSchema(query.Identifier, query.Description, query.ResultColumns),
-                    ExecuteAsync = async (sp, u, queryParams) =>
-                    {
-                        var missingParams = capturedRequiredParams
-                            .Where(p => !queryParams.ContainsKey(p))
-                            .ToList();
-
-                        if (missingParams.Count > 0)
+                        Name = $"generic.{entity.Application}.{entity.Identifier}.query.{query.Identifier}",
+                        Description = query.Description,
+                        Params = query.Parameters.Select(p => new ToolParam()
                         {
-                            throw new ArgumentException(
-                                $"Missing required query parameters: {string.Join(", ", missingParams)}");
-                        }
-
-                        var utils = sp.GetRequiredService<IPrincipalUtils>();
-                        var metadata = sp.GetRequiredService<IMetadataAdapter>();
-                        var genericProvider = sp.GetRequiredService<ITenantGenericProvider>();
-                        var tenantRightsChecker = sp.GetRequiredService<ITenantRightsChecker>();
-                        var entityRightsChecker = sp.GetRequiredService<IEntityRightsChecker>();
-
-                        var tid = utils.GetUserTenandId(u);
-                        var userId = utils.GetUserId(u);
-                        var claims = utils.GetUserClaims(u);
-
-                        var tenant = await metadata.MetadataForTenantByIdAsync(tid)
-                            ?? throw new InvalidOperationException("Tenant not found.");
-                        var entityData = await metadata.MetadataForEntityByTenantAndIdentifierAsync(tid, capturedEntityIdentifier)
-                            ?? throw new InvalidOperationException($"Entity '{capturedEntityIdentifier}' not found.");
-
-                        var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, entityData.Application, entityData.Identifier, claims, "view");
-                        var authorized = await entityRightsChecker.HasRightAsync(tenantId, entityData, claims, "view", new Dictionary<string, object>(), tenantAuthorized);
-
-                        if (!authorized)
+                            Name = p.Name,
+                            Type = ConvertToToolParamType(p.Type),
+                            Description = p.Description,
+                            Required = true,
+                        }),
+                        OutputSchema = ConvertToOutputSchema(query.Identifier, query.Description, query.ResultColumns),
+                        ExecuteAsync = async (sp, u, queryParams) =>
                         {
-                            throw new UnauthorizedAccessException("User is not authorized to access this entity.");
-                        }
-                        
-                        var result = await genericProvider.QueryAsync<dynamic>(tenant, entityData, capturedQueryIdentifier, userId, claims, queryParams);
+                            var missingParams = capturedRequiredParams
+                                .Where(p => !queryParams.ContainsKey(p))
+                                .ToList();
 
-                        return new ToolResult
-                        {
-                            StructuredContent = JsonSerializer.SerializeToElement(new { results = result }, JsonSchemaDefaults.SerializerOptions),
-                        };
-                    },
-                });
-            }
-            
-            var aiEnabledByIdQueries = entityMetadata?.ByIdQuery.Where(q => q.AiEnabled).ToList() ?? []; 
+                            if (missingParams.Count > 0)
+                            {
+                                throw new ArgumentException(
+                                    $"Missing required query parameters: {string.Join(", ", missingParams)}");
+                            }
 
-            foreach (var query in aiEnabledByIdQueries)
-            {
-                var capturedEntityIdentifier = entity.Identifier;
-                var capturedQueryIdentifier = query.Identifier;
-                var capturedRequiredParams = query.Parameters.Select(p => p.Name).ToList();
+                            var utils = sp.GetRequiredService<IPrincipalUtils>();
+                            var metadata = sp.GetRequiredService<IMetadataAdapter>();
+                            var genericProvider = sp.GetRequiredService<ITenantGenericProvider>();
+                            var tenantRightsChecker = sp.GetRequiredService<ITenantRightsChecker>();
+                            var entityRightsChecker = sp.GetRequiredService<IEntityRightsChecker>();
 
-                tools.Add(new Tool()
+                            var tid = utils.GetUserTenandId(u);
+                            var userId = utils.GetUserId(u);
+                            var claims = utils.GetUserClaims(u);
+
+                            var tenant = await metadata.MetadataForTenantByIdAsync(tid)
+                                ?? throw new InvalidOperationException("Tenant not found.");
+                            var entityData = await metadata.MetadataForEntityByTenantAndIdentifierAsync(tid, capturedEntityIdentifier)
+                                ?? throw new InvalidOperationException($"Entity '{capturedEntityIdentifier}' not found.");
+
+                            var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, entityData.Application, entityData.Identifier, claims, "view");
+                            var authorized = await entityRightsChecker.HasRightAsync(tenantId, entityData, claims, "view", new Dictionary<string, object>(), tenantAuthorized);
+
+                            if (!authorized)
+                            {
+                                throw new UnauthorizedAccessException("User is not authorized to access this entity.");
+                            }
+                            
+                            var result = await genericProvider.QueryAsync<dynamic>(tenant, entityData, capturedQueryIdentifier, userId, claims, queryParams);
+
+                            return new ToolResult
+                            {
+                                StructuredContent = JsonSerializer.SerializeToElement(new { results = result }, JsonSchemaDefaults.SerializerOptions),
+                            };
+                        },
+                    });
+                }
+                
+                var aiEnabledByIdQueries = entityMetadata?.ByIdQuery.Where(q => q.AiEnabled).ToList() ?? []; 
+
+                foreach (var query in aiEnabledByIdQueries)
                 {
-                    Name = $"generic.{entity.Application}.{entity.Identifier}.byid.{query.Identifier}",
-                    Description = query.Description,
-                    Params = query.Parameters.Select(p => new ToolParam()
+                    var capturedEntityIdentifier = entity.Identifier;
+                    var capturedQueryIdentifier = query.Identifier;
+                    var capturedRequiredParams = query.Parameters.Select(p => p.Name).ToList();
+
+                    tools.Add(new Tool()
                     {
-                        Name = p.Name,
-                        Type = ConvertToToolParamType(p.Type),
-                        Description = p.Description,
-                        Required = true,
-                    }),
-                    OutputSchema = ConvertToOutputSchema(query.Identifier, query.Description, query.ResultColumns),
-                    ExecuteAsync = async (sp, u, queryParams) =>
-                    {
-                        var missingParams = capturedRequiredParams
-                            .Where(p => !queryParams.ContainsKey(p))
-                            .ToList();
-
-                        if (missingParams.Count > 0)
+                        Name = $"generic.{entity.Application}.{entity.Identifier}.byid.{query.Identifier}",
+                        Description = query.Description,
+                        Params = query.Parameters.Select(p => new ToolParam()
                         {
-                            throw new ArgumentException(
-                                $"Missing required query parameters: {string.Join(", ", missingParams)}");
-                        }
-
-                        var utils = sp.GetRequiredService<IPrincipalUtils>();
-                        var metadata = sp.GetRequiredService<IMetadataAdapter>();
-                        var genericProvider = sp.GetRequiredService<ITenantGenericProvider>();
-                        var tenantRightsChecker = sp.GetRequiredService<ITenantRightsChecker>();
-                        var entityRightsChecker = sp.GetRequiredService<IEntityRightsChecker>();
-
-                        var tid = utils.GetUserTenandId(u);
-                        var userId = utils.GetUserId(u);
-                        var claims = utils.GetUserClaims(u);
-
-                        var tenant = await metadata.MetadataForTenantByIdAsync(tid)
-                            ?? throw new InvalidOperationException("Tenant not found.");
-                        var entityData = await metadata.MetadataForEntityByTenantAndIdentifierAsync(tid, capturedEntityIdentifier)
-                            ?? throw new InvalidOperationException($"Entity '{capturedEntityIdentifier}' not found.");
-
-                        var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, entityData.Application, entityData.Identifier, claims, "view");
-                        var authorized = await entityRightsChecker.HasRightAsync(tenantId, entityData, claims, "view", new Dictionary<string, object>(), tenantAuthorized);
-
-                        if (!authorized)
+                            Name = p.Name,
+                            Type = ConvertToToolParamType(p.Type),
+                            Description = p.Description,
+                            Required = true,
+                        }),
+                        OutputSchema = ConvertToOutputSchema(query.Identifier, query.Description, query.ResultColumns),
+                        ExecuteAsync = async (sp, u, queryParams) =>
                         {
-                            throw new UnauthorizedAccessException("User is not authorized to access this entity.");
-                        }
+                            var missingParams = capturedRequiredParams
+                                .Where(p => !queryParams.ContainsKey(p))
+                                .ToList();
 
-                        if (!queryParams.ContainsKey("id") || !Guid.TryParse(queryParams["id"] as string, out Guid id))
-                        {
-                            throw new ArgumentException("Missing or invalid id parameter.");
-                        }
-                        
-                        var result = await genericProvider.ByIdAsync<dynamic>(tenant, entityData, capturedQueryIdentifier, userId, claims, id);
+                            if (missingParams.Count > 0)
+                            {
+                                throw new ArgumentException(
+                                    $"Missing required query parameters: {string.Join(", ", missingParams)}");
+                            }
 
-                        if (result == null)
-                        {
-                            throw new ArgumentException("Item not found.");
-                        }
-                        
-                        return new ToolResult
-                        {
-                            StructuredContent = JsonSerializer.SerializeToElement(new { results = result }, JsonSchemaDefaults.SerializerOptions),
-                        };
-                    },
-                });
-            }
+                            var utils = sp.GetRequiredService<IPrincipalUtils>();
+                            var metadata = sp.GetRequiredService<IMetadataAdapter>();
+                            var genericProvider = sp.GetRequiredService<ITenantGenericProvider>();
+                            var tenantRightsChecker = sp.GetRequiredService<ITenantRightsChecker>();
+                            var entityRightsChecker = sp.GetRequiredService<IEntityRightsChecker>();
+
+                            var tid = utils.GetUserTenandId(u);
+                            var userId = utils.GetUserId(u);
+                            var claims = utils.GetUserClaims(u);
+
+                            var tenant = await metadata.MetadataForTenantByIdAsync(tid)
+                                ?? throw new InvalidOperationException("Tenant not found.");
+                            var entityData = await metadata.MetadataForEntityByTenantAndIdentifierAsync(tid, capturedEntityIdentifier)
+                                ?? throw new InvalidOperationException($"Entity '{capturedEntityIdentifier}' not found.");
+
+                            var tenantAuthorized = await tenantRightsChecker.HasRightAsync(tenant, entityData.Application, entityData.Identifier, claims, "view");
+                            var authorized = await entityRightsChecker.HasRightAsync(tenantId, entityData, claims, "view", new Dictionary<string, object>(), tenantAuthorized);
+
+                            if (!authorized)
+                            {
+                                throw new UnauthorizedAccessException("User is not authorized to access this entity.");
+                            }
+
+                            if (!queryParams.ContainsKey("id") || !Guid.TryParse(queryParams["id"] as string, out Guid id))
+                            {
+                                throw new ArgumentException("Missing or invalid id parameter.");
+                            }
+                            
+                            var result = await genericProvider.ByIdAsync<dynamic>(tenant, entityData, capturedQueryIdentifier, userId, claims, id);
+
+                            if (result == null)
+                            {
+                                throw new ArgumentException("Item not found.");
+                            }
+                            
+                            return new ToolResult
+                            {
+                                StructuredContent = JsonSerializer.SerializeToElement(new { results = result }, JsonSchemaDefaults.SerializerOptions),
+                            };
+                        },
+                    });
+                }
+            }    
         }
         
         return tools;

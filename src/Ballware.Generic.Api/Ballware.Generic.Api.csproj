@@ -18,7 +18,7 @@
 
     <ItemGroup>
       <PackageReference Include="Mapster" Version="7.4.0" />
-      <PackageReference Include="Ballware.Shared.Authorization" Version="1.2.0-alpha.14" />
+      <PackageReference Include="Ballware.Shared.Authorization" Version="1.2.0" />
       <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="Quartz" Version="3.8.1" />
