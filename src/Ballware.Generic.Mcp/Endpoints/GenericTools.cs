@@ -53,7 +53,7 @@ public static class EntityTools
 
                     tools.Add(new Tool()
                     {
-                        Name = $"generic.{tenantId}.{entity.Identifier}.query.{query.Identifier}",
+                        Name = $"generic_{tenantId}_{entity.Identifier}_query_{query.Identifier}",
                         Description = query.Description ?? "",
                         Params = query.Parameters.Select(p => new ToolParam()
                         {
@@ -118,7 +118,7 @@ public static class EntityTools
 
                     tools.Add(new Tool()
                     {
-                        Name = $"generic.{entity.Application}.{entity.Identifier}.byid.{query.Identifier}",
+                        Name = $"generic_{entity.Application}_{entity.Identifier}_byid_{query.Identifier}",
                         Description = query.Description ?? "",
                         Params = query.Parameters.Select(p => new ToolParam()
                         {
