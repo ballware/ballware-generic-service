@@ -29,7 +29,7 @@ jobs:
       - name: Ensure tool manifest exists & install local tools
         run: |
           dotnet new tool-manifest || true
-          dotnet tool update Swashbuckle.AspNetCore.Cli --version 7.2.0
+          dotnet tool update Swashbuckle.AspNetCore.Cli --version 10.3.0
           dotnet tool update Nswag.ConsoleCore
       - name: Fetch GitVersion
         id: gitversion
