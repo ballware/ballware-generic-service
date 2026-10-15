@@ -77,7 +77,9 @@ public static class TenantDataEndpoint
             schemaDefinition.Provider = tenantConnectionProvider;
             schemaDefinition.ConnectionString = tenantConnectionString;
 
-            foreach (var table in schemaDefinition.Tables.Where(t => !string.IsNullOrEmpty(t.Entity)))
+            var extendedTables = schemaDefinition.Tables.Where(t => !string.IsNullOrEmpty(t.Entity)).ToList();
+            
+            foreach (var table in extendedTables)
             {
                 var entityMeta = await metadataAdapter.MetadataForEntityByTenantAndIdentifierAsync(tenantId, table.Entity);
 
@@ -88,6 +90,8 @@ public static class TenantDataEndpoint
                         TenantPlaceholderOptions.Create().WithReplaceTenantId()).GetAwaiter().GetResult();    
                 }
             }
+
+            schemaDefinition.Tables = extendedTables;
 
             schemaDefinitions.Add(schemaDefinition);
         }
