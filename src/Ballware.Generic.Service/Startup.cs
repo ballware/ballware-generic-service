@@ -40,7 +40,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Quartz;
 using CorsOptions = Ballware.Generic.Service.Configuration.CorsOptions;
 using SwaggerOptions = Ballware.Generic.Service.Configuration.SwaggerOptions;
@@ -258,7 +258,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 client.ClientId = ClientId.Parse(metaClientOptions.ClientId);
                 client.ClientSecret = ClientSecret.Parse(metaClientOptions.ClientSecret);
 
-                client.Scope = Scope.Parse(metaClientOptions.Scopes);
+                client.Scope = Duende.AccessTokenManagement.Scope.Parse(metaClientOptions.Scopes);
             })
             .AddClient("storage", client =>
             {
@@ -267,7 +267,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 client.ClientId = ClientId.Parse(storageClientOptions.ClientId);
                 client.ClientSecret = ClientSecret.Parse(storageClientOptions.ClientSecret);
 
-                client.Scope = Scope.Parse(storageClientOptions.Scopes);
+                client.Scope = Duende.AccessTokenManagement.Scope.Parse(storageClientOptions.Scopes);
             })
             .AddClient("ml", client =>
             {
@@ -276,7 +276,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 client.ClientId = ClientId.Parse(mlClientOptions.ClientId);
                 client.ClientSecret = ClientSecret.Parse(mlClientOptions.ClientSecret);
 
-                client.Scope = Scope.Parse(mlClientOptions.Scopes);
+                client.Scope = Duende.AccessTokenManagement.Scope.Parse(mlClientOptions.Scopes);
             });
         
         Services.AddHttpClient<MetaServiceClient>(client =>
@@ -409,19 +409,19 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         {
             Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("generic", new Microsoft.OpenApi.Models.OpenApiInfo
+                c.SwaggerDoc("generic", new Microsoft.OpenApi.OpenApiInfo
                 {
                     Title = "ballware Generic API",
                     Version = "v1"
                 });
                 
-                c.SwaggerDoc("service", new Microsoft.OpenApi.Models.OpenApiInfo
+                c.SwaggerDoc("service", new Microsoft.OpenApi.OpenApiInfo
                 {
                     Title = "ballware Service API",
                     Version = "v1"
                 });
                 
-                c.SwaggerDoc("schema", new Microsoft.OpenApi.Models.OpenApiInfo
+                c.SwaggerDoc("schema", new Microsoft.OpenApi.OpenApiInfo
                 {
                     Title = "ballware Schema API",
                     Version = "v1"
@@ -431,17 +431,15 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
                 c.AddSecurityDefinition("oidc", new OpenApiSecurityScheme
                 {
-                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.OpenIdConnect,
+                    Type = Microsoft.OpenApi.SecuritySchemeType.OpenIdConnect,
                     OpenIdConnectUrl = new Uri(authorizationOptions.Authority + "/.well-known/openid-configuration")
                 });
 
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                c.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
                 {
                     {
-                        new OpenApiSecurityScheme {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oidc" }
-                        },
-                        swaggerOptions.RequiredScopes.Split(" ")
+                        new OpenApiSecuritySchemeReference("oidc"),
+                        swaggerOptions.RequiredScopes.Split(" ").ToList()
                     }
                 });
             });
