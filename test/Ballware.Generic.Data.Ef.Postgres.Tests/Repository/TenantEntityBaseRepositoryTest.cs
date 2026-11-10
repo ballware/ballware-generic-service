@@ -1,6 +1,8 @@
 using System.Collections.Immutable;
 using Ballware.Generic.Data.Ef.Configuration;
 using Ballware.Generic.Data.Repository;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -74,9 +76,10 @@ public class TenantEntityBaseRepositoryTest : RepositoryBaseTest
         var storageOptions = PreparedBuilder.Configuration.GetSection("Storage").Get<StorageOptions>();
         
         builder.Services.AddBallwareTenantStorageForPostgres(storageOptions, MasterConnectionString);
-        builder.Services.AddAutoMapper(config =>
-        {
-            config.AddBallwareTenantStorageMappings();
-        });
+        var mapsterConfig = new TypeAdapterConfig()
+            .AddBallwareTenantStorageMappings();
+        
+        PreparedBuilder.Services.AddSingleton(mapsterConfig);
+        PreparedBuilder.Services.AddScoped<IMapper, ServiceMapper>();
     }
 }

@@ -8,6 +8,7 @@ using Ballware.Generic.Data.Ef.Configuration;
 using Ballware.Generic.Data.Ef.Postgres;
 using Ballware.Generic.Data.Ef.SqlServer;
 using Ballware.Generic.Jobs;
+using Ballware.Generic.Mcp.Endpoints;
 using Ballware.Generic.Metadata;
 using Ballware.Generic.Scripting.Jint;
 using Ballware.Generic.Service.Adapter;
@@ -20,7 +21,13 @@ using Ballware.Generic.Tenant.Data.SqlServer;
 using Ballware.Generic.Tenant.Data.SqlServer.Configuration;
 using Ballware.Meta.Service.Client;
 using Ballware.Ml.Service.Client;
+using Ballware.Shared.Mcp;
+using Ballware.Shared.Mcp.Endpoints;
+using Ballware.Shared.Mcp.Endpoints.Configuration;
 using Ballware.Storage.Service.Client;
+using Duende.AccessTokenManagement;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -30,9 +37,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Quartz;
 using CorsOptions = Ballware.Generic.Service.Configuration.CorsOptions;
 using SwaggerOptions = Ballware.Generic.Service.Configuration.SwaggerOptions;
@@ -58,6 +66,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         TenantStorageOptions? tenantStorageOptions = Configuration.GetSection("TenantStorage").Get<TenantStorageOptions>();
         PostgresTenantStorageOptions? postgresTenantStorageOptions = Configuration.GetSection("PostgresTenantStorage").Get<PostgresTenantStorageOptions>();
         SqlServerTenantStorageOptions? sqlServerTenantStorageOptions = Configuration.GetSection("SqlServerTenantStorage").Get<SqlServerTenantStorageOptions>();
+        McpEndpointOptions? mcpOptions = Configuration.GetSection("Mcp").Get<McpEndpointOptions>();
         CacheOptions? cacheOptions = Configuration.GetSection("Cache").Get<CacheOptions>();
         SwaggerOptions? swaggerOptions = Configuration.GetSection("Swagger").Get<SwaggerOptions>();
         ServiceClientOptions? metaClientOptions = Configuration.GetSection("MetaClient").Get<ServiceClientOptions>();
@@ -75,6 +84,10 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddOptionsWithValidateOnStart<TenantStorageOptions>()
             .Bind(Configuration.GetSection("TenantStorage"))
             .ValidateDataAnnotations();        
+        
+        Services.AddOptionsWithValidateOnStart<McpEndpointOptions>()
+            .Bind(Configuration.GetSection("Mcp"))
+            .ValidateDataAnnotations();
         
         Services.AddOptionsWithValidateOnStart<Ballware.Generic.Caching.Configuration.CacheOptions>()
             .Bind(Configuration.GetSection("Cache"))
@@ -110,6 +123,15 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         if (!validProviders.Contains(tenantStorageOptions.Provider))
         {
             throw new ConfigurationException("Invalid tenant storage provider specified. Valid providers are: " + string.Join(", ", validProviders));
+        }
+        
+        if (mcpOptions == null)
+        {
+            mcpOptions = new McpEndpointOptions()
+            {
+                RequiredMcpScope = authorizationOptions.RequiredMetaScope,
+                ResourceUri = string.Empty
+            };
         }
         
         if (cacheOptions == null)
@@ -231,30 +253,30 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         Services.AddClientCredentialsTokenManagement()
             .AddClient("meta", client =>
             {
-                client.TokenEndpoint = metaClientOptions.TokenEndpoint;
+                client.TokenEndpoint = new Uri(metaClientOptions.TokenEndpoint);
 
-                client.ClientId = metaClientOptions.ClientId;
-                client.ClientSecret = metaClientOptions.ClientSecret;
+                client.ClientId = ClientId.Parse(metaClientOptions.ClientId);
+                client.ClientSecret = ClientSecret.Parse(metaClientOptions.ClientSecret);
 
-                client.Scope = metaClientOptions.Scopes;
+                client.Scope = Duende.AccessTokenManagement.Scope.Parse(metaClientOptions.Scopes);
             })
             .AddClient("storage", client =>
             {
-                client.TokenEndpoint = storageClientOptions.TokenEndpoint;
+                client.TokenEndpoint = new Uri(storageClientOptions.TokenEndpoint);
 
-                client.ClientId = storageClientOptions.ClientId;
-                client.ClientSecret = storageClientOptions.ClientSecret;
+                client.ClientId = ClientId.Parse(storageClientOptions.ClientId);
+                client.ClientSecret = ClientSecret.Parse(storageClientOptions.ClientSecret);
 
-                client.Scope = storageClientOptions.Scopes;
+                client.Scope = Duende.AccessTokenManagement.Scope.Parse(storageClientOptions.Scopes);
             })
             .AddClient("ml", client =>
             {
-                client.TokenEndpoint = mlClientOptions.TokenEndpoint;
+                client.TokenEndpoint = new Uri(mlClientOptions.TokenEndpoint);
 
-                client.ClientId = mlClientOptions.ClientId;
-                client.ClientSecret = mlClientOptions.ClientSecret;
+                client.ClientId = ClientId.Parse(mlClientOptions.ClientId);
+                client.ClientSecret = ClientSecret.Parse(mlClientOptions.ClientSecret);
 
-                client.Scope = mlClientOptions.Scopes;
+                client.Scope = Duende.AccessTokenManagement.Scope.Parse(mlClientOptions.Scopes);
             });
         
         Services.AddHttpClient<MetaServiceClient>(client =>
@@ -267,7 +289,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             })
 #endif                  
-            .AddClientCredentialsTokenHandler("meta");
+            .AddClientCredentialsTokenHandler(ClientCredentialsClientName.Parse("meta"));
 
         Services.AddHttpClient<StorageServiceClient>(client =>
             {
@@ -279,7 +301,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             })
 #endif            
-            .AddClientCredentialsTokenHandler("storage");
+            .AddClientCredentialsTokenHandler(ClientCredentialsClientName.Parse("storage"));
         
         Services.AddHttpClient<MlServiceClient>(client =>
             {
@@ -291,14 +313,16 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                 ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             })
 #endif                        
-            .AddClientCredentialsTokenHandler("ml");
+            .AddClientCredentialsTokenHandler(ClientCredentialsClientName.Parse("ml"));
         
-        Services.AddAutoMapper(config =>
-        {
-            config.AddBallwareTenantStorageMappings();
-            config.AddProfile<MetaServiceGenericMetadataProfile>();
-        });
-
+        var mapsterConfig = new TypeAdapterConfig()
+            .AddBallwareTenantStorageMappings();
+        
+        new MetaServiceGenericMetadataProfile().Register(mapsterConfig);
+        
+        Services.AddSingleton(mapsterConfig);
+        Services.AddScoped<IMapper, ServiceMapper>();
+        
         Services.AddScoped<IMetadataAdapter, MetaServiceMetadataAdapter>();
         Services.AddScoped<IMlAdapter, MlServiceMlAdapter>();
         Services.AddScoped<IGenericFileStorageAdapter, StorageServiceFileStorageAdapter>();
@@ -372,25 +396,32 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
             }
         });
 
+        Services.AddBallwareMcpTools((serviceProvider, registry) =>
+        {
+            registry.RegisterBallwareGenericTools();
+        });
+        
+        Services.AddBallwareMcpEndpoint(mcpOptions);
+        
         Services.AddEndpointsApiExplorer();
         
         if (swaggerOptions != null)
         {
             Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("generic", new Microsoft.OpenApi.Models.OpenApiInfo
+                c.SwaggerDoc("generic", new Microsoft.OpenApi.OpenApiInfo
                 {
                     Title = "ballware Generic API",
                     Version = "v1"
                 });
                 
-                c.SwaggerDoc("service", new Microsoft.OpenApi.Models.OpenApiInfo
+                c.SwaggerDoc("service", new Microsoft.OpenApi.OpenApiInfo
                 {
                     Title = "ballware Service API",
                     Version = "v1"
                 });
                 
-                c.SwaggerDoc("schema", new Microsoft.OpenApi.Models.OpenApiInfo
+                c.SwaggerDoc("schema", new Microsoft.OpenApi.OpenApiInfo
                 {
                     Title = "ballware Schema API",
                     Version = "v1"
@@ -400,17 +431,15 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
 
                 c.AddSecurityDefinition("oidc", new OpenApiSecurityScheme
                 {
-                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.OpenIdConnect,
+                    Type = Microsoft.OpenApi.SecuritySchemeType.OpenIdConnect,
                     OpenIdConnectUrl = new Uri(authorizationOptions.Authority + "/.well-known/openid-configuration")
                 });
 
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                c.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
                 {
                     {
-                        new OpenApiSecurityScheme {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oidc" }
-                        },
-                        swaggerOptions.RequiredScopes.Split(" ")
+                        new OpenApiSecuritySchemeReference("oidc"),
+                        swaggerOptions.RequiredScopes.Split(" ").ToList()
                     }
                 });
             });
@@ -466,10 +495,20 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
         app.MapGenericDataApi("/generic");
         
         app.MapTenantServiceSchemaApi("/api/tenant");
-
+        
+        var mcpEndpointOptions = app.Services.GetService<IOptions<McpEndpointOptions>>()?.Value;
+        
         var authorizationOptions = app.Services.GetService<IOptions<AuthorizationOptions>>()?.Value;
         var swaggerOptions = app.Services.GetService<IOptions<SwaggerOptions>>()?.Value;
 
+        if (mcpEndpointOptions != null && mcpEndpointOptions.Enabled)
+        {
+            var logger = app.Services.GetService<ILogger<Startup>>();
+            
+            logger?.LogDebug("Enabling MCP endpoint at /generic/mcp");
+            app.MapBallwareUserMcpEndpoint("/generic/mcp", mcpEndpointOptions);
+        }
+        
         if (swaggerOptions != null && authorizationOptions != null)
         {
             app.MapSwagger();

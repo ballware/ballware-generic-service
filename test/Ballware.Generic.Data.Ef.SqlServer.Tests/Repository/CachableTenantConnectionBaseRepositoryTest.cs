@@ -4,6 +4,8 @@ using Ballware.Generic.Caching;
 using Ballware.Generic.Data.Ef.Configuration;
 using Ballware.Generic.Data.Public;
 using Ballware.Generic.Data.Repository;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -101,9 +103,10 @@ public class CachableTenantConnectionBaseRepositoryTest : RepositoryBaseTest
         builder.Services.AddSingleton(DistributedCacheMock.Object);
         
         builder.Services.AddBallwareTenantStorageForSqlServer(storageOptions, MasterConnectionString);
-        builder.Services.AddAutoMapper(config =>
-        {
-            config.AddBallwareTenantStorageMappings();
-        });
+        var mapsterConfig = new TypeAdapterConfig()
+            .AddBallwareTenantStorageMappings();
+        
+        PreparedBuilder.Services.AddSingleton(mapsterConfig);
+        PreparedBuilder.Services.AddScoped<IMapper, ServiceMapper>();
     }
 }

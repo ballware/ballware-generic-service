@@ -9,7 +9,7 @@ jobs:
   build_and_pack:
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/dotnet/sdk:8.0
+      image: mcr.microsoft.com/dotnet/sdk:10.0
     outputs:
       semver: ${{ steps.gitversion.outputs.SemVer }}
     steps:
@@ -29,7 +29,7 @@ jobs:
       - name: Ensure tool manifest exists & install local tools
         run: |
           dotnet new tool-manifest || true
-          dotnet tool update Swashbuckle.AspNetCore.Cli --version 7.2.0
+          dotnet tool update Swashbuckle.AspNetCore.Cli --version 10.3.0
           dotnet tool update Nswag.ConsoleCore
       - name: Fetch GitVersion
         id: gitversion
@@ -54,11 +54,11 @@ jobs:
         run: |
           dotnet tool run swagger tofile \
             --output ../Ballware.Generic.Service.Client/swagger.json \
-            ./bin/Release/net8.0/Ballware.Generic.Service.dll \
+            ./bin/Release/net10.0/Ballware.Generic.Service.dll \
             service
           dotnet tool run swagger tofile \
             --output ../Ballware.Generic.Schema.Client/swagger.json \
-            ./bin/Release/net8.0/Ballware.Generic.Service.dll \
+            ./bin/Release/net10.0/Ballware.Generic.Service.dll \
             schema
       - name: Generate service client code
         working-directory: src/Ballware.Generic.Service.Client

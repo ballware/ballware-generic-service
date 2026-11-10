@@ -50,6 +50,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Service.Cl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Schema.Client", "src\Ballware.Generic.Schema.Client\Ballware.Generic.Schema.Client.csproj", "{1684EECB-0748-4F7C-9CF4-B7C6B52C2F63}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ballware.Generic.Mcp", "src\Ballware.Generic.Mcp\Ballware.Generic.Mcp.csproj", "{5438A707-3000-464F-832F-0C847B18D380}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -156,5 +158,9 @@ Global
 		{1684EECB-0748-4F7C-9CF4-B7C6B52C2F63}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1684EECB-0748-4F7C-9CF4-B7C6B52C2F63}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1684EECB-0748-4F7C-9CF4-B7C6B52C2F63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5438A707-3000-464F-832F-0C847B18D380}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5438A707-3000-464F-832F-0C847B18D380}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5438A707-3000-464F-832F-0C847B18D380}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5438A707-3000-464F-832F-0C847B18D380}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

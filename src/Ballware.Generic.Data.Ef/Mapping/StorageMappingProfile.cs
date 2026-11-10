@@ -1,23 +1,23 @@
-using AutoMapper;
+using Mapster;
 
 namespace Ballware.Generic.Data.Ef.Mapping;
 
-class StorageMappingProfile : Profile
+class StorageMappingProfile : IRegister
 {
-    public StorageMappingProfile()
+    public void Register(TypeAdapterConfig config)
     {
-        CreateMap<Public.TenantConnection, Persistables.TenantConnection>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
-
-        CreateMap<Persistables.TenantConnection, Public.TenantConnection>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
+        config.NewConfig<Public.TenantConnection, Persistables.TenantConnection>()
+            .Ignore(dest => dest.Id!)
+            .Map(dest => dest.Uuid, src => src.Id);
         
-        CreateMap<Public.TenantEntity, Persistables.TenantEntity>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Uuid, opt => opt.MapFrom(src => src.Id));
-
-        CreateMap<Persistables.TenantEntity, Public.TenantEntity>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Uuid));
+        config.NewConfig<Persistables.TenantConnection, Public.TenantConnection>()
+            .Map(dest => dest.Id, src => src.Uuid);
+        
+        config.NewConfig<Public.TenantEntity, Persistables.TenantEntity>()
+            .Ignore(dest => dest.Id!)
+            .Map(dest => dest.Uuid, src => src.Id);
+        
+        config.NewConfig<Persistables.TenantEntity, Public.TenantEntity>()
+            .Map(dest => dest.Id, src => src.Uuid);
     }
 }

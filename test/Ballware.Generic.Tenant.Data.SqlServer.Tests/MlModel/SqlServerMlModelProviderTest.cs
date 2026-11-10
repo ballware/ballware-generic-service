@@ -228,14 +228,10 @@ public class SqlServerMlModelProviderTest : DatabaseBackedBaseTest
         }
         
         var mlModelprovider = new SqlServerMlModelProvider(new SqlServerStorageProvider(ConnectionRepositoryMock.Object));
-
-        var mlModel = new Metadata.MlModel()
-        {
-            TrainSql = "select Uuid as Id, Name, AdditionalParam from testentity where TenantId=@tenantId order by Name",
-        };
+        var trainSql = "select Uuid as Id, Name, AdditionalParam from testentity where TenantId=@tenantId order by Name";
         
         // Act
-        var actualList = (await mlModelprovider.TrainDataByModelAsync<MlModelTrainEntry>(Tenant, mlModel)).ToList();
+        var actualList = (await mlModelprovider.TrainDataByPlainQueryAsync<MlModelTrainEntry>(Tenant, trainSql)).ToList();
         
         // Assert
         Assert.Multiple(() =>

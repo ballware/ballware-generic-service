@@ -1,6 +1,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using Dapper;
+using NanoidDotNet;
 using Npgsql;
 
 namespace Ballware.Generic.Tenant.Data.Postgres.Internal;
@@ -39,7 +40,19 @@ static class PostgresDbConnectionExtensions
             return index.IndexName;
         }
 
-        return $"{(index.Unique ? "uidx" : "idx")}_{tableName}_{string.Join("_", index.ColumnNames).ToLowerInvariant()}";
+        var preferredIndexName =
+            $"{(index.Unique ? "uidx" : "idx")}_{tableName}_{string.Join("_", index.ColumnNames).ToLowerInvariant()}";
+
+        if (preferredIndexName.Length > 63)
+        {
+            var indexPrefix = $"{(index.Unique ? "uidx" : "idx")}_{tableName}_";
+            
+            var remainingLength = 63 - indexPrefix.Length;
+            
+            return $"{(index.Unique ? "uidx" : "idx")}_{tableName}_{Nanoid.Generate(alphabet: Nanoid.Alphabets.LowercaseLettersAndDigits, size: Math.Min(remainingLength, 20))}";
+        }
+        
+        return preferredIndexName;
     }
 
     private static string CreateMandatoryColumns(bool noIdentity)
@@ -97,11 +110,16 @@ static class PostgresDbConnectionExtensions
         PostgresValidator.ValidateTableAndColumnIdentifier(existing.ColumnName, nameof(existing.ColumnName));
         PostgresValidator.ValidateTableAndColumnIdentifier(changed.ColumnName, nameof(changed.ColumnName));
         
-        if (existing.ColumnType != changed.ColumnType || existing.Nullable != changed.Nullable ||
-            existing.MaxLength != changed.MaxLength)
+        var existingColumnTypeDefinition = CreateColumnTypeDefinition(existing);
+        var changedColumnTypeDefinition = CreateColumnTypeDefinition(changed);
+        
+        if (existingColumnTypeDefinition != changedColumnTypeDefinition) 
         {
             db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{changed.ColumnName}\" TYPE {CreateColumnTypeDefinition(changed)}");  // NOSONAR - S2077 Validation existing
-            
+        }
+
+        if (existing.Nullable != changed.Nullable)
+        {
             if (!changed.Nullable)
             {
                 db.Execute($"ALTER TABLE \"{table}\" ALTER COLUMN \"{changed.ColumnName}\" SET NOT NULL");  // NOSONAR - S2077 Validation existing

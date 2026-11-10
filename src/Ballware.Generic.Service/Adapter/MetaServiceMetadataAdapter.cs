@@ -1,8 +1,7 @@
-using AutoMapper;
+using MapsterMapper;
 using Ballware.Generic.Metadata;
 using JobCreatePayload = Ballware.Generic.Metadata.JobCreatePayload;
 using JobUpdatePayload = Ballware.Generic.Metadata.JobUpdatePayload;
-using MlModel = Ballware.Generic.Metadata.MlModel;
 using ProcessingStateSelectListEntry = Ballware.Generic.Metadata.ProcessingStateSelectListEntry;
 
 namespace Ballware.Generic.Service.Adapter;
@@ -23,9 +22,16 @@ public class MetaServiceMetadataAdapter : IMetadataAdapter
         return Mapper.Map<Metadata.Tenant>(await MetaClient.TenantServiceMetadataAsync(tenantId));
     }
 
+    public async Task<IEnumerable<EntitySelectListEntry>> SelectListForEntityAsync(Guid tenantId)
+    {
+        return Mapper.Map<IEnumerable<Metadata.EntitySelectListEntry>>(await MetaClient.EntitySelectListForTenantAsync(tenantId));
+    }
+
     public async Task<Entity?> MetadataForEntityByTenantAndIdentifierAsync(Guid tenantId, string identifier)
     {
-        return Mapper.Map<Entity?>(await MetaClient.EntityServiceMetadataForTenantByIdentifierAsync(tenantId, identifier));
+        var rawEntity = await MetaClient.EntityServiceMetadataForTenantByIdentifierAsync(tenantId, identifier);
+        
+        return Mapper.Map<Entity?>(rawEntity);
     }
 
     public async Task<Lookup?> MetadataForLookupByTenantAndIdAsync(Guid tenantId, Guid id)
@@ -41,11 +47,6 @@ public class MetaServiceMetadataAdapter : IMetadataAdapter
     public async Task<IEnumerable<Lookup>> MetadataForLookupsByTenantAsync(Guid tenantId)
     {
         return Mapper.Map<IEnumerable<Lookup>>(await MetaClient.LookupMetadataForTenantAsync(tenantId));
-    }
-
-    public async Task<MlModel?> MetadataForMlModelByTenantAndIdAsync(Guid tenantId, Guid id)
-    {
-        return Mapper.Map<MlModel?>(await MetaClient.MlModelMetadataByTenantAndIdAsync(tenantId, id));
     }
 
     public async Task<Statistic?> MetadataForStatisticByTenantAndIdentifierAsync(Guid tenantId, string identifier)
@@ -66,16 +67,6 @@ public class MetaServiceMetadataAdapter : IMetadataAdapter
     public ProcessingState? SingleProcessingStateForTenantAndEntityByValue(Guid tenant, string entity, int state)
     {
         return Mapper.Map<ProcessingState>(MetaClient.ProcessingStateSelectByStateForTenantAndEntityByIdentifier(tenant, entity, state));
-    }
-
-    public Notification? MetadataForNotificationByTenantAndIdentifier(Guid tenant, string identifier)
-    {
-        return Mapper.Map<Notification>(MetaClient.NotificationMetadataByTenantAndIdentifier(tenant, identifier));
-    }
-
-    public void CreateNotificationTriggerForTenantBehalfOfUser(Guid tenant, Guid userId, NotificationTriggerCreatePayload payload)
-    {
-        MetaClient.NotificationTriggerCreateForTenantBehalfOfUser(tenant, userId, Mapper.Map<Ballware.Meta.Service.Client.NotificationTriggerCreatePayload>(payload));
     }
 
     public async Task<Guid?> CreateJobForTenantBehalfOfUserAsync(Guid tenant, Guid userId, JobCreatePayload payload)

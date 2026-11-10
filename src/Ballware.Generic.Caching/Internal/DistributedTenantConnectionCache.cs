@@ -26,11 +26,11 @@ class DistributedTenantConnectionCache : ITenantConnectionCache
         
         if (cachedSerializedItem != null)
         {
-            Logger.LogDebug("Cache hit for {TenantId}", tenantId);
+            Logger.LogTrace("Cache hit for {TenantId}", tenantId);
             return JsonConvert.DeserializeObject<TenantConnection>(cachedSerializedItem);
         }
         
-        Logger.LogDebug("Cache fail for {TenantId}", tenantId);
+        Logger.LogTrace("Cache fail for {TenantId}", tenantId);
         
         return null;
     }
@@ -50,13 +50,13 @@ class DistributedTenantConnectionCache : ITenantConnectionCache
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(Options.CacheExpirationHours)
             });
         
-        Logger.LogDebug("Cache update for {TenantId}", tenantId);
+        Logger.LogTrace("Cache update for {TenantId}", tenantId);
     }
 
     public void PurgeItem(Guid tenantId)
     {
         Cache.Remove(tenantId.ToString());
 
-        Logger.LogDebug("Cache purge for {TenantId}", tenantId);
+        Logger.LogTrace("Cache purge for {TenantId}", tenantId);
     }
 }

@@ -8,19 +8,17 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)
-    .Enrich.FromLogContext()
-    .CreateLogger();
-
 var environment = builder.Environment;
 
-builder.Host.UseSerilog();
 builder.Configuration.Sources.Clear();
 builder.Configuration.AddJsonFile("appsettings.json", true, true);
 builder.Configuration.AddJsonFile($"appsettings.{environment.EnvironmentName}.json", true, true);
 builder.Configuration.AddJsonFile($"appsettings.local.json", true, true);
 builder.Configuration.AddEnvironmentVariables();
+
+builder.Host.UseSerilog((ctx, _, config) => config
+    .ReadFrom.Configuration(ctx.Configuration)
+    .Enrich.FromLogContext());
 
 builder.Services.Configure<KestrelServerOptions>(builder.Configuration.GetSection("Kestrel"));
 

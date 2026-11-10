@@ -20,9 +20,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with: 
           dotnet-version: 
-            8.0
-      - name: Install dotCover CLI
-        run: dotnet tool install --global JetBrains.dotCover.CommandLineTools --version 2025.1.7
+            10.0
           
       - name: Install SonarQube
         run: dotnet tool install --global dotnet-sonarscanner
@@ -33,7 +31,7 @@ jobs:
             /k:"ballware_ballware-generic-service" \
             /o:"ballware" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.cs.dotcover.reportsPaths="coverage.html" \
+            /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" \
             /d:sonar.exclusions="**/Migrations/**/*"
           
       - name: Restore dependencies
@@ -49,33 +47,12 @@ jobs:
         run: dotnet build ballware-generic-service.sln --no-incremental --configuration Release
 
       - name: Run coverage for all test projects
+        env:
+          TestSettings__DatabasePassword: ${{ secrets.TEST_TENANT_PASSWORD }}
         run: |
-          mkdir -p coverage
-          export TestSettings__DatabasePassword='${{ secrets.TEST_TENANT_PASSWORD }}'
-          i=0
-          find ./test -name '*.Tests.csproj' | while read project; do
-            echo "Running coverage for: $project"
-            dotCover cover \
-              --TargetExecutable="/usr/bin/dotnet" \
-              --TargetArguments="test $project --configuration Release --logger trx" \
-              --Output="coverage/project_$i.dcvr" \
-              --ReturnTargetExitCode
-            ((i=i+1))
-          done
+          dotnet test ballware-generic-service.sln --no-build --configuration Release \
+            --collect:"XPlat Code Coverage" \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
-      - name: Merge coverage snapshots
-        run: |
-          snapshots=$(find coverage -name '*.dcvr' | paste -sd ';' -)
-          dotCover merge \
-            --Source="$snapshots" \
-            --Output="coverage.dcvr"
-          
-      - name: Generate HTML report for SonarCloud
-        run: |
-          dotCover report \
-            --Source="coverage.dcvr" \
-            --Output="coverage.html" \
-            --ReportType=HTML           
-        
       - name: End SonarQube scan
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}" 
