@@ -1,4 +1,12 @@
 # ballware-generic-service
+[![Build & Publish (main)](https://github.com/ballware/ballware-generic-service/actions/workflows/publish-packages.yml/badge.svg?branch=main)](https://github.com/ballware/ballware-generic-service/actions/workflows/publish-packages.yml)
+[![CI Tests (main)](https://github.com/ballware/ballware-generic-service/actions/workflows/sonarqube-latest.yml/badge.svg?branch=main)](https://github.com/ballware/ballware-generic-service/actions/workflows/sonarqube-latest.yml)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ballware_ballware-generic-service&metric=coverage)](https://sonarcloud.io/summary/overall?id=ballware_ballware-generic-service)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ballware_ballware-generic-service&metric=bugs)](https://sonarcloud.io/summary/overall?id=ballware_ballware-generic-service)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=ballware_ballware-generic-service&metric=vulnerabilities)](https://sonarcloud.io/summary/overall?id=ballware_ballware-generic-service)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ballware_ballware-generic-service&metric=security_rating)](https://sonarcloud.io/summary/overall?id=ballware_ballware-generic-service)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=ballware_ballware-generic-service&metric=reliability_rating)](https://sonarcloud.io/summary/overall?id=ballware_ballware-generic-service)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ballware_ballware-generic-service&metric=sqale_rating)](https://sonarcloud.io/summary/overall?id=ballware_ballware-generic-service)
 
 **ballware Generic Service** is the generic data engine of the ballware platform. It exposes a metadata-driven REST API and an MCP (Model Context Protocol) endpoint that let applications and AI agents query, edit, import, export, and manage tenant-owned business data in a multi-tenant database — without any application-specific code.
 
