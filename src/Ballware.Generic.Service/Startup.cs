@@ -45,6 +45,7 @@ using Quartz;
 using CorsOptions = Ballware.Generic.Service.Configuration.CorsOptions;
 using SwaggerOptions = Ballware.Generic.Service.Configuration.SwaggerOptions;
 using Serilog;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Ballware.Generic.Service;
 
@@ -426,6 +427,12 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                     Title = "ballware Schema API",
                     Version = "v1"
                 });
+                
+                c.SwaggerDoc("meta", new Microsoft.OpenApi.OpenApiInfo
+                {
+                    Title = "ballware Generic Meta API",
+                    Version = "v1"
+                });
 
                 c.EnableAnnotations();
 
@@ -435,13 +442,7 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                     OpenIdConnectUrl = new Uri(authorizationOptions.Authority + "/.well-known/openid-configuration")
                 });
 
-                c.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecuritySchemeReference("oidc"),
-                        swaggerOptions.RequiredScopes.Split(" ").ToList()
-                    }
-                });
+                c.AddOperationFilterInstance(new GroupScopeSecurityFilter(authorizationOptions!));
             });
         }
     }
@@ -522,13 +523,71 @@ public class Startup(IWebHostEnvironment environment, ConfigurationManager confi
                     c.SwaggerEndpoint("generic/swagger.json", "ballware Generic API");
                     c.SwaggerEndpoint("service/swagger.json", "ballware Service API");
                     c.SwaggerEndpoint("schema/swagger.json", "ballware Schema API");
+                    c.SwaggerEndpoint("meta/swagger.json", "ballware Generic Meta API");
 
                     c.OAuthClientId(swaggerOptions.ClientId);
                     c.OAuthClientSecret(swaggerOptions.ClientSecret);
-                    c.OAuthScopes(swaggerOptions.RequiredScopes?.Split(" "));
+                    c.OAuthScopes(RequiredUiScopes(swaggerOptions, authorizationOptions).ToArray());
                     c.OAuthUsePkce();
                 });
             }
         }
+    }
+
+    private static IEnumerable<string> RequiredUiScopes(SwaggerOptions swaggerOptions, AuthorizationOptions authorizationOptions)
+    {
+        var scopes = new List<string>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var scope in (swaggerOptions.RequiredScopes ?? string.Empty).Split(" ", StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (seen.Add(scope))
+            {
+                scopes.Add(scope);
+            }
+        }
+
+        foreach (var scope in new[]
+                 {
+                     authorizationOptions.RequiredMetaScope,
+                     authorizationOptions.RequiredServiceScope,
+                     authorizationOptions.RequiredSchemaScope
+                 })
+        {
+            if (seen.Add(scope))
+            {
+                scopes.Add(scope);
+            }
+        }
+
+        return scopes;
+    }
+}
+
+/// <summary>
+/// Declares the OpenIdConnect security requirement per operation, derived from the authorization
+/// policy of the API explorer group the operation belongs to, instead of one global requirement.
+/// </summary>
+public class GroupScopeSecurityFilter(AuthorizationOptions authorizationOptions) : IOperationFilter
+{
+    public void Apply(OpenApiOperation operation, OperationFilterContext context)
+    {
+        var requiredScope = context.ApiDescription.GroupName switch
+        {
+            "service" => authorizationOptions.RequiredServiceScope,
+            "schema" => authorizationOptions.RequiredSchemaScope,
+            _ => authorizationOptions.RequiredMetaScope
+        };
+
+        operation.Security =
+        [
+            new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecuritySchemeReference("oidc", context.Document),
+                    new List<string> { "openid", requiredScope }
+                }
+            }
+        ];
     }
 }

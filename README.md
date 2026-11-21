@@ -30,6 +30,7 @@ Entities, queries, lookups, statistics, state machines, and rights are described
   - [Scripting & Business Logic](#scripting--business-logic)
   - [Background Jobs & Import/Export](#background-jobs--importexport)
   - [Caching](#caching)
+- [Documentation](#documentation)
 - [Configuration](#configuration)
 - [Technology Stack](#technology-stack)
 - [Build, Run & Test](#build-run--test)
@@ -107,7 +108,7 @@ Mounted at `/generic` (authorization policy `genericApi`). Operates on metadata-
 
 | Method | Route | Description |
 |---|---|---|
-| GET | `/generic/{application}/{entity}/all` | Query all items (`identifier` defaults to `primary`, right `view`) |
+| GET | `/generic/{application}/{entity}/all` | Query all items (`identifier` is a required query parameter; unknown identifiers fall back to the `primary` query internally, right `view`) |
 | GET | `/generic/{application}/{entity}/query` | Query items by query identifier and parameters |
 | GET | `/generic/{application}/{entity}/count` | Count items for a query → `{ "count": n }` |
 | GET | `/generic/{application}/{entity}/new` | New-item template (right `add`) |
@@ -136,7 +137,12 @@ Mounted in Startup: `/tenant/lookup` (lookup user + service), `/tenent/mlmodel` 
   - `POST /createorupdateschemafortenant/{tenantId}` — create/align the complete tenant schema (diff-based: types, functions, tables, views, ad-hoc statements)
   - `DELETE /dropschemafortenant/{tenantId}` — drop tenant schema, tenant user, and the tenant connection record
 
-Three Swagger documents are published — **ballware Generic API** (`generic`), **ballware Service API** (`service`), **ballware Schema API** (`schema`) — with an OIDC security scheme (`.well-known/openid-configuration`) and an optional SwaggerUI with OAuth/PKCE (`Swagger.EnableClient`).
+Four Swagger documents are published — **ballware Generic API** (`generic`), **ballware Service API**
+(`service`), **ballware Schema API** (`schema`) and **ballware Generic Meta API** (`meta`) — each with
+an OIDC security scheme (`.well-known/openid-configuration`), a per-operation scope requirement, and
+an optional SwaggerUI with OAuth/PKCE (`Swagger.EnableClient`). Raw documents are served at
+`/swagger/generic|meta|service|schema/swagger.json`; committed snapshots of all four live in
+[docs/openapi/](docs/openapi/). See [docs/README.md](docs/README.md).
 
 ### Multi-Tenancy Model
 
@@ -186,6 +192,27 @@ JavaScript (Jint) hooks are defined on the metadata and executed around data ope
 
 ---
 
+## Documentation
+
+[docs/README.md](docs/README.md) is the entry point for the service documentation — the backend view
+of the generic data engine, focused on API calls and data payloads:
+
+- **Concepts**: architecture, tenancy & authorization, multi-tenancy & provisioning, metadata-driven
+  execution, data integration & jobs, MCP endpoint.
+- **API pages**: [docs/api/README.md](docs/api/README.md) (documents, groups/tags/operationIds,
+  `identifier` semantics, payload conventions) plus one page per document
+  ([generic](docs/api/generic-api.md), [meta](docs/api/meta-api.md), [service](docs/api/service-api.md),
+  [schema](docs/api/schema-api.md)), [schema field tables](docs/api/schemas.md) and
+  [curl examples](docs/api/examples.md).
+- **OpenAPI snapshots**: [docs/openapi/](docs/openapi/) holds committed `generic.json` (13 paths),
+  `meta.json` (12), `service.json` (3) and `schema.json` (4) with `manifest.json` provenance;
+  regenerate manually with [docs/openapi/fetch-spec.sh](docs/openapi/fetch-spec.sh)
+  (see [docs/openapi/README.md](docs/openapi/README.md)).
+- **Best practices**: [docs/best-practices/metadata-driven-payloads.md](docs/best-practices/metadata-driven-payloads.md)
+  — anonymized conventions for metadata-defined queries, saves, imports/exports and state changes.
+
+---
+
 ## Configuration
 
 Configuration sources (in order): `appsettings.json` → `appsettings.{Environment}.json` → `appsettings.local.json` → **environment variables** (double underscore = hierarchy, e.g. `Authorization__Authority`). Options are bound with `ValidateOnStart` + DataAnnotations; invalid configuration aborts startup. Secrets should be supplied via environment variables or secret stores — never committed.
@@ -223,7 +250,7 @@ Required at startup: `Authorization`, `Storage`, `TenantStorage` (with valid pro
 | Auth | JWT Bearer / OIDC, `Duende.AccessTokenManagement` (client credentials), scope policies, script-based rights checks |
 | MCP | `Ballware.Shared.Mcp*` packages + NJsonSchema for tool schemas |
 | Mapping/serialization | Mapster, Newtonsoft.Json |
-| API docs | Swashbuckle.AspNetCore (3 documents), NSwag (generated service clients) |
+| API docs | Swashbuckle.AspNetCore (4 documents: `generic`, `meta`, `service`, `schema`), NSwag (generated service clients) |
 | Logging | Serilog (console sink, request logging) |
 | Caching | `IDistributedCache` — Redis (StackExchangeRedis) or in-memory |
 | Import/export | CsvHelper; temporary files via the ballware storage service |

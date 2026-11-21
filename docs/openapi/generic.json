@@ -1,0 +1,887 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "ballware Generic API",
+    "version": "v1"
+  },
+  "paths": {
+    "/generic/{application}/{entity}/all": {
+      "get": {
+        "tags": [
+          "Generic"
+        ],
+        "summary": "Query all",
+        "operationId": "GenericAll",
+        "parameters": [
+          {
+            "name": "application",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/generic/{application}/{entity}/query": {
+      "get": {
+        "tags": [
+          "Generic"
+        ],
+        "summary": "Query items of generic entity by query identifier and params",
+        "operationId": "GenericQuery",
+        "parameters": [
+          {
+            "name": "application",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/generic/{application}/{entity}/count": {
+      "get": {
+        "tags": [
+          "Generic"
+        ],
+        "summary": "Count items of generic entity by query identifier and params",
+        "operationId": "GenericCount",
+        "parameters": [
+          {
+            "name": "application",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CountResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/generic/{application}/{entity}/new": {
+      "get": {
+        "tags": [
+          "Generic"
+        ],
+        "summary": "Fetch new item template for entity by identifier",
+        "operationId": "GenericNew",
+        "parameters": [
+          {
+            "name": "application",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/generic/{application}/{entity}/newquery": {
+      "get": {
+        "tags": [
+          "Generic"
+        ],
+        "summary": "Fetch new item template for entity by identifier with params",
+        "operationId": "GenericNewQuery",
+        "parameters": [
+          {
+            "name": "application",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/generic/{application}/{entity}/byid": {
+      "get": {
+        "tags": [
+          "Generic"
+        ],
+        "summary": "Query item by id",
+        "operationId": "GenericById",
+        "parameters": [
+          {
+            "name": "application",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/generic/{application}/{entity}/save": {
+      "post": {
+        "tags": [
+          "Generic"
+        ],
+        "summary": "Save item",
+        "operationId": "GenericSave",
+        "parameters": [
+          {
+            "name": "application",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/generic/{application}/{entity}/savebatch": {
+      "post": {
+        "tags": [
+          "Generic"
+        ],
+        "summary": "Save list of items for entity by identifier",
+        "operationId": "GenericSaveBatch",
+        "parameters": [
+          {
+            "name": "application",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/generic/{application}/{entity}/remove/{id}": {
+      "delete": {
+        "tags": [
+          "Generic"
+        ],
+        "summary": "Remove item",
+        "operationId": "GenericRemove",
+        "parameters": [
+          {
+            "name": "application",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/generic/{application}/{entity}/import": {
+      "post": {
+        "tags": [
+          "Generic"
+        ],
+        "summary": "Import from file",
+        "operationId": "GenericImport",
+        "parameters": [
+          {
+            "name": "application",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "files"
+                ],
+                "type": "object",
+                "properties": {
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              },
+              "encoding": {
+                "files": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/generic/{application}/{entity}/export": {
+      "get": {
+        "tags": [
+          "Generic"
+        ],
+        "summary": "Export by query",
+        "operationId": "GenericExport",
+        "parameters": [
+          {
+            "name": "application",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/generic/{application}/{entity}/exporturl": {
+      "post": {
+        "tags": [
+          "Generic"
+        ],
+        "summary": "Export to file by query",
+        "operationId": "GenericExportUrl",
+        "parameters": [
+          {
+            "name": "application",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/StringStringValuesKeyValuePair"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportUrlResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/generic/{application}/{entity}/download/{tenantId}/{id}": {
+      "get": {
+        "tags": [
+          "Generic"
+        ],
+        "summary": "Download exported",
+        "operationId": "GenericDownload",
+        "parameters": [
+          {
+            "name": "application",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CountResult": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExportUrlResult": {
+        "type": "object",
+        "properties": {
+          "TenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "StringStringValuesKeyValuePair": {
+        "type": "object",
+        "properties": {
+          "Key": {
+            "type": "string",
+            "nullable": true
+          },
+          "Value": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "oidc": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://localhost/.well-known/openid-configuration"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Generic"
+    }
+  ]
+}

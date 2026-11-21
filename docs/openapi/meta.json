@@ -1,0 +1,639 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "ballware Generic Meta API",
+    "version": "v1"
+  },
+  "paths": {
+    "/tenant/lookup/selectlistforlookup/{lookupId}": {
+      "get": {
+        "tags": [
+          "Lookup"
+        ],
+        "summary": "Query entries for lookup by id",
+        "operationId": "LookupSelectListForLookupId",
+        "parameters": [
+          {
+            "name": "lookupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/lookup/selectbyidforlookup/{lookupId}/{id}": {
+      "get": {
+        "tags": [
+          "Lookup"
+        ],
+        "summary": "Query single entry for lookup by id",
+        "operationId": "LookupSelectByIdForLookupId",
+        "parameters": [
+          {
+            "name": "lookupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/lookup/selectlistforlookupidentifier/{identifier}": {
+      "get": {
+        "tags": [
+          "Lookup"
+        ],
+        "summary": "Query entries for lookup by identifier",
+        "operationId": "LookupSelectListForLookupIdentifier",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/lookup/selectbyidforlookupidentifier/{identifier}/{id}": {
+      "get": {
+        "tags": [
+          "Lookup"
+        ],
+        "summary": "Query single entry for lookup by identifier",
+        "operationId": "LookupSelectByIdForLookupIdentifier",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/lookup/selectlistforlookupwithparam/{lookupId}/{param}": {
+      "get": {
+        "tags": [
+          "Lookup"
+        ],
+        "summary": "Query entries for lookup with param by id",
+        "operationId": "LookupSelectListForLookupIdAndParam",
+        "parameters": [
+          {
+            "name": "lookupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "param",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/lookup/selectbyidforlookupwithparam/{lookupId}/{param}/{id}": {
+      "get": {
+        "tags": [
+          "Lookup"
+        ],
+        "summary": "Query single entry for lookup with param by id",
+        "operationId": "LookupSelectByIdForLookupIdAndParam",
+        "parameters": [
+          {
+            "name": "lookupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "param",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/lookup/autocompleteforlookup/{lookupId}": {
+      "get": {
+        "tags": [
+          "Lookup"
+        ],
+        "summary": "Query autocomplete entries for lookup by id",
+        "operationId": "LookupAutocompleteForLookupId",
+        "parameters": [
+          {
+            "name": "lookupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/lookup/autocompleteforlookupwithparam/{lookupId}/{param}": {
+      "get": {
+        "tags": [
+          "Lookup"
+        ],
+        "summary": "Query autocomplete entries for lookup by id with param",
+        "operationId": "LookupAutocompleteForLookupIdWithParam",
+        "parameters": [
+          {
+            "name": "lookupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "param",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/processingstate/selectlistallowedsuccessorsforentity/{entity}/{id}": {
+      "get": {
+        "tags": [
+          "ProcessingState"
+        ],
+        "summary": "Query all possible successor processing states for entity by identifier and instance id",
+        "operationId": "ProcessingStateSelectListAllSuccessorsForEntityByIdentifierAndId",
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProcessingStateSelectListEntry"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/processingstate/selectlistallowedsuccessorsforentities/{entity}": {
+      "get": {
+        "tags": [
+          "ProcessingState"
+        ],
+        "summary": "Query all possible successor processing states for entity by identifier and instance ids",
+        "operationId": "ProcessingStateSelectListAllSuccessorsForEntityByIdentifierAndIds",
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProcessingStateSelectListEntry"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/processingstate/isstateallowedforentity/{entity}/{state}/{id}": {
+      "get": {
+        "tags": [
+          "ProcessingState"
+        ],
+        "summary": "Query specific processing state allowed for entity by object id",
+        "operationId": "ProcessingStateIsStateAllowedForEntityByIdentifierStateAndId",
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/statistic/dataforidentifier/{identifier}": {
+      "get": {
+        "tags": [
+          "Statistic"
+        ],
+        "summary": "Query data payload for statistic by identifier",
+        "operationId": "StatisticPayloadByIdentifier",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "metaApi"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ProcessingStateSelectListEntry": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Name": {
+            "type": "string",
+            "nullable": true
+          },
+          "State": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "oidc": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://localhost/.well-known/openid-configuration"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Lookup"
+    },
+    {
+      "name": "ProcessingState"
+    },
+    {
+      "name": "Statistic"
+    }
+  ]
+}
