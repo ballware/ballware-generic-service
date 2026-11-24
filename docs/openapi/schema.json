@@ -1,0 +1,251 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "ballware Schema API",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/tenant/createorupdateentityschemafortenant/{tenantId}": {
+      "post": {
+        "tags": [
+          "Tenant"
+        ],
+        "summary": "Create or update entity schema in tenant database",
+        "operationId": "TenantCreateOrUpdateEntitySchemaForTenant",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntitySchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "schemaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/tenant/dropentityschemafortenant/{tenantId}/{identifier}": {
+      "delete": {
+        "tags": [
+          "Tenant"
+        ],
+        "summary": "Drop entity schema in tenant database by identifier",
+        "operationId": "TenantDropEntitySchemaForTenant",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "schemaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/tenant/createorupdateschemafortenant/{tenantId}": {
+      "post": {
+        "tags": [
+          "Tenant"
+        ],
+        "summary": "Create or update schema in tenant database",
+        "operationId": "TenantCreateOrUpdateSchemaForTenant",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "schemaApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/tenant/dropschemafortenant/{tenantId}": {
+      "delete": {
+        "tags": [
+          "Tenant"
+        ],
+        "summary": "Drop schema in tenant database",
+        "operationId": "TenantDropSchemaForTenant",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "schemaApi"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "EntitySchema": {
+        "required": [
+          "SerializedEntityModel"
+        ],
+        "type": "object",
+        "properties": {
+          "UserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "SerializedEntityModel": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TenantSchema": {
+        "required": [
+          "Provider",
+          "SerializedTenantModel"
+        ],
+        "type": "object",
+        "properties": {
+          "UserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "Provider": {
+            "type": "string",
+            "nullable": true
+          },
+          "SerializedTenantModel": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "oidc": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://localhost/.well-known/openid-configuration"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Tenant"
+    }
+  ]
+}

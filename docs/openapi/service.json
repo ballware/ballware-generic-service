@@ -1,0 +1,284 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "ballware Service API",
+    "version": "v1"
+  },
+  "paths": {
+    "/tenant/lookup/columnvaluebytenantandidforlookup/{tenantId}/{lookupId}/{id}/{column}": {
+      "get": {
+        "tags": [
+          "Lookup"
+        ],
+        "summary": "Query single column value for lookup by tenant and id",
+        "operationId": "LookupSelectColumnValueByIdForTenantAndLookupId",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "lookupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "column",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "serviceApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenent/mlmodel/trainingdatabytenantandplainquery/{tenantId}": {
+      "post": {
+        "tags": [
+          "MlModel"
+        ],
+        "summary": "Query model training data by tenant and sql query",
+        "operationId": "MlModelTrainingDataByTenantAndPlainQuery",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "serviceApi"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/tenant/reportdatasourcesfortenant/{tenantId}": {
+      "get": {
+        "tags": [
+          "Tenant"
+        ],
+        "summary": "Query report datasources for tenant",
+        "operationId": "TenantReportDatasources",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReportDatasourceDefinition"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "oidc": [
+              "openid",
+              "serviceApi"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ReportDatasourceDefinition": {
+        "required": [
+          "ConnectionString",
+          "Name",
+          "Provider",
+          "Tables"
+        ],
+        "type": "object",
+        "properties": {
+          "Provider": {
+            "type": "string",
+            "nullable": true
+          },
+          "Name": {
+            "type": "string",
+            "nullable": true
+          },
+          "ConnectionString": {
+            "type": "string",
+            "nullable": true
+          },
+          "Tables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReportDatasourceTable"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReportDatasourceRelation": {
+        "required": [
+          "ChildColumn",
+          "ChildTable",
+          "MasterColumn",
+          "Name"
+        ],
+        "type": "object",
+        "properties": {
+          "Name": {
+            "type": "string",
+            "nullable": true
+          },
+          "ChildTable": {
+            "type": "string",
+            "nullable": true
+          },
+          "MasterColumn": {
+            "type": "string",
+            "nullable": true
+          },
+          "ChildColumn": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReportDatasourceTable": {
+        "required": [
+          "Name",
+          "Query"
+        ],
+        "type": "object",
+        "properties": {
+          "Name": {
+            "type": "string",
+            "nullable": true
+          },
+          "Entity": {
+            "type": "string",
+            "nullable": true
+          },
+          "Query": {
+            "type": "string",
+            "nullable": true
+          },
+          "Relations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReportDatasourceRelation"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "oidc": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://localhost/.well-known/openid-configuration"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Lookup"
+    },
+    {
+      "name": "MlModel"
+    },
+    {
+      "name": "Tenant"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "source": "Swashbuckle.AspNetCore.Cli swagger tofile",
+  "toolVersion": "10.3.0",
+  "environment": "Swagger",
+  "serviceVersion": "v0.2.0-130-g869fe23-dirty",
+  "fetchedAt": "2026-11-21T13:39:50Z",
+  "documents": {
+    "generic": {
+      "file": "generic.json",
+      "openapi": "3.0.4",
+      "title": "ballware Generic API",
+      "pathCount": 13,
+      "schemaCount": 3
+    },
+    "meta": {
+      "file": "meta.json",
+      "openapi": "3.0.4",
+      "title": "ballware Generic Meta API",
+      "pathCount": 12,
+      "schemaCount": 1
+    },
+    "service": {
+      "file": "service.json",
+      "openapi": "3.0.4",
+      "title": "ballware Service API",
+      "pathCount": 3,
+      "schemaCount": 3
+    },
+    "schema": {
+      "file": "schema.json",
+      "openapi": "3.0.4",
+      "title": "ballware Schema API",
+      "pathCount": 4,
+      "schemaCount": 2
+    }
+  }
+}

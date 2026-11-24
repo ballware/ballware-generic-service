@@ -92,7 +92,7 @@ public static class GenericDataEndpoint
             .WithName(apiOperationPrefix + "ById")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
-            .WithSummary("Query existing tenant");
+            .WithSummary("Query item by id");
         
         app.MapPost(basePath + "/{application}/{entity}/save", HandleSaveAsync)
             .RequireAuthorization(authorizationScope)
@@ -103,7 +103,7 @@ public static class GenericDataEndpoint
             .WithName(apiOperationPrefix + "Save")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
-            .WithSummary("Save existing or new tenant");
+            .WithSummary("Save item");
         
         app.MapPost(basePath + "/{application}/{entity}/savebatch", HandleSaveBatchAsync)
             .RequireAuthorization(authorizationScope)
@@ -125,7 +125,7 @@ public static class GenericDataEndpoint
             .WithName(apiOperationPrefix + "Remove")
             .WithGroupName(apiGroup)
             .WithTags(apiTag)
-            .WithSummary("Query existing tenant");
+            .WithSummary("Remove item");
         
         app.MapPost(basePath + "/{application}/{entity}/import", HandleImportAsync)
             .RequireAuthorization(authorizationScope)
